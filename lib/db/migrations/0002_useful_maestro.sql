@@ -1,0 +1,1 @@
+ALTER TABLE "files" ALTER COLUMN "mime_type" DROP NOT NULL;
