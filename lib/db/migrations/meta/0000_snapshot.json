@@ -1,5 +1,5 @@
 {
-  "id": "dbfe3a2e-5bb1-4940-81bf-d0327ab5dc1a",
+  "id": "d08c90bf-970c-495f-840c-b62cb2de240e",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -14,23 +14,35 @@
           "primaryKey": true,
           "notNull": true
         },
-        "bucket": {
-          "name": "bucket",
-          "type": "varchar(64)",
-          "primaryKey": false,
-          "notNull": true
-        },
         "file_name": {
           "name": "file_name",
-          "type": "varchar(128)",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
         },
         "original_name": {
           "name": "original_name",
-          "type": "varchar(128)",
+          "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "mime_type": {
+          "name": "mime_type",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "size": {
+          "name": "size",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "embedding": {
+          "name": "embedding",
+          "type": "vector(1536)",
+          "primaryKey": false,
+          "notNull": false
         },
         "created_at": {
           "name": "created_at",
@@ -38,26 +50,29 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "size": {
-          "name": "size",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
         }
       },
-      "indexes": {},
+      "indexes": {
+        "files_embedding_idx": {
+          "name": "files_embedding_idx",
+          "columns": [
+            {
+              "expression": "embedding",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last",
+              "opclass": "vector_cosine_ops"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "hnsw",
+          "with": {}
+        }
+      },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "files_file_name_unique": {
-          "name": "files_file_name_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "file_name"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
