@@ -18,6 +18,7 @@ export async function getFilesList() {
         originalName: file.originalName,
         size: file.size,
         mimeType: file.mimeType,
+        uploadType: file.uploadType,
         lastModified: file.createdAt,
       })),
     };

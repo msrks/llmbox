@@ -8,6 +8,13 @@ import {
   index,
 } from "drizzle-orm/pg-core";
 
+export const UploadType = {
+  MANUAL: "manual",
+  API: "api",
+} as const;
+
+export type UploadType = (typeof UploadType)[keyof typeof UploadType];
+
 export const files = pgTable(
   "files",
   {
@@ -16,6 +23,9 @@ export const files = pgTable(
     originalName: text("original_name").notNull(),
     mimeType: text("mime_type"),
     size: integer("size").notNull(),
+    uploadType: text("upload_type", { enum: ["manual", "api"] })
+      .notNull()
+      .default("manual"),
     embedding: vector("embedding", { dimensions: 1536 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },

@@ -20,6 +20,7 @@ interface FileInfo {
   originalName: string;
   size: number;
   mimeType: string | null;
+  uploadType: string;
   lastModified: Date;
 }
 
@@ -123,6 +124,7 @@ export default function Home() {
                   <TableHead>Preview</TableHead>
                   <TableHead>Original Name</TableHead>
                   <TableHead>Size</TableHead>
+                  <TableHead>Upload Type</TableHead>
                   <TableHead>Upload Date</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -170,6 +172,9 @@ export default function Home() {
                       {file.originalName}
                     </TableCell>
                     <TableCell>{(file.size / 1024).toFixed(2)} KB</TableCell>
+                    <TableCell>
+                      <span className="capitalize">{file.uploadType}</span>
+                    </TableCell>
                     <TableCell>
                       {new Date(file.lastModified).toLocaleString()}
                     </TableCell>
