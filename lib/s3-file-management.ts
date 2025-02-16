@@ -86,3 +86,21 @@ export async function listFilesInBucket(bucketName: string) {
 
   return fileList;
 }
+
+export async function generatePresignedUrl(
+  bucketName: string,
+  fileName: string
+) {
+  try {
+    // Generate presigned URL that expires in 1 hour (3600 seconds)
+    const presignedUrl = await s3Client.presignedGetObject(
+      bucketName,
+      fileName,
+      3600
+    );
+    return presignedUrl;
+  } catch (error) {
+    console.error("Error generating presigned URL:", error);
+    throw error;
+  }
+}

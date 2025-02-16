@@ -1,12 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { getFilesList } from "./actions";
+import { getFilesList, getFileDownloadUrl, getFilePreviewUrl } from "./actions";
+import Image from "next/image";
 
 interface FileInfo {
+  id: number;
   name: string;
   originalName: string;
   size: number;
+  mimeType: string | null;
   lastModified: Date;
 }
 
@@ -16,10 +19,28 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [files, setFiles] = useState<FileInfo[]>([]);
   const [loadingFiles, setLoadingFiles] = useState(true);
+  const [previewUrls, setPreviewUrls] = useState<Record<number, string>>({});
 
   useEffect(() => {
     fetchFiles();
   }, []);
+
+  useEffect(() => {
+    fetchPreviewUrls();
+  }, [files]);
+
+  const fetchPreviewUrls = async () => {
+    const newPreviewUrls: Record<number, string> = {};
+    for (const file of files) {
+      if (isImageFile(file.mimeType)) {
+        const result = await getFilePreviewUrl(file.id);
+        if (!("error" in result)) {
+          newPreviewUrls[file.id] = result.url;
+        }
+      }
+    }
+    setPreviewUrls(newPreviewUrls);
+  };
 
   const fetchFiles = async () => {
     try {
@@ -72,6 +93,30 @@ export default function Home() {
     }
   };
 
+  const handleDownload = async (fileId: number, originalName: string) => {
+    try {
+      const result = await getFileDownloadUrl(fileId);
+      if ("error" in result) {
+        setError(result.error || "Failed to generate download URL");
+        return;
+      }
+
+      // Create a temporary link to trigger the download
+      const link = document.createElement("a");
+      link.href = result.url;
+      link.download = originalName; // Set the download filename to the original name
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Download failed");
+    }
+  };
+
+  const isImageFile = (mimeType: string | null) => {
+    return mimeType?.startsWith("image/") || false;
+  };
+
   return (
     <div className="p-8">
       <form onSubmit={handleSubmit} className="max-w-md space-y-4">
@@ -119,10 +164,10 @@ export default function Home() {
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Original Name
+                    Preview
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Stored Name
+                    Original Name
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Size
@@ -130,22 +175,68 @@ export default function Home() {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Upload Date
                   </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
                 {files.map((file) => (
-                  <tr key={file.name}>
+                  <tr key={file.id}>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      {isImageFile(file.mimeType) ? (
+                        <div className="w-16 h-16 relative">
+                          {previewUrls[file.id] ? (
+                            <Image
+                              src={previewUrls[file.id]}
+                              alt={file.originalName}
+                              fill
+                              className="object-contain"
+                            />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                              <span className="text-sm text-gray-400">
+                                Loading...
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="w-16 h-16 flex items-center justify-center bg-gray-100 text-gray-400">
+                          <svg
+                            className="w-8 h-8"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
+                            />
+                          </svg>
+                        </div>
+                      )}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {file.originalName}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {file.name}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {(file.size / 1024).toFixed(2)} KB
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                       {new Date(file.lastModified).toLocaleString()}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <button
+                        onClick={() =>
+                          handleDownload(file.id, file.originalName)
+                        }
+                        className="text-blue-600 hover:text-blue-900"
+                      >
+                        Download
+                      </button>
                     </td>
                   </tr>
                 ))}
