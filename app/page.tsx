@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { getFilesList, getFileDownloadUrl, getFilePreviewUrl } from "./actions";
+import { useChat } from "ai/react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,6 +31,15 @@ export default function Home() {
   const [files, setFiles] = useState<FileInfo[]>([]);
   const [loadingFiles, setLoadingFiles] = useState(true);
   const [previewUrls, setPreviewUrls] = useState<Record<number, string>>({});
+
+  const {
+    messages,
+    input,
+    handleInputChange,
+    handleSubmit: handleChatSubmit,
+  } = useChat({
+    api: "/api/chat",
+  });
 
   const isImageFile = useCallback((mimeType: string | null) => {
     return mimeType?.startsWith("image/") || false;
@@ -232,6 +242,41 @@ export default function Home() {
             </Table>
           </div>
         )}
+      </div>
+
+      <div className="max-w-2xl mx-auto border rounded-lg p-4 space-y-4">
+        <h2 className="text-2xl font-semibold tracking-tight">Chat</h2>
+
+        <div className="h-[400px] overflow-y-auto space-y-4 mb-4">
+          {messages.map((message, i) => (
+            <div
+              key={i}
+              className={`flex ${
+                message.role === "assistant" ? "justify-start" : "justify-end"
+              }`}
+            >
+              <div
+                className={`max-w-[80%] rounded-lg p-3 ${
+                  message.role === "assistant"
+                    ? "bg-muted"
+                    : "bg-primary text-primary-foreground"
+                }`}
+              >
+                {message.content}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <form onSubmit={handleChatSubmit} className="flex gap-2">
+          <Input
+            value={input}
+            onChange={handleInputChange}
+            placeholder="Type your message..."
+            className="flex-1"
+          />
+          <Button type="submit">Send</Button>
+        </form>
       </div>
     </div>
   );
