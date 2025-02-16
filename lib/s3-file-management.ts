@@ -104,3 +104,16 @@ export async function generatePresignedUrl(
     throw error;
   }
 }
+
+export async function deleteFileFromBucket(
+  bucketName: string,
+  fileName: string
+) {
+  try {
+    await s3Client.removeObject(bucketName, fileName);
+    return true;
+  } catch (error) {
+    console.error("Error deleting file from S3:", error);
+    throw error;
+  }
+}

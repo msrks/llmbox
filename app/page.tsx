@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { getFilesList, getFileDownloadUrl, getFilePreviewUrl } from "./actions";
+import {
+  getFilesList,
+  getFileDownloadUrl,
+  getFilePreviewUrl,
+  deleteFile,
+} from "./actions";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -87,6 +92,24 @@ export default function Home() {
       document.body.removeChild(link);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Download failed");
+    }
+  };
+
+  const handleDelete = async (fileId: number) => {
+    if (!confirm("Are you sure you want to delete this file?")) {
+      return;
+    }
+
+    try {
+      const result = await deleteFile(fileId);
+      if ("error" in result) {
+        setError(result.error || "Failed to delete file");
+        return;
+      }
+      // Refresh the file list after successful deletion
+      fetchFiles();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Delete failed");
     }
   };
 
@@ -179,14 +202,23 @@ export default function Home() {
                       {new Date(file.lastModified).toLocaleString()}
                     </TableCell>
                     <TableCell>
-                      <Button
-                        variant="ghost"
-                        onClick={() =>
-                          handleDownload(file.id, file.originalName)
-                        }
-                      >
-                        Download
-                      </Button>
+                      <div className="space-x-2">
+                        <Button
+                          variant="ghost"
+                          onClick={() =>
+                            handleDownload(file.id, file.originalName)
+                          }
+                        >
+                          Download
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          onClick={() => handleDelete(file.id)}
+                          className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
+                        >
+                          Delete
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
