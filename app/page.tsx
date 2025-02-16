@@ -1,8 +1,18 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { getFilesList, getFileDownloadUrl, getFilePreviewUrl } from "./actions";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface FileInfo {
   id: number;
@@ -21,15 +31,15 @@ export default function Home() {
   const [loadingFiles, setLoadingFiles] = useState(true);
   const [previewUrls, setPreviewUrls] = useState<Record<number, string>>({});
 
+  const isImageFile = useCallback((mimeType: string | null) => {
+    return mimeType?.startsWith("image/") || false;
+  }, []);
+
   useEffect(() => {
     fetchFiles();
   }, []);
 
-  useEffect(() => {
-    fetchPreviewUrls();
-  }, [files]);
-
-  const fetchPreviewUrls = async () => {
+  const fetchPreviewUrls = useCallback(async () => {
     const newPreviewUrls: Record<number, string> = {};
     for (const file of files) {
       if (isImageFile(file.mimeType)) {
@@ -40,7 +50,11 @@ export default function Home() {
       }
     }
     setPreviewUrls(newPreviewUrls);
-  };
+  }, [files, isImageFile]);
+
+  useEffect(() => {
+    fetchPreviewUrls();
+  }, [fetchPreviewUrls]);
 
   const fetchFiles = async () => {
     try {
@@ -81,10 +95,7 @@ export default function Home() {
       const data = await response.json();
       console.log("Upload successful:", data);
 
-      // Refresh file list after successful upload
       await fetchFiles();
-
-      // Reset file input
       setFile(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -101,10 +112,9 @@ export default function Home() {
         return;
       }
 
-      // Create a temporary link to trigger the download
       const link = document.createElement("a");
       link.href = result.url;
-      link.download = originalName; // Set the download filename to the original name
+      link.download = originalName;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -113,98 +123,78 @@ export default function Home() {
     }
   };
 
-  const isImageFile = (mimeType: string | null) => {
-    return mimeType?.startsWith("image/") || false;
-  };
-
   return (
-    <div className="p-8">
+    <div className="container mx-auto p-8 space-y-8">
       <form onSubmit={handleSubmit} className="max-w-md space-y-4">
-        <div>
+        <div className="space-y-2">
           <label
             htmlFor="file"
-            className="block text-sm font-medium text-gray-700"
+            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
           >
             Choose a file
           </label>
-          <input
+          <Input
             id="file"
             type="file"
             onChange={(e) => setFile(e.target.files?.[0] || null)}
-            className="mt-1 block w-full text-sm text-gray-500
-              file:mr-4 file:py-2 file:px-4
-              file:rounded-md file:border-0
-              file:text-sm file:font-semibold
-              file:bg-blue-50 file:text-blue-700
-              hover:file:bg-blue-100"
+            className="cursor-pointer"
           />
         </div>
 
-        {error && <div className="text-red-500 text-sm">{error}</div>}
+        {error && (
+          <div className="text-sm font-medium text-destructive">{error}</div>
+        )}
 
-        <button
-          type="submit"
-          disabled={!file || uploading}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md
-            hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
-        >
+        <Button type="submit" disabled={!file || uploading}>
           {uploading ? "Uploading..." : "Upload"}
-        </button>
+        </Button>
       </form>
 
-      <div className="mt-8">
-        <h2 className="text-xl font-semibold mb-4">Files in Bucket</h2>
+      <div className="space-y-4">
+        <h2 className="text-2xl font-semibold tracking-tight">
+          Files in Bucket
+        </h2>
         {loadingFiles ? (
-          <div className="text-gray-500">Loading files...</div>
+          <div className="text-muted-foreground">Loading files...</div>
         ) : files.length === 0 ? (
-          <div className="text-gray-500">No files found</div>
+          <div className="text-muted-foreground">No files found</div>
         ) : (
-          <div className="border rounded-lg overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Preview
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Original Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Size
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Upload Date
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+          <div className="rounded-md border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Preview</TableHead>
+                  <TableHead>Original Name</TableHead>
+                  <TableHead>Size</TableHead>
+                  <TableHead>Upload Date</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {files.map((file) => (
-                  <tr key={file.id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                  <TableRow key={file.id}>
+                    <TableCell>
                       {isImageFile(file.mimeType) ? (
-                        <div className="w-16 h-16 relative">
+                        <div className="relative w-16 h-16">
                           {previewUrls[file.id] ? (
                             <Image
                               src={previewUrls[file.id]}
                               alt={file.originalName}
                               fill
-                              className="object-contain"
+                              className="object-contain rounded-md"
                             />
                           ) : (
-                            <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                              <span className="text-sm text-gray-400">
+                            <div className="w-full h-full flex items-center justify-center bg-muted rounded-md">
+                              <span className="text-sm text-muted-foreground">
                                 Loading...
                               </span>
                             </div>
                           )}
                         </div>
                       ) : (
-                        <div className="w-16 h-16 flex items-center justify-center bg-gray-100 text-gray-400">
+                        <div className="w-16 h-16 flex items-center justify-center bg-muted rounded-md">
                           <svg
-                            className="w-8 h-8"
+                            className="w-8 h-8 text-muted-foreground"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -218,30 +208,28 @@ export default function Home() {
                           </svg>
                         </div>
                       )}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    </TableCell>
+                    <TableCell className="font-medium">
                       {file.originalName}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {(file.size / 1024).toFixed(2)} KB
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    </TableCell>
+                    <TableCell>{(file.size / 1024).toFixed(2)} KB</TableCell>
+                    <TableCell>
                       {new Date(file.lastModified).toLocaleString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <button
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
                         onClick={() =>
                           handleDownload(file.id, file.originalName)
                         }
-                        className="text-blue-600 hover:text-blue-900"
                       >
                         Download
-                      </button>
-                    </td>
-                  </tr>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         )}
       </div>
