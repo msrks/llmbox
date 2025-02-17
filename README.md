@@ -20,3 +20,9 @@ Zero cloud LLM dependency, 100% local!
 
 - [Docker](https://www.docker.com/)
 - [Ollama](https://ollama.com/)
+
+## Dashboard
+
+- App: [http://localhost:3000/](http://localhost:3000/)
+- DB: [https://local.drizzle.studio/](https://local.drizzle.studio/)
+- Minio: [http://localhost:9001/](http://localhost:9001/)
