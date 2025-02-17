@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  Home,
   Upload,
   MessageSquare,
   Tag,
@@ -9,6 +8,7 @@ import {
   PanelLeftClose,
   PanelLeft,
   ClipboardCheck,
+  File,
 } from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "./theme-toggle";
@@ -31,9 +31,9 @@ import {
 // Menu items.
 const items = [
   {
-    title: "Dashboard",
+    title: "Dataset",
     url: "/",
-    icon: Home,
+    icon: File,
   },
   {
     title: "Labels",
