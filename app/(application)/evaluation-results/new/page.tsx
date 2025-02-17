@@ -6,7 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -75,19 +74,7 @@ export default async function NewEvaluationPage() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="score">Initial Score</Label>
-              <Input
-                id="score"
-                name="score"
-                type="number"
-                min="0"
-                max="1"
-                step="0.1"
-                placeholder="Enter initial score (0-1)"
-                required
-              />
-            </div>
+
             <Button type="submit" className="w-full">
               Create Evaluation
             </Button>

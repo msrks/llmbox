@@ -64,6 +64,13 @@
       "when": 1739834321022,
       "tag": "0008_colorful_chamber",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1739835285356,
+      "tag": "0009_great_stellaris",
+      "breakpoints": true
     }
   ]
 }

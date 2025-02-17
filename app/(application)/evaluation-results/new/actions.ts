@@ -10,17 +10,15 @@ export async function createEvaluation(formData: FormData) {
   try {
     const promptId = parseInt(formData.get("promptId") as string);
     const specId = parseInt(formData.get("specId") as string);
-    const score = parseFloat(formData.get("score") as string);
 
-    if (!promptId || !specId || isNaN(score)) {
-      throw new Error("All fields are required");
+    if (!promptId || !specId) {
+      throw new Error("Prompt and specification are required");
     }
 
     // Create the evaluation record
     await db.insert(promptEvaluations).values({
       promptId,
       specId,
-      score,
       state: "running",
       createdAt: new Date(),
     });
