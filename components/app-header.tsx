@@ -6,7 +6,7 @@ export function AppHeader() {
       <div className="container flex h-14 max-w-screen-2xl items-center">
         <div className="mr-4 flex">
           <Link className="mr-6 flex items-center space-x-2" href="/">
-            <span className="font-bold">Local LLM Stack</span>
+            <span className="font-bold">LLMBox</span>
           </Link>
         </div>
       </div>

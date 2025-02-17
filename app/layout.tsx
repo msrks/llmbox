@@ -8,7 +8,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Local Stack",
+  title: "LLMBox",
   description: "A local file management system",
 };
 
