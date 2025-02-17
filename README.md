@@ -4,11 +4,11 @@ Zero cloud LLM dependency, 100% local!
 
 ## Tech Stack
 
-- App: Next.js
-- UI: Shadcn UI
-- AI: Ollama
-- DB: Postgres
-- Storage: Minio
+- App: [Next.js](https://nextjs.org/)
+- UI: [Shadcn UI](https://ui.shadcn.com/)
+- AI: [Ollama](https://ollama.com/)
+- DB: [Postgres](https://www.postgresql.org/)
+- Storage: [Minio](https://min.io/)
 
 ## How to run
 
@@ -19,5 +19,5 @@ Zero cloud LLM dependency, 100% local!
 
 ## Prerequisites
 
-- Docker
-- Ollama
+- [Docker](https://www.docker.com/)
+- [Ollama](https://ollama.com/)
