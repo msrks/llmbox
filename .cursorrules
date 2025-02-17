@@ -8,3 +8,4 @@
 
 - Nextjs server actions are preferred over API routes
 - use toast from "sonner" for use feedback
+- dont use date-fns. do more simpler standard way.
