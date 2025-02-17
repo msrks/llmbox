@@ -1,5 +1,7 @@
 import { Badge } from "@/components/ui/badge";
-import { Sparkles, Brain, Rocket } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Sparkles, Brain, Rocket, ArrowRight } from "lucide-react";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -20,6 +22,13 @@ export default function Home() {
           data-driven prompt optimization. From CNN to LLM. The future is here,
           and it&apos;s prompt-driven.
         </p>
+
+        <Link href="/dataset" className="mt-8">
+          <Button size="lg" className="group">
+            Start Your Journey
+            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
+          </Button>
+        </Link>
 
         <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-3 max-w-4xl">
           <div className="flex flex-col items-center p-6 rounded-lg border bg-card text-card-foreground shadow-sm">
