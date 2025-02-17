@@ -10,10 +10,14 @@ import {
 
 export async function getFilesList() {
   try {
-    const fileList = await db
-      .select()
-      .from(files)
-      .orderBy(desc(files.createdAt));
+    const fileList = await db.query.files.findMany({
+      orderBy: desc(files.createdAt),
+      with: {
+        humanLabel: true,
+        aiLabel: true,
+      },
+    });
+
     return {
       files: fileList.map((file) => ({
         id: file.id,
@@ -23,6 +27,8 @@ export async function getFilesList() {
         mimeType: file.mimeType,
         uploadType: file.uploadType,
         lastModified: file.createdAt,
+        humanLabel: file.humanLabel,
+        aiLabel: file.aiLabel,
       })),
     };
   } catch (error) {

@@ -10,9 +10,13 @@ import {
 } from "@/components/ui/table";
 import { FileInfo } from "@/lib/types";
 import { FileDeleteDialog } from "@/components/file-delete-dialog";
+import { Label } from "@/lib/db/schema";
 
 interface TableViewProps {
-  files: FileInfo[];
+  files: (FileInfo & {
+    humanLabel?: Label | null;
+    aiLabel?: Label | null;
+  })[];
   previewUrls: Record<number, string>;
   isImageFile: (mimeType: string | null) => boolean;
   onDownload: (fileId: number, originalName: string) => void;
@@ -36,6 +40,8 @@ export function TableView({
             <TableHead>Size</TableHead>
             <TableHead>Upload</TableHead>
             <TableHead>Upload Date</TableHead>
+            <TableHead>Human Label</TableHead>
+            <TableHead>AI Label</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -86,6 +92,8 @@ export function TableView({
               <TableCell>
                 {new Date(file.lastModified).toLocaleString()}
               </TableCell>
+              <TableCell>{file.humanLabel?.name || "-"}</TableCell>
+              <TableCell>{file.aiLabel?.name || "-"}</TableCell>
               <TableCell>
                 <div className="space-x-2">
                   <Button
