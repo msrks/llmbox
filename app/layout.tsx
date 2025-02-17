@@ -2,14 +2,13 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/app-sidebar";
 import { Toaster } from "sonner";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "LLMBox",
-  description: "A local file management system",
+  description: "Your Gateway to the AI Future",
 };
 
 export default function RootLayout({
@@ -26,15 +25,8 @@ export default function RootLayout({
           forcedTheme="dark"
           disableTransitionOnChange
         >
-          <SidebarProvider>
-            <div className="relative flex min-h-screen w-full">
-              <AppSidebar />
-              <main className="flex-1 p-4 w-full">
-                {children}
-                <Toaster richColors />
-              </main>
-            </div>
-          </SidebarProvider>
+          {children}
+          <Toaster richColors />
         </ThemeProvider>
       </body>
     </html>
