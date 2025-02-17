@@ -1,24 +1,61 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { useDropzone } from "react-dropzone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Loader2, UploadIcon } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { toast } from "sonner";
+import { getLabels } from "../labels/actions";
+import type { Label as LabelType } from "@/lib/db/schema";
 
 export default function UploadPage() {
-  const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [labels, setLabels] = useState<LabelType[]>([]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!file) return;
+  useEffect(() => {
+    const fetchLabels = async () => {
+      const result = await getLabels();
+      if (!("error" in result)) {
+        setLabels(result.labels);
+      }
+    };
+    fetchLabels();
+  }, []);
+
+  const onDrop = useCallback((acceptedFiles: File[]) => {
+    setSelectedFiles(acceptedFiles);
+  }, []);
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    accept: {
+      "image/jpeg": [".jpg", ".jpeg"],
+      "image/png": [".png"],
+    },
+  });
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (selectedFiles.length === 0) return;
+
+    setUploading(true);
+    toast.info("Uploading images...");
 
     try {
-      setUploading(true);
-      setError(null);
-
-      const formData = new FormData();
-      formData.append("file", file);
+      const formData = new FormData(event.currentTarget);
+      selectedFiles.forEach((file) => {
+        formData.append("files", file);
+      });
 
       const response = await fetch("/api/upload", {
         method: "POST",
@@ -29,41 +66,95 @@ export default function UploadPage() {
         throw new Error("Upload failed");
       }
 
-      const data = await response.json();
-      console.log("Upload successful:", data);
-      setFile(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong");
+      await response.json();
+      toast.success("Upload completed successfully");
+      setSelectedFiles([]);
+      (event.target as HTMLFormElement).reset();
+    } catch (error) {
+      toast.error("Failed to upload files");
+      console.error("Upload error:", error);
     } finally {
       setUploading(false);
     }
   };
 
   return (
-    <div className="container mx-auto p-8 space-y-8">
-      <form onSubmit={handleSubmit} className="max-w-md space-y-4">
-        <div className="space-y-2">
-          <label
-            htmlFor="file"
-            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+    <div className="mx-auto py-8 space-y-8">
+      <form onSubmit={handleSubmit} className="w-full space-y-4">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-semibold tracking-tight">
+            Upload Images
+          </h2>
+          <Button
+            type="submit"
+            disabled={uploading || selectedFiles.length === 0}
+            size="sm"
           >
-            Choose a file
-          </label>
-          <Input
-            id="file"
-            type="file"
-            onChange={(e) => setFile(e.target.files?.[0] || null)}
-            className="cursor-pointer"
-          />
+            {uploading ? "Uploading..." : "Submit"}
+          </Button>
         </div>
 
-        {error && (
-          <div className="text-sm font-medium text-destructive">{error}</div>
-        )}
+        <div className="flex items-center gap-2">
+          <Label htmlFor="labelId">Label</Label>
+          <Select name="labelId">
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Select a label" />
+            </SelectTrigger>
+            <SelectContent>
+              {labels.map((label) => (
+                <SelectItem key={label.id} value={label.id.toString()}>
+                  {label.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
-        <Button type="submit" disabled={!file || uploading}>
-          {uploading ? "Uploading..." : "Upload"}
-        </Button>
+        <div
+          {...getRootProps()}
+          className="flex w-full items-center justify-center"
+        >
+          <label
+            htmlFor="files"
+            className="relative flex w-full cursor-pointer flex-col items-center justify-center rounded-lg border border-dashed py-20"
+          >
+            <div className="max-w-md text-center">
+              {uploading ? (
+                <>
+                  <p className="font-semibold">Uploading Images</p>
+                  <Loader2 className="mx-auto h-6 w-6 animate-spin" />
+                  <p className="text-xs text-muted-foreground">
+                    Please wait while your images are being uploaded
+                  </p>
+                </>
+              ) : selectedFiles.length > 0 ? (
+                <p className="mt-2 text-sm font-semibold">
+                  {selectedFiles.length}{" "}
+                  {selectedFiles.length === 1 ? "file" : "files"} selected
+                </p>
+              ) : (
+                <>
+                  <div className="mx-auto max-w-min rounded-md border p-2">
+                    <UploadIcon className="mx-auto h-10 w-10" />
+                  </div>
+                  <p className="mt-2 text-sm font-semibold">
+                    Drag and drop your images here
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Click to browse (PNG, JPG)
+                  </p>
+                </>
+              )}
+            </div>
+          </label>
+
+          <Input
+            {...getInputProps()}
+            id="files"
+            className="hidden"
+            disabled={uploading}
+          />
+        </div>
       </form>
     </div>
   );

@@ -1,1 +1,10 @@
-use pnpm instead of npm.
+# Techstack
+
+- Package-Manager: pnpm
+- App: Nextjs
+- UI: Shadcn-UI
+
+# Rules
+
+- Nextjs server actions are preferred over API routes
+- use toast from "sonner" for use feedback
