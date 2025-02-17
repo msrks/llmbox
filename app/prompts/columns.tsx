@@ -12,6 +12,10 @@ export const columns: ColumnDef<LlmPrompt>[] = [
   {
     accessorKey: "promptTemplate",
     header: "Prompt Template",
+    cell: ({ row }) => {
+      const template = row.getValue("promptTemplate") as string;
+      return <div className="whitespace-pre-wrap">{template}</div>;
+    },
   },
   {
     accessorKey: "createdAt",
