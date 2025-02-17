@@ -1,12 +1,12 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Sparkles, Brain, Rocket, ArrowRight } from "lucide-react";
+import { Sparkles, Brain, Rocket, ArrowRight, Laptop } from "lucide-react";
 import Link from "next/link";
 
 export default function Home() {
   return (
     <div>
-      <div className="mb-12 mt-28 flex flex-col items-center justify-center text-center sm:mt-40">
+      <div className="mb-8 mt-20 flex flex-col items-center justify-center text-center sm:mt-28">
         <Badge className="mb-4 px-4 text-sm" variant="secondary">
           Welcome to the AGI Revolution
         </Badge>
@@ -17,22 +17,28 @@ export default function Home() {
             AI Future
           </span>
         </h1>
-        <p className="mt-8 max-w-2xl text-muted-foreground sm:text-lg">
-          Step into the next evolution of AI. From model retraining to
-          data-driven prompt optimization. From CNN to LLM. The future is here,
-          and it&apos;s prompt-driven.
-        </p>
+        <div className="mt-6 space-y-3">
+          <p className="max-w-2xl text-muted-foreground sm:text-lg">
+            Step into the next evolution of AI. From model retraining to
+            data-driven prompt optimization. From CNN to LLM. The future is
+            here, and it&apos;s prompt-driven.
+          </p>
+          <p className="max-w-2xl text-muted-foreground sm:text-lg">
+            Run anywhere - edge, local, or cloud. Your data, your control. No
+            internet required.
+          </p>
+        </div>
 
-        <Link href="/dataset" className="mt-8">
+        <Link href="/dataset" className="mt-6">
           <Button size="lg" className="group">
             Start Your Journey
             <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Button>
         </Link>
 
-        <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-3 max-w-4xl">
-          <div className="flex flex-col items-center p-6 rounded-lg border bg-card text-card-foreground shadow-sm">
-            <Brain className="h-8 w-8 text-primary mb-4" />
+        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-4 max-w-5xl">
+          <div className="flex flex-col items-center p-5 rounded-lg border bg-card text-card-foreground shadow-sm">
+            <Brain className="h-8 w-8 text-primary mb-3" />
             <h3 className="text-lg font-semibold mb-2">
               Beyond Traditional ML
             </h3>
@@ -41,16 +47,25 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="flex flex-col items-center p-6 rounded-lg border bg-card text-card-foreground shadow-sm">
-            <Sparkles className="h-8 w-8 text-primary mb-4" />
+          <div className="flex flex-col items-center p-5 rounded-lg border bg-card text-card-foreground shadow-sm">
+            <Sparkles className="h-8 w-8 text-primary mb-3" />
             <h3 className="text-lg font-semibold mb-2">Prompt-Driven Future</h3>
             <p className="text-sm text-muted-foreground text-center">
               Optimize your prompts with data-driven insights and testing
             </p>
           </div>
 
-          <div className="flex flex-col items-center p-6 rounded-lg border bg-card text-card-foreground shadow-sm">
-            <Rocket className="h-8 w-8 text-primary mb-4" />
+          <div className="flex flex-col items-center p-5 rounded-lg border bg-card text-card-foreground shadow-sm">
+            <Laptop className="h-8 w-8 text-primary mb-3" />
+            <h3 className="text-lg font-semibold mb-2">Offline First</h3>
+            <p className="text-sm text-muted-foreground text-center">
+              Work seamlessly offline. Your data stays local, secure, and always
+              accessible
+            </p>
+          </div>
+
+          <div className="flex flex-col items-center p-5 rounded-lg border bg-card text-card-foreground shadow-sm">
+            <Rocket className="h-8 w-8 text-primary mb-3" />
             <h3 className="text-lg font-semibold mb-2">AGI Ready</h3>
             <p className="text-sm text-muted-foreground text-center">
               Stay ahead of the curve in the rapidly evolving AI landscape
@@ -62,7 +77,7 @@ export default function Home() {
       <div className="relative isolate">
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 -top-60 -z-10 transform-gpu overflow-hidden blur-3xl"
+          className="pointer-events-none absolute inset-x-0 -top-96 -z-10 transform-gpu overflow-hidden blur-3xl"
         >
           <div
             style={{
