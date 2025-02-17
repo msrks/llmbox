@@ -8,6 +8,7 @@ import {
   Sparkles,
   PanelLeftClose,
   PanelLeft,
+  ClipboardCheck,
 } from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "./theme-toggle";
@@ -48,6 +49,11 @@ const items = [
     title: "Prompt Templates",
     url: "/prompts",
     icon: Sparkles,
+  },
+  {
+    title: "Inspection Specs",
+    url: "/inspection-specs",
+    icon: ClipboardCheck,
   },
   {
     title: "Chat",
