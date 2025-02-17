@@ -10,7 +10,17 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Wand2 } from "lucide-react";
 import { TEMPLATE } from "./templates";
-import { getSpecs, createSpec } from "./actions";
+import { getSpecs, createSpec, updateSpec, deleteSpec } from "./actions";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface CreateSpecDialogProps {
   isOpen: boolean;
@@ -115,9 +125,83 @@ export function CreateSpecDialog({
   );
 }
 
+interface EditSpecDialogProps {
+  spec: Spec | null;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSpecUpdated: () => void;
+}
+
+export function EditSpecDialog({
+  spec,
+  isOpen,
+  onOpenChange,
+  onSpecUpdated,
+}: EditSpecDialogProps) {
+  const [description, setDescription] = useState(spec?.description || "");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (spec) {
+      setDescription(spec.description);
+    }
+  }, [spec]);
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      if (!spec) return;
+      await updateSpec(spec.id, description);
+      toast.success("Specification updated successfully");
+      onOpenChange(false);
+      onSpecUpdated();
+    } catch {
+      toast.error("Failed to update specification");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <DialogTitle>Edit Inspection Specification</DialogTitle>
+            <Textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              placeholder="Enter specification..."
+              className="h-[200px]"
+            />
+          </div>
+          <div className="flex justify-end space-x-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Updating..." : "Update"}
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 const SpecsClient = () => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [data, setData] = useState<Spec[]>([]);
+  const [specs, setSpecs] = useState<Spec[]>([]);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedSpec, setSelectedSpec] = useState<Spec | null>(null);
 
   useEffect(() => {
     fetchSpecs();
@@ -126,28 +210,104 @@ const SpecsClient = () => {
   const fetchSpecs = async () => {
     try {
       const response = await getSpecs();
-      setData(response.specs);
+      setSpecs(response.specs);
     } catch {
       toast.error("Failed to fetch specifications");
     }
   };
 
+  const handleEdit = (spec: Spec) => {
+    setSelectedSpec(spec);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleDelete = (spec: Spec) => {
+    setSelectedSpec(spec);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!selectedSpec) return;
+
+    try {
+      await deleteSpec(selectedSpec.id);
+      toast.success("Specification deleted successfully");
+      fetchSpecs();
+    } catch {
+      toast.error("Failed to delete specification");
+    } finally {
+      setIsDeleteDialogOpen(false);
+      setSelectedSpec(null);
+    }
+  };
+
+  const columnsWithCallbacks = columns.map((col) => {
+    if (col.id === "actions") {
+      return {
+        ...col,
+        cell: ({ row }) => {
+          const spec = row.original;
+          return col.cell?.({
+            row: {
+              ...row,
+              original: { ...spec, onEdit: handleEdit, onDelete: handleDelete },
+            },
+          });
+        },
+      };
+    }
+    return col;
+  });
+
   return (
-    <>
-      <div className="flex justify-between items-center mb-4">
-        <h1 className="text-2xl font-bold">Inspection Specifications</h1>
-        <Button onClick={() => setIsDialogOpen(true)}>
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <h1 className="text-xl font-bold">Inspection Specifications</h1>
+        <Button onClick={() => setIsCreateDialogOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
           New Specification
         </Button>
       </div>
-      <DataTable columns={columns} data={data} />
+
+      <DataTable columns={columnsWithCallbacks} data={specs} />
+
       <CreateSpecDialog
-        isOpen={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
+        isOpen={isCreateDialogOpen}
+        onOpenChange={setIsCreateDialogOpen}
         onSpecCreated={fetchSpecs}
       />
-    </>
+
+      <EditSpecDialog
+        spec={selectedSpec}
+        isOpen={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        onSpecUpdated={fetchSpecs}
+      />
+
+      <AlertDialog
+        open={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the
+              specification.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteConfirm}
+              className="bg-red-600"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
   );
 };
 

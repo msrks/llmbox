@@ -38,3 +38,33 @@ export async function createSpec(description: string) {
     throw new Error("Failed to create specification");
   }
 }
+
+export async function updateSpec(id: number, description: string) {
+  try {
+    if (!description) {
+      throw new Error("Description is required");
+    }
+
+    await db
+      .update(specs)
+      .set({ description })
+      .where(({ eq }) => eq(specs.id, id));
+
+    revalidatePath("/inspection-specs");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to update spec:", error);
+    throw new Error("Failed to update specification");
+  }
+}
+
+export async function deleteSpec(id: number) {
+  try {
+    await db.delete(specs).where(({ eq }) => eq(specs.id, id));
+    revalidatePath("/inspection-specs");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete spec:", error);
+    throw new Error("Failed to delete specification");
+  }
+}
