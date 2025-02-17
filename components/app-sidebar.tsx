@@ -36,11 +36,6 @@ const items = [
     icon: Home,
   },
   {
-    title: "Manual Upload",
-    url: "/upload",
-    icon: Upload,
-  },
-  {
     title: "Labels",
     url: "/labels",
     icon: Tag,
@@ -54,6 +49,11 @@ const items = [
     title: "Inspection Specs",
     url: "/inspection-specs",
     icon: ClipboardCheck,
+  },
+  {
+    title: "Manual Upload",
+    url: "/upload",
+    icon: Upload,
   },
   {
     title: "Chat",
