@@ -17,7 +17,10 @@ export const columns: ColumnDef<LlmPrompt>[] = [
     accessorKey: "createdAt",
     header: "Created At",
     cell: ({ row }) => {
-      const date = row.getValue("createdAt") as Date;
+      const dateValue = row.getValue("createdAt");
+      // Handle both string and Date objects
+      const date =
+        dateValue instanceof Date ? dateValue : new Date(dateValue as string);
       return formatDate(date);
     },
   },
