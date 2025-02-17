@@ -2,10 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { createLabel, getLabels } from "./actions";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -15,30 +13,31 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
-import type { Label as LabelType } from "@/lib/db/schema";
+import type { LlmPrompt } from "@/lib/db/schema";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
 
-export default function LabelsPage() {
+export default function PromptsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [labels, setLabels] = useState<LabelType[]>([]);
+  const [prompts, setPrompts] = useState<LlmPrompt[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
-    fetchLabels();
+    fetchPrompts();
   }, []);
 
-  const fetchLabels = async () => {
+  const fetchPrompts = async () => {
     try {
-      const result = await getLabels();
-      if ("error" in result) {
-        setError(result.error || "Unknown error occurred");
+      const response = await fetch("/api/prompts");
+      const data = await response.json();
+      if (data.error) {
+        setError(data.error);
       } else {
-        setLabels(result.labels);
+        setPrompts(data.prompts);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch labels");
+      setError(err instanceof Error ? err.message : "Failed to fetch prompts");
     }
   };
 
@@ -47,21 +46,28 @@ export default function LabelsPage() {
     setIsSubmitting(true);
 
     const formData = new FormData(event.currentTarget);
-    const title = formData.get("title") as string;
-    const definition = formData.get("definition") as string;
+    const promptTemplate = formData.get("promptTemplate") as string;
 
     try {
-      const result = await createLabel({ title, definition });
-      if (result.error) {
-        toast.error(result.error);
+      const response = await fetch("/api/prompts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ promptTemplate }),
+      });
+
+      const data = await response.json();
+      if (data.error) {
+        toast.error(data.error);
       } else {
-        toast.success("Label created successfully");
-        fetchLabels(); // Refresh the labels list
-        setIsDialogOpen(false); // Close the dialog
+        toast.success("Prompt created successfully");
+        fetchPrompts();
+        setIsDialogOpen(false);
         (event.target as HTMLFormElement).reset();
       }
     } catch {
-      toast.error("Failed to create label");
+      toast.error("Failed to create prompt");
     } finally {
       setIsSubmitting(false);
     }
@@ -75,47 +81,39 @@ export default function LabelsPage() {
 
       <div className="w-full mx-auto space-y-4">
         <div className="flex flex-row items-center justify-between">
-          <h2 className="text-2xl font-semibold tracking-tight">Labels</h2>
+          <h2 className="text-2xl font-semibold tracking-tight">Prompts</h2>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button size="sm">
                 <Plus className="h-4 w-4 mr-2" />
-                Add Label
+                Add Prompt
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Create New Label</DialogTitle>
+                <DialogTitle>Create New Prompt</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="title">Title</Label>
-                  <Input
-                    id="title"
-                    name="title"
-                    placeholder="Enter label title"
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="definition">Definition</Label>
+                  <Label htmlFor="promptTemplate">Prompt Template</Label>
                   <Textarea
-                    id="definition"
-                    name="definition"
-                    placeholder="Enter label definition"
-                    rows={4}
+                    id="promptTemplate"
+                    name="promptTemplate"
+                    placeholder="Enter prompt template"
+                    rows={6}
+                    required
                   />
                 </div>
                 <div className="flex justify-end">
                   <Button type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? "Creating..." : "Create Label"}
+                    {isSubmitting ? "Creating..." : "Create Prompt"}
                   </Button>
                 </div>
               </form>
             </DialogContent>
           </Dialog>
         </div>
-        <DataTable columns={columns} data={labels} />
+        <DataTable columns={columns} data={prompts} />
       </div>
     </div>
   );

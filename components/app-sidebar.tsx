@@ -1,4 +1,4 @@
-import { Home, Upload, MessageSquare, Tag } from "lucide-react";
+import { Home, Upload, MessageSquare, Tag, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "./theme-toggle";
 
@@ -31,6 +31,11 @@ const items = [
     title: "Labels",
     url: "/labels",
     icon: Tag,
+  },
+  {
+    title: "Prompts",
+    url: "/prompts",
+    icon: Sparkles,
   },
   {
     title: "Chat",

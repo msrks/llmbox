@@ -26,7 +26,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label as UILabel } from "@/components/ui/label";
 import { useState } from "react";
-import { updateLabel, deleteLabel } from "@/app/actions";
+import { updateLabel, deleteLabel } from "./actions";
 import { toast } from "sonner";
 
 interface LabelActionsProps {
