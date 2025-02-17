@@ -4,7 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
-
+import { Toaster } from "sonner";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -29,7 +29,10 @@ export default function RootLayout({
           <SidebarProvider>
             <div className="relative flex min-h-screen w-full">
               <AppSidebar />
-              <main className="flex-1 p-4 w-full">{children}</main>
+              <main className="flex-1 p-4 w-full">
+                {children}
+                <Toaster richColors />
+              </main>
             </div>
           </SidebarProvider>
         </ThemeProvider>
