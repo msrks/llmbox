@@ -14,7 +14,22 @@ export const columns: ColumnDef<LlmPrompt>[] = [
     header: "Prompt Template",
     cell: ({ row }) => {
       const template = row.getValue("promptTemplate") as string;
-      return <div className="whitespace-pre-wrap">{template}</div>;
+      // Split the template by {{...}} patterns and create an array of regular text and highlighted spans
+      const parts = template.split(/(\{\{.*?\}\})/);
+      return (
+        <div className="whitespace-pre-wrap">
+          {parts.map((part, index) => {
+            if (part.match(/^\{\{.*\}\}$/)) {
+              return (
+                <span key={index} className="text-orange-500">
+                  {part}
+                </span>
+              );
+            }
+            return part;
+          })}
+        </div>
+      );
     },
   },
   {
