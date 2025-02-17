@@ -9,6 +9,7 @@ import {
   PanelLeft,
   ClipboardCheck,
   File,
+  Book,
 } from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "./theme-toggle";
@@ -55,12 +56,17 @@ const menuGroups = [
     items: [
       {
         title: "Prompt Templates",
-        url: "/prompts",
+        url: "/prompt-templates",
         icon: Sparkles,
       },
       {
         title: "Inspection Specs",
         url: "/inspection-specs",
+        icon: Book,
+      },
+      {
+        title: "Prompt Evaluations",
+        url: "/prompt-evaluations",
         icon: ClipboardCheck,
       },
     ],

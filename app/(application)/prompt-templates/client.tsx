@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import type { LlmPrompt } from "@/lib/db/schema";
-import { columns } from "./columns";
-import { DataTable } from "./data-table";
+import { columns } from "./_components/columns";
+import { DataTable } from "./_components/data-table";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";

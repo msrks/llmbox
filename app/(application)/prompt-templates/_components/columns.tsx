@@ -5,7 +5,7 @@ import { LlmPrompt } from "@/lib/db/schema";
 import { formatDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import { deletePrompt } from "./actions";
+import { deletePrompt } from "../actions";
 import { useRouter } from "next/navigation";
 import {
   AlertDialog,
