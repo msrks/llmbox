@@ -29,36 +29,51 @@ import {
 } from "@/components/ui/sidebar";
 
 // Menu items.
-const items = [
+const menuGroups = [
   {
-    title: "Dataset",
-    url: "/",
-    icon: File,
+    label: "Dataset",
+    items: [
+      {
+        title: "Dataset",
+        url: "/",
+        icon: File,
+      },
+      {
+        title: "Labels",
+        url: "/labels",
+        icon: Tag,
+      },
+      {
+        title: "Manual Upload",
+        url: "/upload",
+        icon: Upload,
+      },
+    ],
   },
   {
-    title: "Labels",
-    url: "/labels",
-    icon: Tag,
+    label: "Prompt Optimization",
+    items: [
+      {
+        title: "Prompt Templates",
+        url: "/prompts",
+        icon: Sparkles,
+      },
+      {
+        title: "Inspection Specs",
+        url: "/inspection-specs",
+        icon: ClipboardCheck,
+      },
+    ],
   },
   {
-    title: "Prompt Templates",
-    url: "/prompts",
-    icon: Sparkles,
-  },
-  {
-    title: "Inspection Specs",
-    url: "/inspection-specs",
-    icon: ClipboardCheck,
-  },
-  {
-    title: "Manual Upload",
-    url: "/upload",
-    icon: Upload,
-  },
-  {
-    title: "Chat",
-    url: "/chat",
-    icon: MessageSquare,
+    label: "Communication",
+    items: [
+      {
+        title: "Chat",
+        url: "/chat",
+        icon: MessageSquare,
+      },
+    ],
   },
 ];
 
@@ -91,25 +106,29 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup>
-          {!isCollapsed && <SidebarGroupLabel>Application</SidebarGroupLabel>}
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <Link href={item.url} className="flex items-center gap-2">
-                      <item.icon size={18} />
-                      {!isCollapsed && (
-                        <span className="text-sm">{item.title}</span>
-                      )}
-                    </Link>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        {menuGroups.map((group) => (
+          <SidebarGroup key={group.label}>
+            {!isCollapsed && (
+              <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+            )}
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {group.items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild>
+                      <Link href={item.url} className="flex items-center gap-2">
+                        <item.icon size={18} />
+                        {!isCollapsed && (
+                          <span className="text-sm">{item.title}</span>
+                        )}
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
       </SidebarContent>
 
       <SidebarFooter className="px-2">
