@@ -6,46 +6,63 @@ import { files } from "@/lib/db/schema";
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
-    const file = formData.get("file") as File | null;
+    const uploadedFiles = formData.getAll("files");
+    const labelId = formData.get("labelId");
 
-    if (!file) {
-      return NextResponse.json({ error: "No file received" }, { status: 400 });
+    if (!uploadedFiles || uploadedFiles.length === 0) {
+      return NextResponse.json({ error: "No files received" }, { status: 400 });
     }
 
-    // Convert File to Buffer
-    const buffer = Buffer.from(await file.arrayBuffer());
+    if (!labelId) {
+      return NextResponse.json(
+        { error: "Label ID is required" },
+        { status: 400 }
+      );
+    }
 
-    // You might want to validate file type/size here
+    const fileRecords = [];
 
-    // Generate a unique filename - you could use the original name or generate a new one
-    const fileName = `${Date.now()}-${file.name}`;
+    for (const file of uploadedFiles) {
+      if (!(file instanceof File)) {
+        continue;
+      }
 
-    // Save file to S3
-    await saveFileInBucket({
-      bucketName: process.env.S3_BUCKET_NAME || "default-bucket",
-      fileName,
-      file: buffer,
-    });
+      // Convert File to Buffer
+      const buffer = Buffer.from(await file.arrayBuffer());
 
-    // Save file information to database
-    const [fileRecord] = await db
-      .insert(files)
-      .values({
+      // Generate a unique filename
+      const fileName = `${Date.now()}-${file.name}`;
+
+      // Save file to S3
+      await saveFileInBucket({
+        bucketName: process.env.S3_BUCKET_NAME || "default-bucket",
         fileName,
-        originalName: file.name,
-        mimeType: file.type,
-        size: buffer.length,
-      })
-      .returning();
+        file: buffer,
+      });
+
+      // Save file information to database
+      const [fileRecord] = await db
+        .insert(files)
+        .values({
+          fileName,
+          originalName: file.name,
+          mimeType: file.type,
+          size: buffer.length,
+          humanLabelId: parseInt(labelId as string),
+        })
+        .returning();
+
+      fileRecords.push(fileRecord);
+    }
 
     return NextResponse.json({
-      message: "File uploaded successfully",
-      file: fileRecord,
+      message: "Files uploaded successfully",
+      files: fileRecords,
     });
   } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json(
-      { error: "Error uploading file" },
+      { error: "Error uploading files" },
       { status: 500 }
     );
   }
@@ -54,6 +71,6 @@ export async function POST(request: NextRequest) {
 // Optional: Add size limit to the route
 export const config = {
   api: {
-    bodyParser: false, // Disable the default body parser
+    bodyParser: false,
   },
 };
