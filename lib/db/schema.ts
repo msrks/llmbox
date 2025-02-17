@@ -28,6 +28,7 @@ export const files = pgTable(
       .notNull()
       .default("manual"),
     aiLabelId: integer("label_id").references(() => labels.id),
+    aiPromptId: integer("ai_prompt_id").references(() => llmPrompts.id),
     humanLabelId: integer("human_label_id").references(() => labels.id),
     embedding: vector("embedding", { dimensions: 1536 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -46,6 +47,10 @@ export const filesRelations = relations(files, ({ one }) => ({
     fields: [files.humanLabelId],
     references: [labels.id],
   }),
+  aiPrompt: one(llmPrompts, {
+    fields: [files.aiPromptId],
+    references: [llmPrompts.id],
+  }),
 }));
 
 export const labels = pgTable("labels", {
@@ -55,7 +60,15 @@ export const labels = pgTable("labels", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const llmPrompts = pgTable("llm_prompts", {
+  id: serial("id").primaryKey(),
+  promptTemplate: text("prompt_template").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export type Label = typeof labels.$inferSelect;
 export type NewLabel = typeof labels.$inferInsert;
 export type File = typeof files.$inferSelect;
 export type NewFile = typeof files.$inferInsert;
+export type LlmPrompt = typeof llmPrompts.$inferSelect;
+export type NewLlmPrompt = typeof llmPrompts.$inferInsert;
