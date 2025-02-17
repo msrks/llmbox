@@ -24,5 +24,9 @@ Zero cloud LLM dependency, 100% local!
 ## Dashboard
 
 - App: [http://localhost:3000/](http://localhost:3000/)
-- DB: [https://local.drizzle.studio/](https://local.drizzle.studio/)
 - Minio: [http://localhost:9001/](http://localhost:9001/)
+
+## Development
+
+- DB: [https://local.drizzle.studio/](https://local.drizzle.studio/)
+  - Run `pnpm run db:studio` to open the studio
