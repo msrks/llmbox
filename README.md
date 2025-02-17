@@ -5,7 +5,6 @@ Zero cloud LLM dependency, 100% local!
 ## Tech Stack
 
 - App: [Next.js](https://nextjs.org/)
-- UI: [Shadcn UI](https://ui.shadcn.com/)
 - AI: [Ollama](https://ollama.com/)
 - DB: [Postgres](https://www.postgresql.org/)
 - Storage: [Minio](https://min.io/)
