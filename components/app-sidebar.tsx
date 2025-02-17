@@ -72,7 +72,7 @@ export function AppSidebar() {
         <div className="flex items-center justify-between border-b px-4 py-3">
           {!isCollapsed && (
             <Link href="/" className="flex items-center">
-              <span className="text-sm font-bold">LLMBox</span>
+              <span className="text-xl font-bold">LLMBox</span>
             </Link>
           )}
           <Button
