@@ -3,6 +3,8 @@ import { DataTable } from "./_components/data-table";
 import { columns } from "./_components/columns";
 import { promptEvaluations } from "@/lib/db/schema";
 import { desc } from "drizzle-orm";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +25,9 @@ export default async function PromptEvaluationsPage() {
             View and manage your prompt evaluation results
           </p>
         </div>
+        <Button asChild>
+          <Link href="/evaluation-results/new">Create New Evaluation</Link>
+        </Button>
       </div>
       <DataTable data={evaluations} columns={columns} />
     </div>
