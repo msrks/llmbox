@@ -9,8 +9,8 @@ import {
 } from "./actions";
 import { Button } from "@/components/ui/button";
 import { LayoutGrid, List } from "lucide-react";
-import { TableView } from "@/app/(file-list)/_components/table-view";
-import { TileView } from "@/app/(file-list)/_components/tile-view";
+import { TableView } from "@/app/(dataset)/_components/table-view";
+import { TileView } from "@/app/(dataset)/_components/tile-view";
 import { FileInfo } from "@/lib/types";
 
 export default function Home() {
