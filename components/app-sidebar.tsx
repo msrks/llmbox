@@ -7,9 +7,9 @@ import {
   Sparkles,
   PanelLeftClose,
   PanelLeft,
-  ClipboardCheck,
   File,
   Book,
+  ChartBar,
 } from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "./theme-toggle";
@@ -65,9 +65,9 @@ const menuGroups = [
         icon: Book,
       },
       {
-        title: "Prompt Evaluations",
-        url: "/prompt-evaluations",
-        icon: ClipboardCheck,
+        title: "Evaluation Results",
+        url: "/evaluation-results",
+        icon: ChartBar,
       },
     ],
   },
