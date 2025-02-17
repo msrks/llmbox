@@ -7,7 +7,6 @@ import {
   getFilePreviewUrl,
   deleteFile,
 } from "./actions";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { LayoutGrid, List } from "lucide-react";
 import { TableView } from "@/components/file-list/table-view";
@@ -97,27 +96,13 @@ export default function Home() {
 
   return (
     <div className="container mx-auto p-8 space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Local Stack</h1>
-        <div className="space-x-4">
-          <Link href="/upload">
-            <Button variant="outline">Upload File</Button>
-          </Link>
-          <Link href="/chat">
-            <Button variant="outline">Open Chat</Button>
-          </Link>
-        </div>
-      </div>
-
       {error && (
         <div className="text-sm font-medium text-destructive">{error}</div>
       )}
 
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-semibold tracking-tight">
-            Files in Bucket
-          </h2>
+          <h2 className="text-2xl font-semibold tracking-tight">Dashboard</h2>
           <div className="flex space-x-2">
             <Button
               variant={viewMode === "list" ? "default" : "outline"}

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
+import { AppHeader } from "@/components/app-header";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,6 +25,8 @@ export default function RootLayout({
           forcedTheme="dark"
           disableTransitionOnChange
         >
+          <AppHeader />
+
           {children}
         </ThemeProvider>
       </body>
