@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import {
   timestamp,
   integer,
@@ -26,6 +27,7 @@ export const files = pgTable(
     uploadType: text("upload_type", { enum: ["manual", "api"] })
       .notNull()
       .default("manual"),
+    labelId: integer("label_id").references(() => labels.id),
     embedding: vector("embedding", { dimensions: 1536 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
@@ -37,5 +39,18 @@ export const files = pgTable(
   ]
 );
 
+export const filesRelations = relations(files, ({ one }) => ({
+  label: one(labels, { fields: [files.labelId], references: [labels.id] }),
+}));
+
+export const labels = pgTable("labels", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  definition: text("definition"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export type Label = typeof labels.$inferSelect;
+export type NewLabel = typeof labels.$inferInsert;
 export type File = typeof files.$inferSelect;
 export type NewFile = typeof files.$inferInsert;
