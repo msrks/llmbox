@@ -6,6 +6,7 @@ import { formatDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { deletePrompt } from "./actions";
+import { useRouter } from "next/navigation";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,6 +18,41 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+
+const DeletePromptCell = ({ prompt }: { prompt: LlmPrompt }) => {
+  const router = useRouter();
+
+  return (
+    <AlertDialog>
+      <AlertDialogTrigger asChild>
+        <Button variant="ghost" size="icon">
+          <Trash2 className="h-4 w-4 text-red-500" />
+        </Button>
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete Prompt</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete this prompt? This action cannot be
+            undone.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={async () => {
+              await deletePrompt(prompt.id);
+              router.refresh();
+            }}
+            className="bg-red-500 hover:bg-red-600"
+          >
+            Delete
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
+};
 
 export const columns: ColumnDef<LlmPrompt>[] = [
   {
@@ -61,36 +97,7 @@ export const columns: ColumnDef<LlmPrompt>[] = [
     id: "actions",
     cell: ({ row }) => {
       const prompt = row.original;
-
-      return (
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <Trash2 className="h-4 w-4 text-red-500" />
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Delete Prompt</AlertDialogTitle>
-              <AlertDialogDescription>
-                Are you sure you want to delete this prompt? This action cannot
-                be undone.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={async () => {
-                  await deletePrompt(prompt.id);
-                }}
-                className="bg-red-500 hover:bg-red-600"
-              >
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      );
+      return <DeletePromptCell prompt={prompt} />;
     },
   },
 ];
