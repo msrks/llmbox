@@ -95,6 +95,7 @@ export const promptEvaluations = pgTable("prompt_evaluations", {
   specId: integer("spec_id")
     .references(() => specs.id)
     .notNull(),
+  finalPrompt: text("final_prompt").notNull(),
   score: real("score"),
   state: text("state", { enum: ["running", "failed", "finished"] })
     .notNull()
