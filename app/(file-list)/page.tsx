@@ -9,8 +9,8 @@ import {
 } from "./actions";
 import { Button } from "@/components/ui/button";
 import { LayoutGrid, List } from "lucide-react";
-import { TableView } from "@/components/file-list/table-view";
-import { TileView } from "@/components/file-list/tile-view";
+import { TableView } from "@/app/(file-list)/_components/table-view";
+import { TileView } from "@/app/(file-list)/_components/tile-view";
 import { FileInfo } from "@/lib/types";
 
 export default function Home() {
@@ -95,7 +95,7 @@ export default function Home() {
   };
 
   return (
-    <div className="container mx-auto p-8 space-y-8">
+    <div className="container mx-auto space-y-8">
       {error && (
         <div className="text-sm font-medium text-destructive">{error}</div>
       )}
