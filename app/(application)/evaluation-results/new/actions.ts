@@ -4,7 +4,6 @@ import { db } from "@/lib/db/drizzle";
 import { promptEvaluations } from "@/lib/db/schema";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { toast } from "sonner";
 
 export async function createEvaluation(formData: FormData) {
   try {
@@ -25,8 +24,7 @@ export async function createEvaluation(formData: FormData) {
 
     revalidatePath("/evaluation-results");
     redirect("/evaluation-results");
-  } catch (error) {
-    toast.error("Failed to create evaluation");
-    throw error;
+  } catch {
+    return { error: "Failed to create evaluation" };
   }
 }

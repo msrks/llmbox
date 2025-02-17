@@ -18,7 +18,7 @@ export const columns: ColumnDef<PromptEvaluation>[] = [
     ),
     cell: ({ row }) => {
       const score = row.getValue("score") as number;
-      return <div className="font-medium">{score.toFixed(2)}</div>;
+      return <div className="font-medium">{score?.toFixed(2)}</div>;
     },
   },
   {
