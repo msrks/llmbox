@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { createLabel, getLabels } from "./actions";
 import { toast } from "sonner";
@@ -47,11 +46,10 @@ export default function LabelsPage() {
     setIsSubmitting(true);
 
     const formData = new FormData(event.currentTarget);
-    const title = formData.get("title") as string;
-    const definition = formData.get("definition") as string;
+    const name = formData.get("name") as string;
 
     try {
-      const result = await createLabel({ title, definition });
+      const result = await createLabel({ name });
       if (result.error) {
         toast.error(result.error);
       } else {
@@ -89,21 +87,12 @@ export default function LabelsPage() {
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="title">Title</Label>
+                  <Label htmlFor="name">Name</Label>
                   <Input
-                    id="title"
-                    name="title"
-                    placeholder="Enter label title"
+                    id="name"
+                    name="name"
+                    placeholder="Enter label name"
                     required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="definition">Definition</Label>
-                  <Textarea
-                    id="definition"
-                    name="definition"
-                    placeholder="Enter label definition"
-                    rows={4}
                   />
                 </div>
                 <div className="flex justify-end">

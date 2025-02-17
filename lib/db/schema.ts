@@ -55,8 +55,7 @@ export const filesRelations = relations(files, ({ one }) => ({
 
 export const labels = pgTable("labels", {
   id: serial("id").primaryKey(),
-  title: text("title").notNull(),
-  definition: text("definition"),
+  name: text("name").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

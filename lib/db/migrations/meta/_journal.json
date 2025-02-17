@@ -43,6 +43,13 @@
       "when": 1739776599620,
       "tag": "0005_pale_blazing_skull",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1739825148598,
+      "tag": "0006_abandoned_adam_destine",
+      "breakpoints": true
     }
   ]
 }

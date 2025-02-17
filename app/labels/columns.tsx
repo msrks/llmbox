@@ -23,7 +23,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label as UILabel } from "@/components/ui/label";
 import { useState } from "react";
 import { updateLabel, deleteLabel } from "./actions";
@@ -42,11 +41,10 @@ function LabelActions({ label }: LabelActionsProps) {
     setIsSubmitting(true);
 
     const formData = new FormData(event.currentTarget);
-    const title = formData.get("title") as string;
-    const definition = formData.get("definition") as string;
+    const name = formData.get("name") as string;
 
     try {
-      const result = await updateLabel(label.id, { title, definition });
+      const result = await updateLabel(label.id, { name });
       if (result.error) {
         toast.error(result.error);
       } else {
@@ -91,22 +89,8 @@ function LabelActions({ label }: LabelActionsProps) {
           </DialogHeader>
           <form onSubmit={handleEdit} className="space-y-4">
             <div className="space-y-2">
-              <UILabel htmlFor="title">Title</UILabel>
-              <Input
-                id="title"
-                name="title"
-                defaultValue={label.title}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <UILabel htmlFor="definition">Definition</UILabel>
-              <Textarea
-                id="definition"
-                name="definition"
-                defaultValue={label.definition || ""}
-                rows={4}
-              />
+              <UILabel htmlFor="name">Name</UILabel>
+              <Input id="name" name="name" defaultValue={label.name} required />
             </div>
             <div className="flex justify-end">
               <Button type="submit" disabled={isSubmitting}>
@@ -143,12 +127,8 @@ function LabelActions({ label }: LabelActionsProps) {
 
 export const columns: ColumnDef<Label>[] = [
   {
-    accessorKey: "title",
-    header: "Title",
-  },
-  {
-    accessorKey: "definition",
-    header: "Definition",
+    accessorKey: "name",
+    header: "Name",
   },
   {
     accessorKey: "createdAt",
