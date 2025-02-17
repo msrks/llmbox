@@ -36,6 +36,13 @@
       "when": 1739760684268,
       "tag": "0004_right_doctor_octopus",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1739776599620,
+      "tag": "0005_pale_blazing_skull",
+      "breakpoints": true
     }
   ]
 }

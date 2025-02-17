@@ -66,9 +66,17 @@ export const llmPrompts = pgTable("llm_prompts", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const specs = pgTable("specs", {
+  id: serial("id").primaryKey(),
+  description: text("description").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export type Label = typeof labels.$inferSelect;
 export type NewLabel = typeof labels.$inferInsert;
 export type File = typeof files.$inferSelect;
 export type NewFile = typeof files.$inferInsert;
 export type LlmPrompt = typeof llmPrompts.$inferSelect;
 export type NewLlmPrompt = typeof llmPrompts.$inferInsert;
+export type Spec = typeof specs.$inferSelect;
+export type NewSpec = typeof specs.$inferInsert;
