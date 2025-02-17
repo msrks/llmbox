@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db/drizzle";
 import { specs } from "@/lib/db/schema";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export async function getSpecs() {
@@ -24,12 +24,7 @@ export async function createSpec(description: string) {
       throw new Error("Description is required");
     }
 
-    const newSpec = await db
-      .insert(specs)
-      .values({
-        description,
-      })
-      .returning();
+    const newSpec = await db.insert(specs).values({ description }).returning();
 
     revalidatePath("/inspection-specs");
     return { spec: newSpec[0] };
@@ -45,10 +40,7 @@ export async function updateSpec(id: number, description: string) {
       throw new Error("Description is required");
     }
 
-    await db
-      .update(specs)
-      .set({ description })
-      .where(({ eq }) => eq(specs.id, id));
+    await db.update(specs).set({ description }).where(eq(specs.id, id));
 
     revalidatePath("/inspection-specs");
     return { success: true };
@@ -60,8 +52,9 @@ export async function updateSpec(id: number, description: string) {
 
 export async function deleteSpec(id: number) {
   try {
-    await db.delete(specs).where(({ eq }) => eq(specs.id, id));
+    await db.delete(specs).where(eq(specs.id, id));
     revalidatePath("/inspection-specs");
+    console.log("Spec deleted successfully");
     return { success: true };
   } catch (error) {
     console.error("Failed to delete spec:", error);
