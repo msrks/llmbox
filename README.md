@@ -30,3 +30,63 @@ Zero cloud LLM dependency, 100% local!
 
 - DB: [https://local.drizzle.studio/](https://local.drizzle.studio/)
   - Run `pnpm run db:studio` to open the studio
+
+## Entity Relationship Diagram
+
+```mermaid
+erDiagram
+    files {
+        int id PK
+        string fileName
+        string originalName
+        string mimeType
+        int size
+        string uploadType
+        int aiLabelId FK
+        int aiPromptId FK
+        int humanLabelId FK
+        vector embedding
+        timestamp createdAt
+    }
+    labels {
+        int id PK
+        string name
+        timestamp createdAt
+    }
+    llmPrompts {
+        int id PK
+        string promptTemplate
+        timestamp createdAt
+    }
+    specs {
+        int id PK
+        string description
+        timestamp createdAt
+    }
+    promptEvaluations {
+        int id PK
+        timestamp createdAt
+        int promptId FK
+        int specId FK
+        float score
+    }
+    evalResults {
+        int id PK
+        int fileId FK
+        int promptEvalId FK
+        int llmLabelId FK
+        string llmReason
+        string result
+        timestamp createdAt
+    }
+
+    files ||--o| labels : "aiLabel"
+    files ||--o| labels : "humanLabel"
+    files ||--o| llmPrompts : "aiPrompt"
+    promptEvaluations ||--|| llmPrompts : "prompt"
+    promptEvaluations ||--|| specs : "spec"
+    promptEvaluations ||--o{ evalResults : "evalResults"
+    evalResults ||--|| files : "file"
+    evalResults ||--|| promptEvaluations : "promptEval"
+    evalResults ||--|| labels : "llmLabel"
+```
