@@ -3,7 +3,6 @@
 import { useChat } from "ai/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
 
 export default function ChatPage() {
   const {
@@ -18,12 +17,6 @@ export default function ChatPage() {
   return (
     <div className="container mx-auto p-8">
       <div className="max-w-2xl mx-auto space-y-4">
-        <div className="flex justify-start items-center">
-          <Link href="/">
-            <Button variant="outline">← Back</Button>
-          </Link>
-        </div>
-
         <div className="border rounded-lg p-4 space-y-4">
           <h2 className="text-2xl font-semibold tracking-tight">Chat</h2>
 

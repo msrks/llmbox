@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import Link from "next/link";
 
 export default function UploadPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -42,18 +41,6 @@ export default function UploadPage() {
 
   return (
     <div className="container mx-auto p-8 space-y-8">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Upload File</h1>
-        <div className="space-x-4">
-          <Link href="/">
-            <Button variant="outline">View Files</Button>
-          </Link>
-          <Link href="/chat">
-            <Button variant="outline">Open Chat</Button>
-          </Link>
-        </div>
-      </div>
-
       <form onSubmit={handleSubmit} className="max-w-md space-y-4">
         <div className="space-y-2">
           <label

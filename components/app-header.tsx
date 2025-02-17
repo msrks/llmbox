@@ -1,4 +1,3 @@
-import { ThemeToggle } from "./theme-toggle";
 import Link from "next/link";
 
 export function AppHeader() {
@@ -9,11 +8,6 @@ export function AppHeader() {
           <Link className="mr-6 flex items-center space-x-2" href="/">
             <span className="font-bold">Local LLM Stack</span>
           </Link>
-        </div>
-        <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-          <nav className="flex items-center space-x-6">
-            <ThemeToggle />
-          </nav>
         </div>
       </div>
     </header>
