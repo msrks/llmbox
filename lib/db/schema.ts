@@ -27,7 +27,8 @@ export const files = pgTable(
     uploadType: text("upload_type", { enum: ["manual", "api"] })
       .notNull()
       .default("manual"),
-    labelId: integer("label_id").references(() => labels.id),
+    aiLabelId: integer("label_id").references(() => labels.id),
+    humanLabelId: integer("human_label_id").references(() => labels.id),
     embedding: vector("embedding", { dimensions: 1536 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
@@ -40,7 +41,11 @@ export const files = pgTable(
 );
 
 export const filesRelations = relations(files, ({ one }) => ({
-  label: one(labels, { fields: [files.labelId], references: [labels.id] }),
+  aiLabel: one(labels, { fields: [files.aiLabelId], references: [labels.id] }),
+  humanLabel: one(labels, {
+    fields: [files.humanLabelId],
+    references: [labels.id],
+  }),
 }));
 
 export const labels = pgTable("labels", {
