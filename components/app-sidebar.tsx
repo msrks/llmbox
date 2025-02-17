@@ -35,7 +35,7 @@ const menuGroups = [
     items: [
       {
         title: "Dataset",
-        url: "/",
+        url: "/dataset",
         icon: File,
       },
       {
