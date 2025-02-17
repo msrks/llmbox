@@ -2,6 +2,8 @@
 
 Zero cloud LLM dependency, 100% local!
 
+![hero](./public/hero.png)
+
 ## Tech Stack
 
 - App: [Next.js](https://nextjs.org/)
@@ -69,6 +71,7 @@ erDiagram
         int promptId FK
         int specId FK
         float score
+        string state
     }
     evalResults {
         int id PK

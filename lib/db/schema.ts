@@ -20,8 +20,16 @@ export const EvalResult = {
   INCORRECT: "incorrect",
 } as const;
 
+export const PromptEvalState = {
+  RUNNING: "running",
+  FAILED: "failed",
+  FINISHED: "finished",
+} as const;
+
 export type UploadType = (typeof UploadType)[keyof typeof UploadType];
 export type EvalResult = (typeof EvalResult)[keyof typeof EvalResult];
+export type PromptEvalState =
+  (typeof PromptEvalState)[keyof typeof PromptEvalState];
 
 export const files = pgTable(
   "files",
@@ -88,6 +96,9 @@ export const promptEvaluations = pgTable("prompt_evaluations", {
     .references(() => specs.id)
     .notNull(),
   score: real("score").notNull(),
+  state: text("state", { enum: ["running", "failed", "finished"] })
+    .notNull()
+    .default("running"),
 });
 
 export const promptEvaluationsRelations = relations(
