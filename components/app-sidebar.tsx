@@ -45,7 +45,7 @@ const items = [
     icon: Tag,
   },
   {
-    title: "Prompts",
+    title: "Prompt Templates",
     url: "/prompts",
     icon: Sparkles,
   },

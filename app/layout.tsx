@@ -27,9 +27,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <SidebarProvider>
-            <div className="relative flex min-h-screen">
+            <div className="relative flex min-h-screen w-full">
               <AppSidebar />
-              <main className="flex-1 p-4">{children}</main>
+              <main className="flex-1 p-4 w-full">{children}</main>
             </div>
           </SidebarProvider>
         </ThemeProvider>

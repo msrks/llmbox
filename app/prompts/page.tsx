@@ -168,14 +168,16 @@ export default function PromptsPage() {
   };
 
   return (
-    <div className="container mx-auto py-8 space-y-8">
+    <div className="mx-auto py-8 space-y-8">
       {error && (
         <div className="text-sm font-medium text-destructive">{error}</div>
       )}
 
       <div className="w-full mx-auto space-y-4">
         <div className="flex flex-row items-center justify-between">
-          <h2 className="text-2xl font-semibold tracking-tight">Prompts</h2>
+          <h2 className="text-2xl font-semibold tracking-tight">
+            Prompt Templates
+          </h2>
           <PromptsClient onPromptCreated={fetchPrompts} />
         </div>
         <DataTable columns={columns} data={prompts} />
