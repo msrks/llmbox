@@ -1,6 +1,17 @@
-import { Home, Upload, MessageSquare, Tag, Sparkles } from "lucide-react";
+"use client";
+
+import {
+  Home,
+  Upload,
+  MessageSquare,
+  Tag,
+  Sparkles,
+  PanelLeftClose,
+  PanelLeft,
+} from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "./theme-toggle";
+import { Button } from "./ui/button";
 
 import {
   Sidebar,
@@ -13,6 +24,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarHeader,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 // Menu items.
@@ -45,25 +57,46 @@ const items = [
 ];
 
 export function AppSidebar() {
+  const { toggleSidebar, state } = useSidebar();
+  const isCollapsed = state === "collapsed";
+
   return (
-    <Sidebar>
-      <SidebarHeader className="border-b px-6 py-3">
-        <Link href="/" className="flex items-center space-x-2">
-          <span className="font-bold">Local LLM Stack</span>
-        </Link>
+    <Sidebar collapsible="icon">
+      <SidebarHeader>
+        <div className="flex items-center justify-between border-b px-4 py-3">
+          {!isCollapsed && (
+            <Link href="/" className="flex items-center">
+              <span className="text-sm font-bold">Local LLM Stack</span>
+            </Link>
+          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleSidebar}
+            className="h-8 w-8"
+          >
+            {isCollapsed ? (
+              <PanelLeft size={18} />
+            ) : (
+              <PanelLeftClose size={18} />
+            )}
+          </Button>
+        </div>
       </SidebarHeader>
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
+          {!isCollapsed && <SidebarGroupLabel>Application</SidebarGroupLabel>}
           <SidebarGroupContent>
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild>
-                    <Link href={item.url}>
-                      <item.icon />
-                      <span>{item.title}</span>
+                    <Link href={item.url} className="flex items-center gap-2">
+                      <item.icon size={18} />
+                      {!isCollapsed && (
+                        <span className="text-sm">{item.title}</span>
+                      )}
                     </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -73,7 +106,7 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter className="px-2">
         <ThemeToggle />
       </SidebarFooter>
     </Sidebar>
