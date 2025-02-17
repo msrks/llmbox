@@ -1,0 +1,1 @@
+ALTER TABLE "prompt_evaluations" ADD COLUMN "state" text DEFAULT 'running' NOT NULL;

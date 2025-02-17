@@ -57,6 +57,13 @@
       "when": 1739832555431,
       "tag": "0007_fast_proemial_gods",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1739834321022,
+      "tag": "0008_colorful_chamber",
+      "breakpoints": true
     }
   ]
 }
