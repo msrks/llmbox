@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Wand2 } from "lucide-react";
 import { IMAGE_CLASSIFIER_TEMPLATE } from "./templates/image-classifier";
 import { getPrompts, createPrompt } from "./actions";
+import React from "react";
 
 interface CreatePromptDialogProps {
   isOpen: boolean;
@@ -24,6 +25,52 @@ interface PromptFormProps {
   promptTemplate: string;
   onPromptChange: (value: string) => void;
   onGenerateTemplate: () => void;
+}
+
+function HighlightedTextarea({
+  value,
+  onChange,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof Textarea>) {
+  const parts = value.split(/(\{\{.*?\}\})/);
+  const textareaRef = React.useRef<HTMLTextAreaElement>(null);
+  const overlayRef = React.useRef<HTMLDivElement>(null);
+
+  // Sync scroll between textarea and overlay
+  const handleScroll = () => {
+    if (textareaRef.current && overlayRef.current) {
+      overlayRef.current.scrollTop = textareaRef.current.scrollTop;
+      overlayRef.current.scrollLeft = textareaRef.current.scrollLeft;
+    }
+  };
+
+  return (
+    <div className="relative h-full">
+      <Textarea
+        {...props}
+        ref={textareaRef}
+        value={value}
+        onChange={onChange}
+        onScroll={handleScroll}
+        className="h-full resize-none font-mono absolute inset-0 bg-transparent text-transparent caret-black selection:bg-blue-400/20 z-10"
+      />
+      <div
+        ref={overlayRef}
+        className="absolute inset-0 pointer-events-none whitespace-pre-wrap font-mono p-[13px] overflow-hidden text-xs"
+      >
+        {parts.map((part, index) => {
+          if (part.match(/^\{\{.*\}\}$/)) {
+            return (
+              <span key={index} className="text-orange-500">
+                {part}
+              </span>
+            );
+          }
+          return part;
+        })}
+      </div>
+    </div>
+  );
 }
 
 function PromptForm({
@@ -49,7 +96,7 @@ function PromptForm({
             Generate Prompt
           </Button>
         </div>
-        <Textarea
+        <HighlightedTextarea
           id="promptTemplate"
           name="promptTemplate"
           placeholder="Enter prompt template"

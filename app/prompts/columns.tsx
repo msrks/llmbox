@@ -3,6 +3,20 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { LlmPrompt } from "@/lib/db/schema";
 import { formatDate } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
+import { deletePrompt } from "./actions";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 export const columns: ColumnDef<LlmPrompt>[] = [
   {
@@ -17,7 +31,7 @@ export const columns: ColumnDef<LlmPrompt>[] = [
       // Split the template by {{...}} patterns and create an array of regular text and highlighted spans
       const parts = template.split(/(\{\{.*?\}\})/);
       return (
-        <div className="whitespace-pre-wrap">
+        <div className="whitespace-pre-wrap text-xs">
           {parts.map((part, index) => {
             if (part.match(/^\{\{.*\}\}$/)) {
               return (
@@ -41,6 +55,42 @@ export const columns: ColumnDef<LlmPrompt>[] = [
       const date =
         dateValue instanceof Date ? dateValue : new Date(dateValue as string);
       return formatDate(date);
+    },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      const prompt = row.original;
+
+      return (
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <Trash2 className="h-4 w-4 text-red-500" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Delete Prompt</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete this prompt? This action cannot
+                be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={async () => {
+                  await deletePrompt(prompt.id);
+                }}
+                className="bg-red-500 hover:bg-red-600"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      );
     },
   },
 ];

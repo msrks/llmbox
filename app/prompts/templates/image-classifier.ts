@@ -16,7 +16,9 @@ Provide your response in the following format:
 <explanation>
 [Provide a detailed explanation of your reasoning, referencing specific aspects of the image and how they relate to the inspection criteria]
 </explanation>
-<classification>[State either "Pass" or "Fail"]</classification>
+<classification>
+one of the following: {{LABELS}}
+</classification>
 </classification_response>
 
 Ensure that your explanation is clear, concise, and directly relates to the inspection specification. Your classification should be a direct result of your explained reasoning.`;

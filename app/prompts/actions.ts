@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db/drizzle";
 import { llmPrompts } from "@/lib/db/schema";
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 export async function getPrompts() {
@@ -34,5 +34,16 @@ export async function createPrompt(promptTemplate: string) {
   } catch (error) {
     console.error("Failed to create prompt:", error);
     throw new Error("Failed to create prompt");
+  }
+}
+
+export async function deletePrompt(id: number) {
+  try {
+    await db.delete(llmPrompts).where(eq(llmPrompts.id, id));
+    revalidatePath("/prompts");
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete prompt:", error);
+    throw new Error("Failed to delete prompt");
   }
 }
