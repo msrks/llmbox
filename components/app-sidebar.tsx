@@ -15,6 +15,17 @@ import {
 import Link from "next/link";
 import { ThemeToggle } from "./theme-toggle";
 import { Button } from "./ui/button";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 import {
   Sidebar,
@@ -29,10 +40,7 @@ import {
   SidebarHeader,
   useSidebar,
 } from "@/components/ui/sidebar";
-
-interface AppSidebarProps {
-  projectId: string;
-}
+import { getProjects } from "@/app/_actions/project";
 
 // Menu items.
 const getMenuGroups = (projectId: string) => [
@@ -98,20 +106,42 @@ const getMenuGroups = (projectId: string) => [
   },
 ];
 
-export function AppSidebar({ projectId }: AppSidebarProps) {
+export function AppSidebar() {
+  const { projectId } = useParams();
   const { toggleSidebar, state } = useSidebar();
   const isCollapsed = state === "collapsed";
-  const menuGroups = getMenuGroups(projectId);
+  const currentProjectId = typeof projectId === "string" ? projectId : "";
+  const menuGroups = getMenuGroups(currentProjectId);
+  const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [projects, setProjects] = useState<
+    { id: number; name: string; description: string | null }[]
+  >([]);
+
+  useEffect(() => {
+    const loadProjects = async () => {
+      try {
+        setLoading(true);
+        const projectList = await getProjects();
+        setProjects(projectList);
+      } catch {
+        toast.error("Failed to load projects");
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadProjects();
+  }, []);
 
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
         <div className="flex items-center justify-between border-b px-4 py-3">
-          {!isCollapsed && (
+          {!isCollapsed ? (
             <Link href="/" className="flex items-center">
               <span className="text-xl font-bold">LLMBox</span>
             </Link>
-          )}
+          ) : null}
           <Button
             variant="ghost"
             size="icon"
@@ -128,6 +158,27 @@ export function AppSidebar({ projectId }: AppSidebarProps) {
       </SidebarHeader>
 
       <SidebarContent>
+        <div className="px-4 py-2">
+          <Select
+            disabled={loading}
+            value={currentProjectId}
+            onValueChange={(value) => {
+              router.push(`/${value}`);
+            }}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select project..." />
+            </SelectTrigger>
+            <SelectContent>
+              {projects.map((project) => (
+                <SelectItem key={project.id} value={project.id.toString()}>
+                  {project.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         {menuGroups.map((group) => (
           <SidebarGroup key={group.label}>
             {!isCollapsed && (

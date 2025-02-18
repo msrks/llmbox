@@ -24,3 +24,16 @@ export async function createProject(
 
   return newProject.id;
 }
+
+export async function getProjects() {
+  const allProjects = await db
+    .select({
+      id: projects.id,
+      name: projects.name,
+      description: projects.description,
+    })
+    .from(projects)
+    .orderBy(projects.name);
+
+  return allProjects;
+}
