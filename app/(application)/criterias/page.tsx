@@ -70,7 +70,7 @@ export default function CriteriasPage() {
   }
 
   return (
-    <div className="mx-auto py-8 space-y-8">
+    <div className="mx-auto space-y-8">
       {error && (
         <div className="text-sm font-medium text-destructive">{error}</div>
       )}

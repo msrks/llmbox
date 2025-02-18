@@ -180,7 +180,7 @@ export function PromptsClient({
   };
 
   return (
-    <div className="mx-auto py-8 space-y-8">
+    <div className="mx-auto space-y-8">
       <div className="w-full mx-auto space-y-4">
         <div className="flex flex-row items-center justify-between">
           <h2 className="text-2xl font-semibold tracking-tight">
