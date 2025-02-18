@@ -18,6 +18,17 @@ export const columns: ColumnDef<PromptEvaluation>[] = [
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="ID" />
     ),
+    cell: ({ row }) => {
+      const id = row.getValue("id") as string;
+      return (
+        <Link
+          href={`/evaluation-results/${id}`}
+          className="text-primary hover:underline"
+        >
+          {id}
+        </Link>
+      );
+    },
   },
   {
     accessorKey: "score",
