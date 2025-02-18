@@ -1,7 +1,12 @@
 "use server";
 
 import { db } from "@/lib/db/drizzle";
-import { criterias, type NewCriteria } from "@/lib/db/schema";
+import {
+  criterias,
+  criteriaExamples,
+  type NewCriteria,
+  type NewCriteriaExample,
+} from "@/lib/db/schema";
 import { desc, eq } from "drizzle-orm";
 
 export async function getCriterias() {
@@ -55,6 +60,23 @@ export async function deleteCriteria(id: number) {
     return {
       error:
         error instanceof Error ? error.message : "Failed to delete criteria",
+    };
+  }
+}
+
+export async function createCriteriaExample(data: NewCriteriaExample) {
+  try {
+    const [newExample] = await db
+      .insert(criteriaExamples)
+      .values(data)
+      .returning();
+    return { example: newExample };
+  } catch (error) {
+    return {
+      error:
+        error instanceof Error
+          ? error.message
+          : "Failed to create criteria example",
     };
   }
 }
