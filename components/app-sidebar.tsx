@@ -46,26 +46,6 @@ import { getProjects } from "@/app/projects/actions";
 // Menu items.
 const getMenuGroups = (projectId: string) => [
   {
-    label: "Navigation",
-    items: [
-      {
-        title: "Project List",
-        url: "/projects",
-        icon: List,
-      },
-      {
-        title: "Project Root",
-        url: `/${projectId}`,
-        icon: Home,
-      },
-      {
-        title: "Landing Page",
-        url: "/",
-        icon: Rocket,
-      },
-    ],
-  },
-  {
     label: "Dataset",
     items: [
       {
@@ -112,6 +92,26 @@ const getMenuGroups = (projectId: string) => [
         title: "Chat",
         url: `/${projectId}/chat`,
         icon: MessageSquare,
+      },
+    ],
+  },
+  {
+    label: "Navigation",
+    items: [
+      {
+        title: "Project List",
+        url: "/projects",
+        icon: List,
+      },
+      {
+        title: "Project Root",
+        url: `/${projectId}`,
+        icon: Home,
+      },
+      {
+        title: "Landing Page",
+        url: "/",
+        icon: Rocket,
       },
     ],
   },
