@@ -8,11 +8,12 @@ import {
   deleteFileFromBucket,
 } from "@/lib/s3-file-management";
 
-export async function getFilesList() {
+export async function getFilesList(projectId: string) {
   try {
     const fileList = await db
       .select()
       .from(files)
+      .where(eq(files.projectId, parseInt(projectId)))
       .orderBy(desc(files.createdAt));
 
     return {
@@ -35,9 +36,12 @@ export async function getFilesList() {
   }
 }
 
-export async function getCriterias() {
+export async function getCriterias(projectId: string) {
   try {
-    const criteriasList = await db.select().from(criterias);
+    const criteriasList = await db
+      .select()
+      .from(criterias)
+      .where(eq(criterias.projectId, parseInt(projectId)));
     return { criterias: criteriasList };
   } catch (error) {
     return {
