@@ -2,6 +2,11 @@ export const IMAGE_CLASSIFIER_TEMPLATE = `You are an AI image classifier tasked 
 
 You will be provided with an image input and an inspection specification. The image input will be a text description of the image contents. The inspection specification will detail the criteria you should use to classify the image.
 
+Here is the criterias:
+<criterias>
+{{CRITERIAS}}
+</criterias>
+
 Here is the inspection specification:
 <inspection_spec>
 {{INSPECTION_SPEC}}
@@ -16,9 +21,12 @@ Provide your response in the following format:
 <explanation>
 [Provide a detailed explanation of your reasoning, referencing specific aspects of the image and how they relate to the inspection criteria]
 </explanation>
-<classification>
-one of the following: {{LABELS}}
-</classification>
+<criteria_results>
+[Provide a list of criteria results, each value is either pass or fail]
+</criteria_results>
+<final_result>
+[Provide the final result, either pass or fail]
+</final_result>
 </classification_response>
 
 Ensure that your explanation is clear, concise, and directly relates to the inspection specification. Your classification should be a direct result of your explained reasoning.`;
