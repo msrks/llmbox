@@ -37,8 +37,16 @@ Zero cloud LLM dependency, 100% local!
 
 ```mermaid
 erDiagram
+    projects {
+        string id PK
+        string name
+        string description
+        timestamp createdAt
+        timestamp updatedAt
+    }
     files {
         int id PK
+        string projectId FK
         string fileName
         string originalName
         string mimeType
@@ -50,8 +58,16 @@ erDiagram
         vector embedding
         timestamp createdAt
     }
+    labels {
+        int id PK
+        string projectId FK
+        string name
+        string description
+        timestamp createdAt
+    }
     criterias {
         int id PK
+        string projectId FK
         string name
         string description
         timestamp createdAt
@@ -60,22 +76,25 @@ erDiagram
         int id PK
         int fileId FK
         int criteriaId FK
-        boolean isPositive
+        boolean isFail
         string reason
         timestamp createdAt
     }
     llmPrompts {
         int id PK
+        string projectId FK
         string promptTemplate
         timestamp createdAt
     }
     specs {
         int id PK
+        string projectId FK
         string description
         timestamp createdAt
     }
     promptEvaluations {
         int id PK
+        string projectId FK
         timestamp createdAt
         int promptId FK
         int specId FK
@@ -95,6 +114,13 @@ erDiagram
         string result
         timestamp createdAt
     }
+
+    projects ||--o{ files : "files"
+    projects ||--o{ labels : "labels"
+    projects ||--o{ criterias : "criterias"
+    projects ||--o{ llmPrompts : "llmPrompts"
+    projects ||--o{ specs : "specs"
+    projects ||--o{ promptEvaluations : "promptEvaluations"
 
     files ||--o| llmPrompts : "aiPrompt"
     files ||--o{ criteriaExamples : "examples"

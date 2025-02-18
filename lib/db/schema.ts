@@ -69,6 +69,10 @@ export const filesRelations = relations(files, ({ one }) => ({
     fields: [files.aiPromptId],
     references: [llmPrompts.id],
   }),
+  project: one(projects, {
+    fields: [files.projectId],
+    references: [projects.id],
+  }),
 }));
 
 export const labels = pgTable("labels", {
@@ -79,6 +83,13 @@ export const labels = pgTable("labels", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const labelsRelations = relations(labels, ({ one }) => ({
+  project: one(projects, {
+    fields: [labels.projectId],
+    references: [projects.id],
+  }),
+}));
+
 export const criterias = pgTable("criterias", {
   id: serial("id").primaryKey(),
   projectId: text("project_id").notNull(),
@@ -86,6 +97,14 @@ export const criterias = pgTable("criterias", {
   description: text("description"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+export const criteriasRelations = relations(criterias, ({ many, one }) => ({
+  examples: many(criteriaExamples),
+  project: one(projects, {
+    fields: [criterias.projectId],
+    references: [projects.id],
+  }),
+}));
 
 export const criteriaExamples = pgTable("criteria_examples", {
   id: serial("id").primaryKey(),
@@ -114,10 +133,6 @@ export const criteriaExamplesRelations = relations(
   })
 );
 
-export const criteriasRelations = relations(criterias, ({ many }) => ({
-  examples: many(criteriaExamples),
-}));
-
 export const llmPrompts = pgTable("llm_prompts", {
   id: serial("id").primaryKey(),
   projectId: text("project_id").notNull(),
@@ -125,12 +140,26 @@ export const llmPrompts = pgTable("llm_prompts", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const llmPromptsRelations = relations(llmPrompts, ({ one }) => ({
+  project: one(projects, {
+    fields: [llmPrompts.projectId],
+    references: [projects.id],
+  }),
+}));
+
 export const specs = pgTable("specs", {
   id: serial("id").primaryKey(),
   projectId: text("project_id").notNull(),
   description: text("description").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+export const specsRelations = relations(specs, ({ one }) => ({
+  project: one(projects, {
+    fields: [specs.projectId],
+    references: [projects.id],
+  }),
+}));
 
 export const promptEvaluations = pgTable("prompt_evaluations", {
   id: serial("id").primaryKey(),
@@ -163,6 +192,10 @@ export const promptEvaluationsRelations = relations(
       fields: [promptEvaluations.specId],
       references: [specs.id],
     }),
+    project: one(projects, {
+      fields: [promptEvaluations.projectId],
+      references: [projects.id],
+    }),
     evalResults: many(evalResults),
   })
 );
@@ -192,6 +225,23 @@ export const evalResultsRelations = relations(evalResults, ({ one }) => ({
   }),
 }));
 
+export const projects = pgTable("projects", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const projectsRelations = relations(projects, ({ many }) => ({
+  files: many(files),
+  labels: many(labels),
+  criterias: many(criterias),
+  llmPrompts: many(llmPrompts),
+  specs: many(specs),
+  promptEvaluations: many(promptEvaluations),
+}));
+
 export type File = typeof files.$inferSelect;
 export type NewFile = typeof files.$inferInsert;
 export type Criteria = typeof criterias.$inferSelect;
@@ -206,3 +256,5 @@ export type PromptEvaluation = typeof promptEvaluations.$inferSelect;
 export type NewPromptEvaluation = typeof promptEvaluations.$inferInsert;
 export type EvalResultRow = typeof evalResults.$inferSelect;
 export type NewEvalResultRow = typeof evalResults.$inferInsert;
+export type Project = typeof projects.$inferSelect;
+export type NewProject = typeof projects.$inferInsert;
