@@ -18,8 +18,10 @@ import { Plus } from "lucide-react";
 import type { Criteria } from "@/lib/db/schema";
 import { columns } from "./_components/columns";
 import { DataTable } from "./_components/data-table";
+import { useParams } from "next/navigation";
 
 export default function CriteriasPage() {
+  const { projectId } = useParams();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [criterias, setCriterias] = useState<Criteria[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -53,7 +55,11 @@ export default function CriteriasPage() {
     const description = formData.get("description") as string;
 
     try {
-      const result = await createCriteria({ name, description });
+      const result = await createCriteria({
+        projectId: parseInt(projectId as string),
+        name,
+        description,
+      });
       if (result.error) {
         toast.error(result.error);
       } else {

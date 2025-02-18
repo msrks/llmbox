@@ -3,9 +3,9 @@
 import { db } from "@/lib/db/drizzle";
 import {
   criterias,
-  criteriaExamples,
+  filesToCriterias,
   type NewCriteria,
-  type NewCriteriaExample,
+  type NewFileToCriteria,
 } from "@/lib/db/schema";
 import { desc, eq } from "drizzle-orm";
 
@@ -64,19 +64,19 @@ export async function deleteCriteria(id: number) {
   }
 }
 
-export async function createCriteriaExample(data: NewCriteriaExample) {
+export async function createFileToCriteria(data: NewFileToCriteria) {
   try {
-    const [newExample] = await db
-      .insert(criteriaExamples)
+    const [newFileToCriteria] = await db
+      .insert(filesToCriterias)
       .values(data)
       .returning();
-    return { example: newExample };
+    return { fileToCriteria: newFileToCriteria };
   } catch (error) {
     return {
       error:
         error instanceof Error
           ? error.message
-          : "Failed to create criteria example",
+          : "Failed to create file to criteria",
     };
   }
 }
