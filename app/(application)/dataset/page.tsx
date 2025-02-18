@@ -8,6 +8,7 @@ import {
   deleteFile,
   getCriterias,
   createCriteriaExample,
+  getCriteriaExamples,
 } from "./actions";
 import { Button } from "@/components/ui/button";
 import { LayoutGrid, List } from "lucide-react";
@@ -21,6 +22,18 @@ export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [files, setFiles] = useState<FileInfo[]>([]);
   const [criterias, setCriterias] = useState<Criteria[]>([]);
+  const [criteriaExamples, setCriteriaExamples] = useState<
+    Record<
+      number,
+      Array<{
+        id: number;
+        criteriaId: number;
+        isPositive: boolean;
+        reason: string | null;
+        criteriaName: string;
+      }>
+    >
+  >({});
   const [loadingFiles, setLoadingFiles] = useState(true);
   const [previewUrls, setPreviewUrls] = useState<Record<number, string>>({});
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
@@ -76,6 +89,25 @@ export default function Home() {
     }
   };
 
+  const fetchCriteriaExamples = useCallback(async (fileId: number) => {
+    const result = await getCriteriaExamples(fileId);
+    if ("error" in result) {
+      toast.error(result.error);
+    } else {
+      setCriteriaExamples((prev) => ({
+        ...prev,
+        [fileId]: result.examples,
+      }));
+    }
+  }, []);
+
+  useEffect(() => {
+    const fetchAllExamples = async () => {
+      await Promise.all(files.map((file) => fetchCriteriaExamples(file.id)));
+    };
+    fetchAllExamples();
+  }, [files, fetchCriteriaExamples]);
+
   const handleDownload = async (fileId: number, originalName: string) => {
     try {
       const result = await getFileDownloadUrl(fileId);
@@ -119,6 +151,8 @@ export default function Home() {
     if ("error" in result) {
       throw new Error(result.error);
     }
+    // Refresh criteria examples for this file
+    await fetchCriteriaExamples(data.fileId);
   };
 
   return (
@@ -161,6 +195,7 @@ export default function Home() {
             onDelete={handleDelete}
             criterias={criterias}
             onAddExample={handleAddExample}
+            criteriaExamples={criteriaExamples}
           />
         ) : (
           <TileView
@@ -171,6 +206,7 @@ export default function Home() {
             onDelete={handleDelete}
             criterias={criterias}
             onAddExample={handleAddExample}
+            criteriaExamples={criteriaExamples}
           />
         )}
       </div>

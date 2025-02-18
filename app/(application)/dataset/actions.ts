@@ -169,3 +169,26 @@ export async function deleteFile(fileId: number) {
     };
   }
 }
+
+export async function getCriteriaExamples(fileId: number) {
+  try {
+    const examples = await db
+      .select({
+        id: criteriaExamples.id,
+        criteriaId: criteriaExamples.criteriaId,
+        isPositive: criteriaExamples.isPositive,
+        reason: criteriaExamples.reason,
+        criteriaName: criterias.name,
+      })
+      .from(criteriaExamples)
+      .innerJoin(criterias, eq(criteriaExamples.criteriaId, criterias.id))
+      .where(eq(criteriaExamples.fileId, fileId));
+
+    return { examples };
+  } catch (error) {
+    return {
+      error:
+        error instanceof Error ? error.message : "Failed to fetch examples",
+    };
+  }
+}

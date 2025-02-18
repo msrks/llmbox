@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
+import { Download, CheckCircle2, XCircle } from "lucide-react";
 import { FileDeleteDialog } from "@/components/file-delete-dialog";
 import { FileInfo } from "@/lib/types";
 import { Label, Criteria } from "@/lib/db/schema";
@@ -24,6 +24,16 @@ interface TileViewProps {
   onDownload: (fileId: number, originalName: string) => void;
   onDelete: (fileId: number) => Promise<void>;
   criterias: Criteria[];
+  criteriaExamples: Record<
+    number,
+    Array<{
+      id: number;
+      criteriaId: number;
+      isPositive: boolean;
+      reason: string | null;
+      criteriaName: string;
+    }>
+  >;
   onAddExample: (data: {
     fileId: number;
     criteriaId: number;
@@ -39,6 +49,7 @@ export function TileView({
   onDownload,
   onDelete,
   criterias,
+  criteriaExamples,
   onAddExample,
 }: TileViewProps) {
   return (
@@ -100,6 +111,22 @@ export function TileView({
               <Badge variant={getLabelBadgeVariant(file.aiLabel)}>
                 {file.aiLabel?.toUpperCase() || "UNLABELED"}
               </Badge>
+            </div>
+            <div className="flex gap-2 flex-wrap">
+              {(criteriaExamples[file.id] || []).map((example) => (
+                <Badge
+                  key={example.id}
+                  variant="outline"
+                  className="flex items-center gap-1"
+                >
+                  {example.isPositive ? (
+                    <CheckCircle2 className="h-3 w-3 text-green-500" />
+                  ) : (
+                    <XCircle className="h-3 w-3 text-red-500" />
+                  )}
+                  {example.criteriaName}
+                </Badge>
+              ))}
             </div>
           </div>
 

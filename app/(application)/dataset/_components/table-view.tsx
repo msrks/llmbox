@@ -42,6 +42,16 @@ interface TableViewProps {
   onDownload: (fileId: number, originalName: string) => void;
   onDelete: (fileId: number) => Promise<void>;
   criterias: Criteria[];
+  criteriaExamples: Record<
+    number,
+    Array<{
+      id: number;
+      criteriaId: number;
+      isPositive: boolean;
+      reason: string | null;
+      criteriaName: string;
+    }>
+  >;
   onAddExample: (data: {
     fileId: number;
     criteriaId: number;
@@ -57,6 +67,7 @@ export function TableView({
   onDownload,
   onDelete,
   criterias,
+  criteriaExamples,
   onAddExample,
 }: TableViewProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -74,9 +85,17 @@ export function TableView({
         onDownload,
         onDelete,
         criterias,
+        criteriaExamples,
         onAddExample,
       }),
-    [previewUrls, isImageFile, onDownload, onDelete]
+    [
+      previewUrls,
+      isImageFile,
+      onDownload,
+      onDelete,
+      criterias,
+      criteriaExamples,
+    ]
   );
 
   const table = useReactTable({

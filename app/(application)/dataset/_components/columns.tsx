@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Download } from "lucide-react";
+import { ArrowUpDown, Download, CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { FileDeleteDialog } from "@/components/file-delete-dialog";
@@ -21,11 +21,21 @@ interface ColumnOptions {
   onDownload: (fileId: number, originalName: string) => void;
   onDelete: (fileId: number) => Promise<void>;
   criterias: Criteria[];
+  criteriaExamples: Record<
+    number,
+    Array<{
+      id: number;
+      criteriaId: number;
+      isPositive: boolean;
+      reason: string | null;
+      criteriaName: string;
+    }>
+  >;
   onAddExample: (data: {
     fileId: number;
     criteriaId: number;
     isPositive: boolean;
-    reason: string;
+    reason: string | null;
   }) => Promise<void>;
 }
 
@@ -40,8 +50,14 @@ export const getColumns = ({
   onDownload,
   onDelete,
   criterias,
+  criteriaExamples,
   onAddExample,
 }: ColumnOptions): ColumnDef<FileWithLabels>[] => [
+  {
+    accessorKey: "originalName",
+    header: "Name",
+    enableHiding: false,
+  },
   {
     accessorKey: "preview",
     header: "Preview",
@@ -83,34 +99,6 @@ export const getColumns = ({
           )}
         </div>
       );
-    },
-  },
-  {
-    accessorKey: "originalName",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Name
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-  },
-  {
-    accessorKey: "size",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Size
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => {
-      const size = parseFloat(row.getValue("size"));
-      return <div>{(size / 1024).toFixed(2)} KB</div>;
     },
   },
   {
@@ -162,6 +150,39 @@ export const getColumns = ({
     },
   },
   {
+    id: "criterias",
+    header: "Criterias",
+    cell: ({ row }) => {
+      const file = row.original;
+      const examples = criteriaExamples[file.id] || [];
+
+      return (
+        <div className="flex items-center gap-2 flex-wrap">
+          {examples.map((example) => (
+            <Badge
+              key={example.id}
+              variant="outline"
+              className="flex items-center gap-1"
+            >
+              {example.isPositive ? (
+                <CheckCircle2 className="h-3 w-3 text-green-500" />
+              ) : (
+                <XCircle className="h-3 w-3 text-red-500" />
+              )}
+              {example.criteriaName}
+            </Badge>
+          ))}
+          <AddCriteriaExampleDialog
+            fileId={file.id}
+            fileName={file.originalName}
+            criterias={criterias}
+            onSubmit={onAddExample}
+          />
+        </div>
+      );
+    },
+  },
+  {
     id: "actions",
     header: "Actions",
     cell: ({ row }) => {
@@ -175,12 +196,6 @@ export const getColumns = ({
           >
             <Download className="h-4 w-4" />
           </Button>
-          <AddCriteriaExampleDialog
-            fileId={file.id}
-            fileName={file.originalName}
-            criterias={criterias}
-            onSubmit={onAddExample}
-          />
           <FileDeleteDialog
             fileName={file.originalName}
             onDelete={() => onDelete(file.id)}
