@@ -15,8 +15,13 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { Label } from "@/lib/db/schema";
+import { uploadImages } from "./actions";
+import { useParams } from "next/navigation";
 
 export default function UploadPage() {
+  console.log("UploadPage");
+  const params = useParams();
+  const projectId = params.projectId as string;
   const [uploading, setUploading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
 
@@ -45,21 +50,14 @@ export default function UploadPage() {
         formData.append("files", file);
       });
 
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Upload failed");
-      }
-
-      await response.json();
+      await uploadImages(formData, projectId);
       toast.success("Upload completed successfully");
       setSelectedFiles([]);
       (event.target as HTMLFormElement).reset();
     } catch (error) {
-      toast.error("Failed to upload files");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to upload files"
+      );
       console.error("Upload error:", error);
     } finally {
       setUploading(false);

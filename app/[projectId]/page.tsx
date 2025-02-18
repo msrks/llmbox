@@ -21,12 +21,13 @@ function formatDistanceToNow(date: Date) {
   return "less than a minute";
 }
 
-export default async function ProjectPage({
+export default async function Page({
   params,
 }: {
-  params: { projectId: string };
+  params: Promise<{ projectId: string }>;
 }) {
-  const project = await getProject(parseInt(params.projectId));
+  const { projectId } = await params;
+  const project = await getProject(parseInt(projectId));
 
   if (!project) {
     notFound();
