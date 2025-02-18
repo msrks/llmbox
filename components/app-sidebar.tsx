@@ -12,6 +12,7 @@ import {
   ChartBar,
   Home,
   Rocket,
+  List,
 } from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "./theme-toggle";
@@ -48,8 +49,13 @@ const getMenuGroups = (projectId: string) => [
     label: "Navigation",
     items: [
       {
-        title: "Home",
+        title: "Project List",
         url: "/projects",
+        icon: List,
+      },
+      {
+        title: "Project Root",
+        url: `/${projectId}`,
         icon: Home,
       },
       {
