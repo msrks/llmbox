@@ -3,44 +3,84 @@
 import { useState, useCallback, useEffect } from "react";
 import { toast } from "sonner";
 import {
-  getFilesList,
   getFileDownloadUrl,
   getFilePreviewUrl,
   deleteFile,
   getCriterias,
   createCriteriaExample,
   getCriteriaExamples,
+  getFilesList,
 } from "../actions";
 import { FileInfo } from "@/lib/types";
-import { Criteria } from "@/lib/db/schema";
+import type { Criteria } from "@/lib/db/schema";
 
-type CriteriaExample = {
-  id: number;
+type CriteriaExampleWithMeta = {
+  fileId: number;
   criteriaId: number;
   isFail: boolean;
   reason: string | null;
-  criteriaName: string;
+  name: string;
+  description: string | null;
 };
 
 export function useDataset(projectId: string) {
   const [files, setFiles] = useState<FileInfo[]>([]);
   const [criterias, setCriterias] = useState<Criteria[]>([]);
   const [criteriaExamples, setCriteriaExamples] = useState<
-    Record<number, CriteriaExample[]>
+    Record<number, CriteriaExampleWithMeta[]>
   >({});
   const [loadingFiles, setLoadingFiles] = useState(true);
+  const [loadingCriterias, setLoadingCriterias] = useState(true);
   const [previewUrls, setPreviewUrls] = useState<Record<number, string>>({});
 
   const isImageFile = useCallback((mimeType: string | null) => {
     return mimeType?.startsWith("image/") || false;
   }, []);
 
+  const fetchFiles = useCallback(async () => {
+    setLoadingFiles(true);
+    try {
+      const result = await getFilesList(projectId);
+      if (result.files) {
+        setFiles(result.files);
+
+        // Fetch criteria examples for each file
+        const examplesPromises = result.files.map((file: FileInfo) =>
+          getCriteriaExamples(file.id)
+        );
+        const examplesResults = await Promise.all(examplesPromises);
+        const examples: Record<number, CriteriaExampleWithMeta[]> = {};
+
+        result.files.forEach((file: FileInfo, index: number) => {
+          examples[file.id] = examplesResults[index];
+        });
+
+        setCriteriaExamples(examples);
+      }
+      if (result.error) {
+        toast.error(result.error);
+      }
+    } catch {
+      toast.error("Failed to fetch files");
+    } finally {
+      setLoadingFiles(false);
+    }
+  }, [projectId]);
+
   const fetchCriterias = useCallback(async () => {
-    const result = await getCriterias(projectId);
-    if (result.error) {
-      toast.error(result.error);
-    } else if (result.criterias) {
-      setCriterias(result.criterias);
+    setLoadingCriterias(true);
+    try {
+      const result = await getCriterias(projectId);
+      if (result.criterias) {
+        setCriterias(result.criterias);
+      }
+      if (result.error) {
+        toast.error(result.error);
+      }
+    } catch {
+      toast.error("Failed to fetch criterias");
+    } finally {
+      setLoadingCriterias(false);
     }
   }, [projectId]);
 
@@ -56,39 +96,6 @@ export function useDataset(projectId: string) {
     }
     setPreviewUrls(newPreviewUrls);
   }, [files, isImageFile]);
-
-  const fetchFiles = useCallback(async () => {
-    setLoadingFiles(true);
-    try {
-      const result = await getFilesList(projectId);
-      if (result.error) {
-        toast.error(result.error);
-        return;
-      }
-
-      if (result.files) {
-        setFiles(result.files);
-        const examplesPromises = result.files.map((file) =>
-          getCriteriaExamples(file.id)
-        );
-        const examplesResults = await Promise.all(examplesPromises);
-        const examples: Record<number, CriteriaExample[]> = {};
-
-        result.files.forEach((file, index) => {
-          const exampleResult = examplesResults[index];
-          if (exampleResult.examples) {
-            examples[file.id] = exampleResult.examples;
-          }
-        });
-
-        setCriteriaExamples(examples);
-      }
-    } catch {
-      toast.error("Failed to fetch files");
-    } finally {
-      setLoadingFiles(false);
-    }
-  }, [projectId]);
 
   const handleDownload = async (fileId: number, originalName: string) => {
     try {
@@ -123,32 +130,29 @@ export function useDataset(projectId: string) {
     }
   };
 
-  const handleAddExample = async (data: {
-    fileId: number;
-    criteriaId: number;
-    isFail: boolean;
-    reason: string | null;
-  }) => {
-    try {
-      const result = await createCriteriaExample(data);
-      if ("error" in result) {
-        toast.error(result.error);
-        return;
-      }
+  const addCriteriaExample = useCallback(
+    async (data: {
+      fileId: number;
+      criteriaId: number;
+      isFail: boolean;
+      reason?: string;
+    }) => {
+      try {
+        await createCriteriaExample(data);
+        const examples = await getCriteriaExamples(data.fileId);
 
-      // Refresh examples for this file
-      const examplesResult = await getCriteriaExamples(data.fileId);
-      if (examplesResult.examples) {
         setCriteriaExamples((prev) => ({
           ...prev,
-          [data.fileId]: examplesResult.examples,
+          [data.fileId]: examples,
         }));
+
+        toast.success("Added criteria example");
+      } catch {
+        toast.error("Failed to add criteria example");
       }
-      toast.success("Example added successfully");
-    } catch {
-      toast.error("Failed to add example");
-    }
-  };
+    },
+    []
+  );
 
   useEffect(() => {
     fetchFiles();
@@ -164,10 +168,12 @@ export function useDataset(projectId: string) {
     criterias,
     criteriaExamples,
     loadingFiles,
+    loadingCriterias,
     previewUrls,
     isImageFile,
     handleDownload,
     handleDelete,
-    handleAddExample,
+    addCriteriaExample,
+    fetchFiles,
   };
 }

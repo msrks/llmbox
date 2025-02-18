@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db/drizzle";
-import { files, criteriaExamples, criterias } from "@/lib/db/schema";
+import { files, filesToCriterias, criterias } from "@/lib/db/schema";
 import { desc, eq } from "drizzle-orm";
 import {
   generatePresignedUrl,
@@ -55,26 +55,9 @@ export async function createCriteriaExample(data: {
   fileId: number;
   criteriaId: number;
   isFail: boolean;
-  reason: string | null;
+  reason?: string;
 }) {
-  try {
-    const [example] = await db
-      .insert(criteriaExamples)
-      .values({
-        fileId: data.fileId,
-        criteriaId: data.criteriaId,
-        isFail: data.isFail,
-        reason: data.reason,
-      })
-      .returning();
-
-    return { example };
-  } catch (error) {
-    return {
-      error:
-        error instanceof Error ? error.message : "Failed to create example",
-    };
-  }
+  return db.insert(filesToCriterias).values(data).returning();
 }
 
 export async function getFileDownloadUrl(fileId: number) {
@@ -175,24 +158,16 @@ export async function deleteFile(fileId: number) {
 }
 
 export async function getCriteriaExamples(fileId: number) {
-  try {
-    const examples = await db
-      .select({
-        id: criteriaExamples.id,
-        criteriaId: criteriaExamples.criteriaId,
-        isFail: criteriaExamples.isFail,
-        reason: criteriaExamples.reason,
-        criteriaName: criterias.name,
-      })
-      .from(criteriaExamples)
-      .innerJoin(criterias, eq(criteriaExamples.criteriaId, criterias.id))
-      .where(eq(criteriaExamples.fileId, fileId));
-
-    return { examples };
-  } catch (error) {
-    return {
-      error:
-        error instanceof Error ? error.message : "Failed to fetch examples",
-    };
-  }
+  return db
+    .select({
+      fileId: filesToCriterias.fileId,
+      criteriaId: filesToCriterias.criteriaId,
+      isFail: filesToCriterias.isFail,
+      reason: filesToCriterias.reason,
+      name: criterias.name,
+      description: criterias.description,
+    })
+    .from(filesToCriterias)
+    .innerJoin(criterias, eq(filesToCriterias.criteriaId, criterias.id))
+    .where(eq(filesToCriterias.fileId, fileId));
 }
