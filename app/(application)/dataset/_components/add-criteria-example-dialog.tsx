@@ -11,18 +11,20 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { PlusCircle } from "lucide-react";
 import { Criteria } from "@/lib/db/schema";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Card, CardContent } from "@/components/ui/card";
+
+interface CriteriaState {
+  id: number;
+  isPositive: boolean;
+  reason: string;
+}
 
 interface AddCriteriaExampleDialogProps {
   fileId: number;
@@ -44,37 +46,64 @@ export function AddCriteriaExampleDialog({
 }: AddCriteriaExampleDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [criteriaId, setCriteriaId] = useState<string>();
-  const [isPositive, setIsPositive] = useState<string>();
-  const [reason, setReason] = useState("");
+  const [criteriaStates, setCriteriaStates] = useState<CriteriaState[]>(
+    criterias.map((criteria) => ({
+      id: criteria.id,
+      isPositive: true,
+      reason: "",
+    }))
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!criteriaId || !isPositive || !reason.trim()) {
-      toast.error("Please fill in all fields");
+
+    const incompleteStates = criteriaStates.filter(
+      (state) => !state.reason.trim()
+    );
+    if (incompleteStates.length > 0) {
+      toast.error("Please provide reasons for all criteria");
       return;
     }
 
     setLoading(true);
     try {
-      await onSubmit({
-        fileId,
-        criteriaId: parseInt(criteriaId),
-        isPositive: isPositive === "positive",
-        reason: reason.trim(),
-      });
-      toast.success("Example added successfully");
+      // Submit each criteria example
+      await Promise.all(
+        criteriaStates.map((state) =>
+          onSubmit({
+            fileId,
+            criteriaId: state.id,
+            isPositive: state.isPositive,
+            reason: state.reason.trim(),
+          })
+        )
+      );
+
+      toast.success("Examples added successfully");
       setOpen(false);
       // Reset form
-      setCriteriaId(undefined);
-      setIsPositive(undefined);
-      setReason("");
+      setCriteriaStates(
+        criterias.map((criteria) => ({
+          id: criteria.id,
+          isPositive: true,
+          reason: "",
+        }))
+      );
     } catch (error) {
-      toast.error("Failed to add example");
-      console.error("Error adding example:", error);
+      toast.error("Failed to add examples");
+      console.error("Error adding examples:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const updateCriteriaState = (
+    id: number,
+    updates: Partial<Omit<CriteriaState, "id">>
+  ) => {
+    setCriteriaStates((prev) =>
+      prev.map((state) => (state.id === id ? { ...state, ...updates } : state))
+    );
   };
 
   return (
@@ -84,60 +113,77 @@ export function AddCriteriaExampleDialog({
           <PlusCircle className="h-4 w-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Add Criteria Example</DialogTitle>
+          <DialogTitle>Add Criteria Examples</DialogTitle>
           <DialogDescription>
-            Add a new criteria example for {fileName}
+            Set examples for each criteria for {fileName}
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="criteria">Criteria</Label>
-            <Select value={criteriaId} onValueChange={setCriteriaId}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select criteria" />
-              </SelectTrigger>
-              <SelectContent>
-                {criterias.map((criteria) => (
-                  <SelectItem key={criteria.id} value={criteria.id.toString()}>
-                    {criteria.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <form onSubmit={handleSubmit}>
+          <ScrollArea className="h-[60vh] pr-4">
+            <div className="space-y-4">
+              {criterias.map((criteria) => {
+                const state = criteriaStates.find((s) => s.id === criteria.id)!;
+                return (
+                  <Card key={criteria.id}>
+                    <CardContent className="pt-6 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-1">
+                          <Label className="text-base">{criteria.name}</Label>
+                          {criteria.description && (
+                            <p className="text-sm text-muted-foreground">
+                              {criteria.description}
+                            </p>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Label htmlFor={`type-${criteria.id}`}>
+                            Positive Example
+                          </Label>
+                          <Switch
+                            id={`type-${criteria.id}`}
+                            checked={state.isPositive}
+                            onCheckedChange={(checked) =>
+                              updateCriteriaState(criteria.id, {
+                                isPositive: checked,
+                              })
+                            }
+                          />
+                        </div>
+                      </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="type">Example Type</Label>
-            <Select value={isPositive} onValueChange={setIsPositive}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select type" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="positive">Positive Example</SelectItem>
-                <SelectItem value="negative">Negative Example</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`reason-${criteria.id}`}>Reason</Label>
+                        <Textarea
+                          id={`reason-${criteria.id}`}
+                          value={state.reason}
+                          onChange={(e) =>
+                            updateCriteriaState(criteria.id, {
+                              reason: e.target.value,
+                            })
+                          }
+                          placeholder={`Explain why this ${
+                            state.isPositive ? "meets" : "doesn't meet"
+                          } the criteria...`}
+                          className="h-24"
+                        />
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </ScrollArea>
 
-          <div className="space-y-2">
-            <Label htmlFor="reason">Reason</Label>
-            <Textarea
-              id="reason"
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              placeholder="Explain why this is a good/bad example..."
-              className="h-32"
-            />
-          </div>
-
-          <DialogFooter>
+          <DialogFooter className="mt-4">
             <Button
               type="submit"
-              disabled={loading || !criteriaId || !isPositive || !reason.trim()}
+              disabled={
+                loading || criteriaStates.some((state) => !state.reason.trim())
+              }
             >
-              {loading ? "Adding..." : "Add Example"}
+              {loading ? "Adding..." : "Add Examples"}
             </Button>
           </DialogFooter>
         </form>
