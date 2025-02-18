@@ -23,9 +23,10 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label as UILabel } from "@/components/ui/label";
 import { useState } from "react";
-import { updateLabel, deleteLabel } from "./actions";
+import { updateLabel, deleteLabel } from "../actions";
 import { toast } from "sonner";
 
 interface LabelActionsProps {
@@ -42,9 +43,10 @@ function LabelActions({ label }: LabelActionsProps) {
 
     const formData = new FormData(event.currentTarget);
     const name = formData.get("name") as string;
+    const description = formData.get("description") as string;
 
     try {
-      const result = await updateLabel(label.id, { name });
+      const result = await updateLabel(label.id, { name, description });
       if (result.error) {
         toast.error(result.error);
       } else {
@@ -83,14 +85,32 @@ function LabelActions({ label }: LabelActionsProps) {
             <Pencil className="h-4 w-4" />
           </Button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>Edit Label</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleEdit} className="space-y-4">
-            <div className="space-y-2">
-              <UILabel htmlFor="name">Name</UILabel>
-              <Input id="name" name="name" defaultValue={label.name} required />
+          <form onSubmit={handleEdit} className="space-y-6">
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <UILabel htmlFor="name">Name</UILabel>
+                <Input
+                  id="name"
+                  name="name"
+                  defaultValue={label.name}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <UILabel htmlFor="description">Description</UILabel>
+                <Textarea
+                  id="description"
+                  name="description"
+                  defaultValue={label.description || ""}
+                  placeholder="Enter a description"
+                  className="resize-none min-h-[120px]"
+                  rows={4}
+                />
+              </div>
             </div>
             <div className="flex justify-end">
               <Button type="submit" disabled={isSubmitting}>
@@ -129,6 +149,11 @@ export const columns: ColumnDef<Label>[] = [
   {
     accessorKey: "name",
     header: "Name",
+  },
+  {
+    accessorKey: "description",
+    header: "Description",
+    cell: ({ row }) => row.getValue("description") || "-",
   },
   {
     accessorKey: "createdAt",

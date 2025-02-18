@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { createLabel, getLabels } from "./actions";
 import { toast } from "sonner";
 import {
@@ -15,8 +16,8 @@ import {
 } from "@/components/ui/dialog";
 import { Plus } from "lucide-react";
 import type { Label as LabelType } from "@/lib/db/schema";
-import { columns } from "./columns";
-import { DataTable } from "./data-table";
+import { columns } from "./_components/columns";
+import { DataTable } from "./_components/data-table";
 
 export default function LabelsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -47,9 +48,10 @@ export default function LabelsPage() {
 
     const formData = new FormData(event.currentTarget);
     const name = formData.get("name") as string;
+    const description = formData.get("description") as string;
 
     try {
-      const result = await createLabel({ name });
+      const result = await createLabel({ name, description });
       if (result.error) {
         toast.error(result.error);
       } else {
@@ -81,19 +83,31 @@ export default function LabelsPage() {
                 Add Label
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="sm:max-w-[600px]">
               <DialogHeader>
                 <DialogTitle>Create New Label</DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Name</Label>
-                  <Input
-                    id="name"
-                    name="name"
-                    placeholder="Enter label name"
-                    required
-                  />
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Name</Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      placeholder="Enter label name"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea
+                      id="description"
+                      name="description"
+                      placeholder="Enter label description"
+                      className="resize-none min-h-[120px]"
+                      rows={4}
+                    />
+                  </div>
                 </div>
                 <div className="flex justify-end">
                   <Button type="submit" disabled={isSubmitting}>

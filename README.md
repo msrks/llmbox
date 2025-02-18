@@ -53,6 +53,21 @@ erDiagram
     labels {
         int id PK
         string name
+        string description
+        timestamp createdAt
+    }
+    criterias {
+        int id PK
+        string name
+        string description
+        timestamp createdAt
+    }
+    criteriaExamples {
+        int id PK
+        int fileId FK
+        int criteriaId FK
+        boolean isPositive
+        string reason
         timestamp createdAt
     }
     llmPrompts {
@@ -70,8 +85,12 @@ erDiagram
         timestamp createdAt
         int promptId FK
         int specId FK
+        string finalPrompt
         float score
         string state
+        int duration
+        string analysisText
+        int numDataset
     }
     evalResults {
         int id PK
@@ -86,6 +105,10 @@ erDiagram
     files ||--o| labels : "aiLabel"
     files ||--o| labels : "humanLabel"
     files ||--o| llmPrompts : "aiPrompt"
+    files ||--o{ criteriaExamples : "examples"
+    criterias ||--o{ criteriaExamples : "examples"
+    criteriaExamples ||--|| files : "file"
+    criteriaExamples ||--|| criterias : "criteria"
     promptEvaluations ||--|| llmPrompts : "prompt"
     promptEvaluations ||--|| specs : "spec"
     promptEvaluations ||--o{ evalResults : "evalResults"

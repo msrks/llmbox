@@ -8,6 +8,7 @@ import {
   vector,
   index,
   real,
+  boolean,
 } from "drizzle-orm/pg-core";
 
 export const UploadType = {
@@ -71,8 +72,47 @@ export const filesRelations = relations(files, ({ one }) => ({
 export const labels = pgTable("labels", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
+  description: text("description"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
+
+export const criterias = pgTable("criterias", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const criteriaExamples = pgTable("criteria_examples", {
+  id: serial("id").primaryKey(),
+  fileId: integer("file_id")
+    .references(() => files.id)
+    .notNull(),
+  criteriaId: integer("criteria_id")
+    .references(() => criterias.id)
+    .notNull(),
+  isPositive: boolean("is_positive").notNull(),
+  reason: text("reason").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const criteriaExamplesRelations = relations(
+  criteriaExamples,
+  ({ one }) => ({
+    file: one(files, {
+      fields: [criteriaExamples.fileId],
+      references: [files.id],
+    }),
+    criteria: one(criterias, {
+      fields: [criteriaExamples.criteriaId],
+      references: [criterias.id],
+    }),
+  })
+);
+
+export const criteriasRelations = relations(criterias, ({ many }) => ({
+  examples: many(criteriaExamples),
+}));
 
 export const llmPrompts = pgTable("llm_prompts", {
   id: serial("id").primaryKey(),
@@ -153,6 +193,10 @@ export const evalResultsRelations = relations(evalResults, ({ one }) => ({
 
 export type Label = typeof labels.$inferSelect;
 export type NewLabel = typeof labels.$inferInsert;
+export type Criteria = typeof criterias.$inferSelect;
+export type NewCriteria = typeof criterias.$inferInsert;
+export type CriteriaExample = typeof criteriaExamples.$inferSelect;
+export type NewCriteriaExample = typeof criteriaExamples.$inferInsert;
 export type File = typeof files.$inferSelect;
 export type NewFile = typeof files.$inferInsert;
 export type LlmPrompt = typeof llmPrompts.$inferSelect;
