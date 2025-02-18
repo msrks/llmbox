@@ -6,6 +6,7 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { PromptEvaluation, EvalResultRow, File, Label } from "@/lib/db/schema";
 
 export default async function EvaluationDetailsPage({
   params,
@@ -18,7 +19,12 @@ export default async function EvaluationDetailsPage({
     notFound();
   }
 
-  const { data: evaluation } = result;
+  const evaluation = result.data as PromptEvaluation & {
+    evalResults: (EvalResultRow & {
+      file: File;
+      llmLabel: Label;
+    })[];
+  };
 
   return (
     <div className="container space-y-6">
@@ -123,7 +129,7 @@ export default async function EvaluationDetailsPage({
                       Input
                     </div>
                     <pre className="p-2 bg-muted rounded-lg whitespace-pre-wrap text-sm">
-                      {result.input}
+                      {result.file.originalName}
                     </pre>
                   </div>
                   <div>
@@ -131,7 +137,7 @@ export default async function EvaluationDetailsPage({
                       Output
                     </div>
                     <pre className="p-2 bg-muted rounded-lg whitespace-pre-wrap text-sm">
-                      {result.output}
+                      {result.llmLabel.name}
                     </pre>
                   </div>
                 </div>

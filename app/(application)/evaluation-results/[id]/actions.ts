@@ -10,6 +10,10 @@ export async function getEvaluationDetails(id: number) {
         prompt: true,
         spec: true,
         evalResults: {
+          with: {
+            file: true,
+            llmLabel: true,
+          },
           orderBy: (evalResults, { desc }) => [desc(evalResults.createdAt)],
         },
       },
