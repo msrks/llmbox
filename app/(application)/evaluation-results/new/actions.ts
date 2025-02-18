@@ -46,13 +46,30 @@ export async function createEvaluation(formData: FormData) {
       .replace("{{LABELS}}", labelsList);
 
     // Create the evaluation record
-    await db.insert(promptEvaluations).values({
-      promptId,
-      specId,
-      finalPrompt,
-      state: "running",
-      createdAt: new Date(),
-    });
+    const [newEvaluation] = await db
+      .insert(promptEvaluations)
+      .values({
+        promptId,
+        specId,
+        finalPrompt,
+        state: "running",
+        createdAt: new Date(),
+      })
+      .returning();
+
+    // Trigger the evaluation task
+    try {
+      await fetch(
+        `${process.env.NEXT_PUBLIC_APP_URL}/api/evaluate?evalId=${newEvaluation.id}`,
+        {
+          method: "GET",
+        }
+      );
+    } catch (error) {
+      console.error("Failed to trigger evaluation task:", error);
+      // We don't return an error here since the evaluation was created successfully
+      // The task can be retried later if needed
+    }
 
     revalidatePath("/evaluation-results");
     return { success: true };
