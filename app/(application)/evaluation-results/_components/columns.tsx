@@ -5,6 +5,10 @@ import { PromptEvaluation } from "@/lib/db/schema";
 import { DataTableColumnHeader } from "@/components/ui/data-table-column-header";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { FinalPromptDialog } from "./final-prompt-dialog";
+import { Eye } from "lucide-react";
 
 export const columns: ColumnDef<PromptEvaluation>[] = [
   {
@@ -55,6 +59,37 @@ export const columns: ColumnDef<PromptEvaluation>[] = [
         >
           {promptId}
         </Link>
+      );
+    },
+  },
+  {
+    accessorKey: "finalPrompt",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Final Prompt" />
+    ),
+    cell: function Cell({ row }) {
+      const [isDialogOpen, setIsDialogOpen] = useState(false);
+      const finalPrompt = row.getValue("finalPrompt") as string;
+
+      return (
+        <>
+          <Button
+            variant="ghost"
+            className="h-auto p-0 text-left font-normal hover:bg-transparent group flex items-center gap-1"
+            onClick={() => setIsDialogOpen(true)}
+          >
+            <div className="max-w-[400px] truncate">{finalPrompt}</div>
+            <span className="text-xs text-muted-foreground flex items-center gap-1 group-hover:text-primary transition-colors">
+              <Eye className="h-3 w-3" />
+              Click to view
+            </span>
+          </Button>
+          <FinalPromptDialog
+            isOpen={isDialogOpen}
+            onClose={() => setIsDialogOpen(false)}
+            finalPrompt={finalPrompt}
+          />
+        </>
       );
     },
   },
