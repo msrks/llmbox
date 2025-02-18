@@ -117,7 +117,6 @@ erDiagram
     files ||--o| llmPrompts : "aiPrompt"
     files ||--o{ filesToCriterias : "filesToCriterias"
     files ||--o{ evalResults : "evalResults"
-    files ||--o{ labels : "labels"
     files ||--o{ criterias : "criterias"
     files ||--o{ llmPrompts : "llmPrompts"
     files ||--o{ specs : "specs"
