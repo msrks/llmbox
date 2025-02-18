@@ -3,7 +3,6 @@
 import { db } from "@/lib/db/drizzle";
 import { labels, llmPrompts, promptEvaluations, specs } from "@/lib/db/schema";
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import { eq } from "drizzle-orm";
 
 export async function createEvaluation(formData: FormData) {
@@ -12,7 +11,7 @@ export async function createEvaluation(formData: FormData) {
     const specId = parseInt(formData.get("specId") as string);
 
     if (!promptId || !specId) {
-      throw new Error("Prompt and specification are required");
+      return { error: "Prompt and specification are required" };
     }
 
     // Fetch the prompt template
@@ -23,7 +22,7 @@ export async function createEvaluation(formData: FormData) {
       .then((rows) => rows[0]?.promptTemplate);
 
     if (!promptTemplate) {
-      throw new Error("Prompt template not found");
+      return { error: "Prompt template not found" };
     }
 
     // Fetch the specification
@@ -34,7 +33,7 @@ export async function createEvaluation(formData: FormData) {
       .then((rows) => rows[0]?.description);
 
     if (!specification) {
-      throw new Error("Specification not found");
+      return { error: "Specification not found" };
     }
 
     // Fetch all labels
@@ -56,7 +55,7 @@ export async function createEvaluation(formData: FormData) {
     });
 
     revalidatePath("/evaluation-results");
-    redirect("/evaluation-results");
+    return { success: true };
   } catch (error) {
     console.error("Failed to create evaluation:", error);
     return { error: "Failed to create evaluation" };

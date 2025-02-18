@@ -13,6 +13,7 @@ import { createEvaluation } from "../actions";
 import { llmPrompts, specs } from "@/lib/db/schema";
 import { toast } from "sonner";
 import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 
 interface CreateEvaluationFormProps {
   prompts: (typeof llmPrompts.$inferSelect)[];
@@ -24,12 +25,21 @@ export function CreateEvaluationForm({
   specifications,
 }: CreateEvaluationFormProps) {
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
   async function clientAction(formData: FormData) {
     startTransition(async () => {
-      const result = await createEvaluation(formData);
-      if (result?.error) {
-        toast.error(result.error);
+      try {
+        const result = await createEvaluation(formData);
+        if (result?.error) {
+          toast.error(result.error);
+        } else {
+          toast.success("Evaluation created successfully");
+          router.push("/evaluation-results");
+          router.refresh();
+        }
+      } catch (error) {
+        toast.error("Failed to create evaluation");
       }
     });
   }
