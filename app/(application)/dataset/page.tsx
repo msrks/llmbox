@@ -113,7 +113,7 @@ export default function Home() {
     fileId: number;
     criteriaId: number;
     isPositive: boolean;
-    reason: string;
+    reason: string | null;
   }) => {
     const result = await createCriteriaExample(data);
     if ("error" in result) {

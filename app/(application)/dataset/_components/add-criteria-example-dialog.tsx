@@ -34,7 +34,7 @@ interface AddCriteriaExampleDialogProps {
     fileId: number;
     criteriaId: number;
     isPositive: boolean;
-    reason: string;
+    reason: string | null;
   }) => Promise<void>;
 }
 
@@ -56,15 +56,6 @@ export function AddCriteriaExampleDialog({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    const incompleteStates = criteriaStates.filter(
-      (state) => !state.reason.trim()
-    );
-    if (incompleteStates.length > 0) {
-      toast.error("Please provide reasons for all criteria");
-      return;
-    }
-
     setLoading(true);
     try {
       // Submit each criteria example
@@ -74,7 +65,7 @@ export function AddCriteriaExampleDialog({
             fileId,
             criteriaId: state.id,
             isPositive: state.isPositive,
-            reason: state.reason.trim(),
+            reason: state.reason?.trim() || null,
           })
         )
       );
@@ -177,12 +168,7 @@ export function AddCriteriaExampleDialog({
           </ScrollArea>
 
           <DialogFooter className="mt-4">
-            <Button
-              type="submit"
-              disabled={
-                loading || criteriaStates.some((state) => !state.reason.trim())
-              }
-            >
+            <Button type="submit" disabled={loading}>
               {loading ? "Adding..." : "Add Examples"}
             </Button>
           </DialogFooter>

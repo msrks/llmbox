@@ -28,7 +28,7 @@ interface TileViewProps {
     fileId: number;
     criteriaId: number;
     isPositive: boolean;
-    reason: string;
+    reason: string | null;
   }) => Promise<void>;
 }
 

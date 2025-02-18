@@ -51,7 +51,7 @@ export async function createCriteriaExample(data: {
   fileId: number;
   criteriaId: number;
   isPositive: boolean;
-  reason: string;
+  reason: string | null;
 }) {
   try {
     const [example] = await db
