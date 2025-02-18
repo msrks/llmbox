@@ -17,6 +17,7 @@ interface CreatePromptDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onPromptCreated: () => void;
+  projectId: string;
 }
 
 interface PromptFormProps {
@@ -32,7 +33,8 @@ function HighlightedTextarea({
   onChange,
   ...props
 }: React.ComponentPropsWithoutRef<typeof Textarea>) {
-  const parts = value.split(/(\{\{.*?\}\})/);
+  const textValue = String(value || "");
+  const parts = textValue.split(/(\{\{.*?\}\})/);
   const textareaRef = React.useRef<HTMLTextAreaElement>(null);
   const overlayRef = React.useRef<HTMLDivElement>(null);
 
@@ -58,7 +60,7 @@ function HighlightedTextarea({
         ref={overlayRef}
         className="absolute inset-0 pointer-events-none whitespace-pre-wrap font-mono p-[13px] overflow-hidden text-xs"
       >
-        {parts.map((part, index) => {
+        {parts.map((part: string, index: number) => {
           if (part.match(/^\{\{.*\}\}$/)) {
             return (
               <span key={index} className="text-orange-500">
@@ -120,6 +122,7 @@ function CreatePromptDialog({
   isOpen,
   onOpenChange,
   onPromptCreated,
+  projectId,
 }: CreatePromptDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [promptTemplate, setPromptTemplate] = useState("");
@@ -129,7 +132,7 @@ function CreatePromptDialog({
     setIsSubmitting(true);
 
     try {
-      await createPrompt(promptTemplate);
+      await createPrompt(promptTemplate, projectId);
       toast.success("Prompt created successfully");
       onPromptCreated();
       onOpenChange(false);
@@ -164,15 +167,17 @@ function CreatePromptDialog({
 
 export function PromptsClient({
   initialPrompts,
+  projectId,
 }: {
   initialPrompts: LlmPrompt[];
+  projectId: string;
 }) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [prompts, setPrompts] = useState<LlmPrompt[]>(initialPrompts);
 
   const refreshPrompts = async () => {
     try {
-      const { prompts: newPrompts } = await getPrompts();
+      const { prompts: newPrompts } = await getPrompts(projectId);
       setPrompts(newPrompts);
     } catch {
       toast.error("Failed to refresh prompts");
@@ -197,6 +202,7 @@ export function PromptsClient({
         isOpen={isDialogOpen}
         onOpenChange={setIsDialogOpen}
         onPromptCreated={refreshPrompts}
+        projectId={projectId}
       />
     </div>
   );

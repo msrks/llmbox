@@ -6,7 +6,7 @@ import { formatDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { deletePrompt } from "../actions";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,6 +21,8 @@ import {
 
 const DeletePromptCell = ({ prompt }: { prompt: LlmPrompt }) => {
   const router = useRouter();
+  const params = useParams();
+  const projectId = params.projectId as string;
 
   return (
     <AlertDialog>
@@ -41,7 +43,7 @@ const DeletePromptCell = ({ prompt }: { prompt: LlmPrompt }) => {
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={async () => {
-              await deletePrompt(prompt.id);
+              await deletePrompt(prompt.id, projectId);
               router.refresh();
             }}
             className="bg-red-500 hover:bg-red-600"

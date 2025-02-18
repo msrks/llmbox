@@ -5,11 +5,12 @@ import { llmPrompts } from "@/lib/db/schema";
 import { desc, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-export async function getPrompts() {
+export async function getPrompts(projectId: string) {
   try {
     const prompts = await db
       .select()
       .from(llmPrompts)
+      .where(eq(llmPrompts.projectId, projectId))
       .orderBy(desc(llmPrompts.createdAt));
     return { prompts };
   } catch (error) {
@@ -18,7 +19,7 @@ export async function getPrompts() {
   }
 }
 
-export async function createPrompt(promptTemplate: string) {
+export async function createPrompt(promptTemplate: string, projectId: string) {
   try {
     if (!promptTemplate) {
       throw new Error("Prompt template is required");
@@ -26,10 +27,10 @@ export async function createPrompt(promptTemplate: string) {
 
     const [newPrompt] = await db
       .insert(llmPrompts)
-      .values({ promptTemplate })
+      .values({ promptTemplate, projectId })
       .returning();
 
-    revalidatePath("/prompts");
+    revalidatePath(`/${projectId}/prompts`);
     return { prompt: newPrompt };
   } catch (error) {
     console.error("Failed to create prompt:", error);
@@ -37,10 +38,10 @@ export async function createPrompt(promptTemplate: string) {
   }
 }
 
-export async function deletePrompt(id: number) {
+export async function deletePrompt(id: number, projectId: string) {
   try {
     await db.delete(llmPrompts).where(eq(llmPrompts.id, id));
-    revalidatePath("/prompts");
+    revalidatePath(`/${projectId}/prompts`);
     return { success: true };
   } catch (error) {
     console.error("Failed to delete prompt:", error);

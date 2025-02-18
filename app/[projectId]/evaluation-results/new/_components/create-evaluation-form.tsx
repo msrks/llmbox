@@ -14,6 +14,7 @@ import { llmPrompts, specs } from "@/lib/db/schema";
 import { toast } from "sonner";
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 
 interface CreateEvaluationFormProps {
   prompts: (typeof llmPrompts.$inferSelect)[];
@@ -26,6 +27,8 @@ export function CreateEvaluationForm({
 }: CreateEvaluationFormProps) {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const params = useParams();
+  const projectId = params.projectId as string;
 
   async function clientAction(formData: FormData) {
     startTransition(async () => {
@@ -35,7 +38,7 @@ export function CreateEvaluationForm({
           toast.error(result.error);
         } else {
           toast.success("Evaluation created successfully");
-          router.push("/evaluation-results");
+          router.push(`/${projectId}/evaluation-results`);
           router.refresh();
         }
       } catch {

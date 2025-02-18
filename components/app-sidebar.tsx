@@ -10,6 +10,7 @@ import {
   File,
   Book,
   ChartBar,
+  Home,
 } from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "./theme-toggle";
@@ -29,24 +30,38 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 
+interface AppSidebarProps {
+  projectId: string;
+}
+
 // Menu items.
-const menuGroups = [
+const getMenuGroups = (projectId: string) => [
+  {
+    label: "Navigation",
+    items: [
+      {
+        title: "Projects",
+        url: "/",
+        icon: Home,
+      },
+    ],
+  },
   {
     label: "Dataset",
     items: [
       {
         title: "Dataset",
-        url: "/dataset",
+        url: `/${projectId}/dataset`,
         icon: File,
       },
       {
         title: "Criterias",
-        url: "/criterias",
+        url: `/${projectId}/criterias`,
         icon: Tag,
       },
       {
         title: "Manual Upload",
-        url: "/upload",
+        url: `/${projectId}/upload`,
         icon: Upload,
       },
     ],
@@ -56,17 +71,17 @@ const menuGroups = [
     items: [
       {
         title: "Prompt Templates",
-        url: "/prompt-templates",
+        url: `/${projectId}/prompt-templates`,
         icon: Sparkles,
       },
       {
         title: "Inspection Specs",
-        url: "/inspection-specs",
+        url: `/${projectId}/inspection-specs`,
         icon: Book,
       },
       {
         title: "Evaluation Results",
-        url: "/evaluation-results",
+        url: `/${projectId}/evaluation-results`,
         icon: ChartBar,
       },
     ],
@@ -76,16 +91,17 @@ const menuGroups = [
     items: [
       {
         title: "Chat",
-        url: "/chat",
+        url: `/${projectId}/chat`,
         icon: MessageSquare,
       },
     ],
   },
 ];
 
-export function AppSidebar() {
+export function AppSidebar({ projectId }: AppSidebarProps) {
   const { toggleSidebar, state } = useSidebar();
   const isCollapsed = state === "collapsed";
+  const menuGroups = getMenuGroups(projectId);
 
   return (
     <Sidebar collapsible="icon">
