@@ -21,17 +21,17 @@ export default async function EvaluationDetailsPage({
   const { data: evaluation } = result;
 
   return (
-    <div className="container py-6 space-y-6">
+    <div className="container space-y-6">
       <div className="flex items-center gap-4">
         <Link href="/evaluation-results">
           <Button variant="ghost" size="icon">
             <ArrowLeft className="h-4 w-4" />
           </Button>
         </Link>
-        <h1 className="text-2xl font-bold">Evaluation Details</h1>
+        <h1 className="text-xl font-bold">Evaluation Details</h1>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-6 md:grid-cols-3">
         <Card>
           <CardHeader>
             <CardTitle>General Information</CardTitle>
@@ -75,48 +75,20 @@ export default async function EvaluationDetailsPage({
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Related Information</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <div className="text-sm text-muted-foreground">
-                Prompt Template
-              </div>
-              <Link
-                href={`/prompt-templates?id=${evaluation.promptId}`}
-                className="text-primary hover:underline"
-              >
-                View Prompt Template
-              </Link>
-            </div>
-            <div>
-              <div className="text-sm text-muted-foreground">
-                Inspection Spec
-              </div>
-              <Link
-                href={`/inspection-specs?id=${evaluation.specId}`}
-                className="text-primary hover:underline"
-              >
-                View Inspection Spec
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-
         <Card className="md:col-span-2">
           <CardHeader>
             <CardTitle>Final Prompt</CardTitle>
           </CardHeader>
           <CardContent>
-            <pre className="p-4 bg-muted rounded-lg whitespace-pre-wrap text-sm">
-              {evaluation.finalPrompt}
-            </pre>
+            <div className="max-h-[400px] overflow-y-auto">
+              <pre className="p-4 bg-muted rounded-lg whitespace-pre-wrap text-sm">
+                {evaluation.finalPrompt}
+              </pre>
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="md:col-span-2">
+        <Card className="md:col-span-3">
           <CardHeader>
             <CardTitle>Evaluation Results</CardTitle>
           </CardHeader>
