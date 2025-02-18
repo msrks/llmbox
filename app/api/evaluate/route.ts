@@ -49,6 +49,7 @@ export async function GET(request: Request) {
   }
 
   try {
+    const startTime = Date.now();
     // Get the prompt evaluation
     const [evaluation] = await db
       .select()
@@ -184,12 +185,32 @@ export async function GET(request: Request) {
     const score =
       totalEvaluations > 0 ? (correctEvaluations / totalEvaluations) * 100 : 0;
 
+    // Calculate duration in seconds
+    const duration = Math.round((Date.now() - startTime) / 1000);
+
+    // Generate analysis text
+    const analysisText = `Evaluation completed with ${correctEvaluations} correct out of ${totalEvaluations} total evaluations (${score.toFixed(
+      1
+    )}% accuracy). ${
+      totalEvaluations === 0
+        ? "No files were evaluated."
+        : correctEvaluations === totalEvaluations
+        ? "The prompt performed perfectly on all test cases."
+        : score > 80
+        ? "The prompt performed well but there's room for improvement."
+        : score > 50
+        ? "The prompt needs significant improvements to be more accurate."
+        : "The prompt performed poorly and needs major revisions."
+    }`;
+
     // Update evaluation state to finished and set score
     await db
       .update(promptEvaluations)
       .set({
         state: PromptEvalState.FINISHED,
         score: score,
+        duration: duration,
+        analysisText: analysisText,
       })
       .where(eq(promptEvaluations.id, evaluation.id));
 
@@ -201,7 +222,12 @@ export async function GET(request: Request) {
     if (evalId) {
       await db
         .update(promptEvaluations)
-        .set({ state: PromptEvalState.FAILED })
+        .set({
+          state: PromptEvalState.FAILED,
+          analysisText: `Evaluation failed: ${
+            error instanceof Error ? error.message : "Unknown error occurred"
+          }`,
+        })
         .where(eq(promptEvaluations.id, parseInt(evalId)));
     }
 

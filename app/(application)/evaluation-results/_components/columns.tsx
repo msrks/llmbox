@@ -30,6 +30,36 @@ export const columns: ColumnDef<PromptEvaluation>[] = [
     },
   },
   {
+    accessorKey: "duration",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Duration" />
+    ),
+    cell: ({ row }) => {
+      const duration = row.getValue("duration") as number;
+      if (!duration) return <div>-</div>;
+
+      if (duration < 60) {
+        return <div>{duration}s</div>;
+      } else if (duration < 3600) {
+        const minutes = Math.floor(duration / 60);
+        const seconds = duration % 60;
+        return (
+          <div>
+            {minutes}m {seconds}s
+          </div>
+        );
+      } else {
+        const hours = Math.floor(duration / 3600);
+        const minutes = Math.floor((duration % 3600) / 60);
+        return (
+          <div>
+            {hours}h {minutes}m
+          </div>
+        );
+      }
+    },
+  },
+  {
     accessorKey: "createdAt",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Date" />

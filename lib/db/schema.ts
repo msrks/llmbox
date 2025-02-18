@@ -100,6 +100,8 @@ export const promptEvaluations = pgTable("prompt_evaluations", {
   state: text("state", { enum: ["running", "failed", "finished"] })
     .notNull()
     .default("running"),
+  duration: integer("duration"),
+  analysisText: text("analysis_text"),
 });
 
 export const promptEvaluationsRelations = relations(
