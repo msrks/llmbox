@@ -38,7 +38,7 @@ export function CreateEvaluationForm({
           router.push("/evaluation-results");
           router.refresh();
         }
-      } catch (error) {
+      } catch {
         toast.error("Failed to create evaluation");
       }
     });
