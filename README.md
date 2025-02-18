@@ -37,6 +37,13 @@ Zero cloud LLM dependency, 100% local!
 
 ```mermaid
 erDiagram
+    projects ||--o{ files : "has"
+    projects ||--o{ labels : "has"
+    projects ||--o{ criterias : "has"
+    projects ||--o{ llmPrompts : "has"
+    projects ||--o{ specs : "has"
+    projects ||--o{ promptEvaluations : "has"
+
     projects {
         int id PK
         string name
@@ -44,6 +51,10 @@ erDiagram
         timestamp createdAt
         timestamp updatedAt
     }
+
+    files ||--o{ filesToCriterias : "has"
+    files ||--o{ evalResults : "has"
+    files ||--o{ promptEvaluations : "evaluated_by"
     files {
         int id PK
         int projectId FK
@@ -51,13 +62,15 @@ erDiagram
         string originalName
         string mimeType
         int size
-        string uploadType
-        enum aiLabel "pass|fail"
+        enum uploadType
+        enum aiLabel
         int aiPromptId FK
-        enum humanLabel "pass|fail"
+        enum humanLabel
         vector embedding
         timestamp createdAt
     }
+
+    criterias ||--o{ filesToCriterias : "has"
     criterias {
         int id PK
         int projectId FK
@@ -65,70 +78,61 @@ erDiagram
         string description
         timestamp createdAt
     }
+
     filesToCriterias {
-        int fileId PK,FK "part of composite PK"
-        int criteriaId PK,FK "part of composite PK"
+        int fileId FK
+        int criteriaId FK
         boolean isFail
         string reason
         timestamp createdAt
     }
+
+    llmPrompts ||--o{ promptEvaluations : "used_in"
     llmPrompts {
         int id PK
         int projectId FK
         string promptTemplate
         timestamp createdAt
     }
+
+    specs ||--o{ promptEvaluations : "used_in"
     specs {
         int id PK
         int projectId FK
         string description
         timestamp createdAt
     }
+
+    promptEvaluations ||--o{ evalResults : "has"
     promptEvaluations {
         int id PK
         int projectId FK
-        timestamp createdAt
         int promptId FK
         int specId FK
         string finalPrompt
         float score
-        string state
+        enum state
         int duration
         string analysisText
         int numDataset
+        timestamp createdAt
     }
+
     evalResults {
         int id PK
         int fileId FK
         int promptEvalId FK
-        enum llmLabel "pass|fail"
+        enum llmLabel
         string llmReason
-        enum result "correct|incorrect"
+        enum result
         timestamp createdAt
     }
 
-
-    projects ||--o{ files : "files"
-    projects ||--o{ criterias : "criterias"
-    projects ||--o{ llmPrompts : "llmPrompts"
-    projects ||--o{ specs : "specs"
-    projects ||--o{ promptEvaluations : "promptEvaluations"
-
-    files ||--o| llmPrompts : "aiPrompt"
-    files ||--o{ filesToCriterias : "filesToCriterias"
-    files ||--o{ evalResults : "evalResults"
-    files ||--o{ criterias : "criterias"
-    files ||--o{ llmPrompts : "llmPrompts"
-    files ||--o{ specs : "specs"
-    files ||--o{ promptEvaluations : "promptEvaluations"
-
-    criterias ||--o{ filesToCriterias : "filesToCriterias"
-    filesToCriterias ||--|| files : "file"
-    filesToCriterias ||--|| criterias : "criteria"
-
-    promptEvaluations ||--|| llmPrompts : "prompt"
-    promptEvaluations ||--|| specs : "spec"
-    promptEvaluations ||--o{ evalResults : "evalResults"
-    evalResults ||--|| files : "file"
-    evalResults ||--|| promptEvaluations : "promptEval"
+    labels {
+        int id PK
+        int projectId FK
+        string name
+        string description
+        timestamp createdAt
+    }
 ```
