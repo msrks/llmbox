@@ -58,13 +58,6 @@ erDiagram
         vector embedding
         timestamp createdAt
     }
-    labels {
-        int id PK
-        string projectId FK
-        string name
-        string description
-        timestamp createdAt
-    }
     criterias {
         int id PK
         string projectId FK
@@ -111,12 +104,11 @@ erDiagram
         int promptEvalId FK
         enum llmLabel "pass|fail"
         string llmReason
-        string result
+        enum result "correct|incorrect"
         timestamp createdAt
     }
 
     projects ||--o{ files : "files"
-    projects ||--o{ labels : "labels"
     projects ||--o{ criterias : "criterias"
     projects ||--o{ llmPrompts : "llmPrompts"
     projects ||--o{ specs : "specs"
