@@ -14,9 +14,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { PlusIcon } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import { handleNewProject } from "../_actions/new-project";
 import { useRouter } from "next/navigation";
-
+import { handleNewProject } from "../actions";
 export function NewProjectDialog() {
   const router = useRouter();
 

@@ -11,6 +11,7 @@ import {
   Book,
   ChartBar,
   Home,
+  Rocket,
 } from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "./theme-toggle";
@@ -40,17 +41,21 @@ import {
   SidebarHeader,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { getProjects } from "@/app/_actions/project";
-
+import { getProjects } from "@/app/projects/actions";
 // Menu items.
 const getMenuGroups = (projectId: string) => [
   {
     label: "Navigation",
     items: [
       {
-        title: "Projects",
-        url: "/",
+        title: "Home",
+        url: "/projects",
         icon: Home,
+      },
+      {
+        title: "Landing Page",
+        url: "/",
+        icon: Rocket,
       },
     ],
   },
@@ -136,29 +141,16 @@ export function AppSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <div className="flex items-center justify-between border-b px-4 py-3">
-          {!isCollapsed ? (
-            <Link href="/" className="flex items-center">
-              <span className="text-xl font-bold">LLMBox</span>
-            </Link>
-          ) : null}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleSidebar}
-            className="h-8 w-8"
-          >
-            {isCollapsed ? (
-              <PanelLeft size={18} />
-            ) : (
-              <PanelLeftClose size={18} />
-            )}
-          </Button>
-        </div>
-      </SidebarHeader>
-
-      <SidebarContent>
-        <div className="px-4 py-2">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleSidebar}
+          className="h-8 w-8"
+        >
+          {isCollapsed ? <PanelLeft size={18} /> : <PanelLeftClose size={18} />}
+        </Button>
+        {/* Project Selector is hidden on collapsed mode */}
+        {!isCollapsed && (
           <Select
             disabled={loading}
             value={currentProjectId}
@@ -177,8 +169,10 @@ export function AppSidebar() {
               ))}
             </SelectContent>
           </Select>
-        </div>
+        )}
+      </SidebarHeader>
 
+      <SidebarContent>
         {menuGroups.map((group) => (
           <SidebarGroup key={group.label}>
             {!isCollapsed && (
