@@ -8,7 +8,7 @@ Zero cloud LLM dependency, 100% local!
 
 - local App: [Next.js](https://nextjs.org/)
 - local AI: [Ollama](https://ollama.com/)
-- loca DB: [Postgres](https://www.postgresql.org/)
+- local DB: [Postgres](https://www.postgresql.org/)
 - local Storage: [Minio](https://min.io/)
 
 ## How to run
