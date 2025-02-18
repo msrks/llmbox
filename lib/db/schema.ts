@@ -76,26 +76,10 @@ export const filesRelations = relations(files, ({ one, many }) => ({
   }),
   filesToCriterias: many(filesToCriterias),
   evalResults: many(evalResults),
-  labels: many(labels),
   criterias: many(criterias),
   llmPrompts: many(llmPrompts),
   specs: many(specs),
   promptEvaluations: many(promptEvaluations),
-}));
-
-export const labels = pgTable("labels", {
-  id: serial("id").primaryKey(),
-  projectId: integer("project_id").notNull(),
-  name: text("name").notNull(),
-  description: text("description"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
-
-export const labelsRelations = relations(labels, ({ one }) => ({
-  project: one(projects, {
-    fields: [labels.projectId],
-    references: [projects.id],
-  }),
 }));
 
 export const criterias = pgTable("criterias", {
@@ -248,7 +232,6 @@ export const projects = pgTable("projects", {
 
 export const projectsRelations = relations(projects, ({ many }) => ({
   files: many(files),
-  labels: many(labels),
   criterias: many(criterias),
   llmPrompts: many(llmPrompts),
   specs: many(specs),

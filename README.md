@@ -38,7 +38,6 @@ Zero cloud LLM dependency, 100% local!
 ```mermaid
 erDiagram
     projects ||--o{ files : "has"
-    projects ||--o{ labels : "has"
     projects ||--o{ criterias : "has"
     projects ||--o{ llmPrompts : "has"
     projects ||--o{ specs : "has"
@@ -125,14 +124,6 @@ erDiagram
         enum llmLabel
         string llmReason
         enum result
-        timestamp createdAt
-    }
-
-    labels {
-        int id PK
-        int projectId FK
-        string name
-        string description
         timestamp createdAt
     }
 ```
