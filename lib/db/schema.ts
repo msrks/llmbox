@@ -42,7 +42,7 @@ export const files = pgTable(
   "files",
   {
     id: serial("id").primaryKey(),
-    projectId: text("project_id").notNull(),
+    projectId: integer("project_id").notNull(),
     fileName: text("file_name").notNull(),
     originalName: text("original_name").notNull(),
     mimeType: text("mime_type"),
@@ -77,7 +77,7 @@ export const filesRelations = relations(files, ({ one }) => ({
 
 export const labels = pgTable("labels", {
   id: serial("id").primaryKey(),
-  projectId: text("project_id").notNull(),
+  projectId: integer("project_id").notNull(),
   name: text("name").notNull(),
   description: text("description"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -92,7 +92,7 @@ export const labelsRelations = relations(labels, ({ one }) => ({
 
 export const criterias = pgTable("criterias", {
   id: serial("id").primaryKey(),
-  projectId: text("project_id").notNull(),
+  projectId: integer("project_id").notNull(),
   name: text("name").notNull(),
   description: text("description"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -135,7 +135,7 @@ export const criteriaExamplesRelations = relations(
 
 export const llmPrompts = pgTable("llm_prompts", {
   id: serial("id").primaryKey(),
-  projectId: text("project_id").notNull(),
+  projectId: integer("project_id").notNull(),
   promptTemplate: text("prompt_template").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -149,7 +149,7 @@ export const llmPromptsRelations = relations(llmPrompts, ({ one }) => ({
 
 export const specs = pgTable("specs", {
   id: serial("id").primaryKey(),
-  projectId: text("project_id").notNull(),
+  projectId: integer("project_id").notNull(),
   description: text("description").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -163,7 +163,7 @@ export const specsRelations = relations(specs, ({ one }) => ({
 
 export const promptEvaluations = pgTable("prompt_evaluations", {
   id: serial("id").primaryKey(),
-  projectId: text("project_id").notNull(),
+  projectId: integer("project_id").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   promptId: integer("prompt_id")
     .references(() => llmPrompts.id)
@@ -226,7 +226,7 @@ export const evalResultsRelations = relations(evalResults, ({ one }) => ({
 }));
 
 export const projects = pgTable("projects", {
-  id: text("id").primaryKey(),
+  id: serial("id").primaryKey(),
   name: text("name").notNull(),
   description: text("description"),
   createdAt: timestamp("created_at").defaultNow().notNull(),

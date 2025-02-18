@@ -134,6 +134,13 @@
       "when": 1739902692747,
       "tag": "0018_married_maggott",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1739903445683,
+      "tag": "0019_strange_pestilence",
+      "breakpoints": true
     }
   ]
 }
