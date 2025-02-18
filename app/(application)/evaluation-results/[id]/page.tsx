@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getEvaluationDetails } from "../actions";
+import { getEvaluationDetails } from "./actions";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
