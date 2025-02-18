@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Wand2 } from "lucide-react";
 import { TEMPLATE } from "./templates";
 import { getSpecs, createSpec, updateSpec, deleteSpec } from "./actions";
+import { PageTitle } from "@/components/page-title";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -262,7 +263,7 @@ const SpecsClient = () => {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h1 className="text-xl font-bold">Inspection Specifications</h1>
+        <PageTitle>Inspection Specifications</PageTitle>
         <Button onClick={() => setIsCreateDialogOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
           New Specification

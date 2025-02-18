@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 import { Label } from "@/lib/db/schema";
 import { useParams } from "next/navigation";
+import { PageTitle } from "@/components/page-title";
 
 export default function UploadPage() {
   console.log("UploadPage");
@@ -78,9 +79,7 @@ export default function UploadPage() {
     <div className="mx-auto space-y-8">
       <form onSubmit={handleSubmit} className="w-full space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-semibold tracking-tight">
-            Upload Images
-          </h2>
+          <PageTitle>Upload Images</PageTitle>
           <Button
             type="submit"
             disabled={uploading || selectedFiles.length === 0}

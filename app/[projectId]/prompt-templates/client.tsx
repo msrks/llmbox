@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Wand2 } from "lucide-react";
 import { IMAGE_CLASSIFIER_TEMPLATE } from "./templates/image-classifier";
 import { getPrompts, createPrompt } from "./actions";
+import { PageTitle } from "@/components/page-title";
 import React from "react";
 
 interface CreatePromptDialogProps {
@@ -188,9 +189,7 @@ export function PromptsClient({
     <div className="mx-auto space-y-8">
       <div className="w-full mx-auto space-y-4">
         <div className="flex flex-row items-center justify-between">
-          <h2 className="text-2xl font-semibold tracking-tight">
-            Prompt Templates
-          </h2>
+          <PageTitle>Prompt Templates</PageTitle>
           <Button onClick={() => setIsDialogOpen(true)} size="sm">
             <Plus className="h-4 w-4 mr-2" />
             Add Prompt

@@ -19,6 +19,7 @@ import type { Criteria } from "@/lib/db/schema";
 import { columns } from "./_components/columns";
 import { DataTable } from "./_components/data-table";
 import { useParams } from "next/navigation";
+import { PageTitle } from "@/components/page-title";
 
 export default function CriteriasPage() {
   const { projectId } = useParams();
@@ -83,7 +84,7 @@ export default function CriteriasPage() {
 
       <div className="w-full mx-auto space-y-4">
         <div className="flex flex-row items-center justify-between">
-          <h2 className="text-2xl font-semibold tracking-tight">Criterias</h2>
+          <PageTitle>Criterias</PageTitle>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button size="sm">

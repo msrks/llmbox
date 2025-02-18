@@ -3,6 +3,7 @@
 import { useChat } from "ai/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PageTitle } from "@/components/page-title";
 
 export default function ChatPage() {
   const {
@@ -18,7 +19,7 @@ export default function ChatPage() {
     <div className="container mx-auto p-8">
       <div className="max-w-2xl mx-auto space-y-4">
         <div className="border rounded-lg p-4 space-y-4">
-          <h2 className="text-2xl font-semibold tracking-tight">Chat</h2>
+          <PageTitle>Chat</PageTitle>
 
           <div className="h-[400px] overflow-y-auto space-y-4 mb-4">
             {messages.map((message, i) => (
