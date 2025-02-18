@@ -157,17 +157,9 @@ export async function deleteFile(fileId: number) {
   }
 }
 
-export async function getCriteriaExamples(fileId: number) {
-  return db
-    .select({
-      fileId: filesToCriterias.fileId,
-      criteriaId: filesToCriterias.criteriaId,
-      isFail: filesToCriterias.isFail,
-      reason: filesToCriterias.reason,
-      name: criterias.name,
-      description: criterias.description,
-    })
-    .from(filesToCriterias)
-    .innerJoin(criterias, eq(filesToCriterias.criteriaId, criterias.id))
-    .where(eq(filesToCriterias.fileId, fileId));
+export async function getFilesToCriterias(fileId: number) {
+  return db.query.filesToCriterias.findMany({
+    where: eq(filesToCriterias.fileId, fileId),
+    with: { criteria: true },
+  });
 }

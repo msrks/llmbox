@@ -21,14 +21,17 @@ interface ColumnOptions {
   onDownload: (fileId: number, originalName: string) => void;
   onDelete: (fileId: number) => Promise<void>;
   criterias: Criteria[];
-  criteriaExamples: Record<
+  filesToCriterias: Record<
     number,
     Array<{
-      id: number;
+      fileId: number;
       criteriaId: number;
       isFail: boolean;
       reason: string | null;
-      criteriaName: string;
+      criteria: {
+        name: string;
+        description: string | null;
+      };
     }>
   >;
   onAddExample: (data: {
@@ -50,7 +53,7 @@ export const getColumns = ({
   onDownload,
   onDelete,
   criterias,
-  criteriaExamples,
+  filesToCriterias,
   onAddExample,
 }: ColumnOptions): ColumnDef<FileWithLabels>[] => [
   {
@@ -154,13 +157,13 @@ export const getColumns = ({
     header: "Criterias",
     cell: ({ row }) => {
       const file = row.original;
-      const examples = criteriaExamples[file.id] || [];
+      const examples = filesToCriterias[file.id] || [];
 
       return (
-        <div className="flex items-center gap-2 flex-wrap">
+        <div key={file.id} className="flex items-center gap-2 flex-wrap">
           {examples.map((example) => (
             <Badge
-              key={example.id}
+              key={`${example.fileId}-${example.criteriaId}`}
               variant="outline"
               className="flex items-center gap-1"
             >
@@ -169,7 +172,7 @@ export const getColumns = ({
               ) : (
                 <XCircle className="h-3 w-3 text-red-500" />
               )}
-              {example.criteriaName}
+              {example.criteria.name}
             </Badge>
           ))}
           <AddCriteriaExampleDialog

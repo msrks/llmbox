@@ -8,7 +8,7 @@ import {
   deleteFile,
   getCriterias,
   createCriteriaExample,
-  getCriteriaExamples,
+  getFilesToCriterias,
   getFilesList,
 } from "../actions";
 import { FileInfo } from "@/lib/types";
@@ -19,14 +19,16 @@ type CriteriaExampleWithMeta = {
   criteriaId: number;
   isFail: boolean;
   reason: string | null;
-  name: string;
-  description: string | null;
+  criteria: {
+    name: string;
+    description: string | null;
+  };
 };
 
 export function useDataset(projectId: string) {
   const [files, setFiles] = useState<FileInfo[]>([]);
   const [criterias, setCriterias] = useState<Criteria[]>([]);
-  const [criteriaExamples, setCriteriaExamples] = useState<
+  const [filesToCriterias, setFilesToCriterias] = useState<
     Record<number, CriteriaExampleWithMeta[]>
   >({});
   const [loadingFiles, setLoadingFiles] = useState(true);
@@ -46,16 +48,25 @@ export function useDataset(projectId: string) {
 
         // Fetch criteria examples for each file
         const examplesPromises = result.files.map((file: FileInfo) =>
-          getCriteriaExamples(file.id)
+          getFilesToCriterias(file.id)
         );
         const examplesResults = await Promise.all(examplesPromises);
         const examples: Record<number, CriteriaExampleWithMeta[]> = {};
 
         result.files.forEach((file: FileInfo, index: number) => {
-          examples[file.id] = examplesResults[index];
+          examples[file.id] = examplesResults[index].map((result) => ({
+            fileId: result.fileId,
+            criteriaId: result.criteriaId,
+            isFail: result.isFail,
+            reason: result.reason,
+            criteria: {
+              name: result.criteria.name,
+              description: result.criteria.description,
+            },
+          }));
         });
 
-        setCriteriaExamples(examples);
+        setFilesToCriterias(examples);
       }
       if (result.error) {
         toast.error(result.error);
@@ -139,11 +150,21 @@ export function useDataset(projectId: string) {
     }) => {
       try {
         await createCriteriaExample(data);
-        const examples = await getCriteriaExamples(data.fileId);
+        const results = await getFilesToCriterias(data.fileId);
+        const mappedResults = results.map((result) => ({
+          fileId: result.fileId,
+          criteriaId: result.criteriaId,
+          isFail: result.isFail,
+          reason: result.reason,
+          criteria: {
+            name: result.criteria.name,
+            description: result.criteria.description,
+          },
+        }));
 
-        setCriteriaExamples((prev) => ({
+        setFilesToCriterias((prev) => ({
           ...prev,
-          [data.fileId]: examples,
+          [data.fileId]: mappedResults,
         }));
 
         toast.success("Added criteria example");
@@ -166,14 +187,14 @@ export function useDataset(projectId: string) {
   return {
     files,
     criterias,
-    criteriaExamples,
+    filesToCriterias,
     loadingFiles,
     loadingCriterias,
     previewUrls,
     isImageFile,
     handleDownload,
     handleDelete,
-    addCriteriaExample,
+    handleAddExample: addCriteriaExample,
     fetchFiles,
   };
 }

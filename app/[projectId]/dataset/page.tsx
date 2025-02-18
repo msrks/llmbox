@@ -16,7 +16,7 @@ export default function DatasetPage() {
   const {
     files,
     criterias,
-    criteriaExamples,
+    filesToCriterias,
     loadingFiles,
     previewUrls,
     isImageFile,
@@ -61,7 +61,7 @@ export default function DatasetPage() {
             onDelete={handleDelete}
             criterias={criterias}
             onAddExample={handleAddExample}
-            criteriaExamples={criteriaExamples}
+            filesToCriterias={filesToCriterias}
           />
         ) : (
           <TileView
@@ -72,7 +72,7 @@ export default function DatasetPage() {
             onDelete={handleDelete}
             criterias={criterias}
             onAddExample={handleAddExample}
-            criteriaExamples={criteriaExamples}
+            filesToCriterias={filesToCriterias}
           />
         )}
       </div>
