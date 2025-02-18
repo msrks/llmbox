@@ -116,14 +116,6 @@ export async function GET(request: Request) {
             max_tokens: 1000,
           });
 
-          // Log OpenAI response
-          console.log(`\n[OpenAI Response for File ${file.id}]`);
-          console.log("Raw response:", response.choices[0].message.content);
-          console.log("Finish reason:", response.choices[0].finish_reason);
-          console.log("Prompt tokens:", response.usage?.prompt_tokens);
-          console.log("Completion tokens:", response.usage?.completion_tokens);
-          console.log("Total tokens:", response.usage?.total_tokens);
-
           // Extract and parse the AI's response
           const aiResponse = response.choices[0].message.content;
           const parsedResponse = parseOpenAIResponse(aiResponse || "");
@@ -132,11 +124,6 @@ export async function GET(request: Request) {
             console.error(`Failed to parse response for file ${file.id}`);
             return null;
           }
-
-          console.log("Parsed response:", {
-            classification: parsedResponse.classification,
-            explanation: parsedResponse.explanation.substring(0, 100) + "...",
-          });
 
           // Create a new label for the AI's response
           const [newLabel] = await db
@@ -211,6 +198,7 @@ export async function GET(request: Request) {
         score: score,
         duration: duration,
         analysisText: analysisText,
+        numDataset: totalEvaluations,
       })
       .where(eq(promptEvaluations.id, evaluation.id));
 

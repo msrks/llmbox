@@ -26,7 +26,17 @@ export const columns: ColumnDef<PromptEvaluation>[] = [
     ),
     cell: ({ row }) => {
       const score = row.getValue("score") as number;
-      return <div className="font-medium">{score?.toFixed(2)}</div>;
+      return <div className="font-medium">{score?.toFixed(1)}%</div>;
+    },
+  },
+  {
+    accessorKey: "numDataset",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="# of Datasets" />
+    ),
+    cell: ({ row }) => {
+      const numDataset = row.getValue("numDataset") as number;
+      return <div>{numDataset || "-"}</div>;
     },
   },
   {
@@ -110,7 +120,6 @@ export const columns: ColumnDef<PromptEvaluation>[] = [
             className="h-auto p-0 text-left font-normal hover:bg-transparent group flex items-center gap-1"
             onClick={() => setIsDialogOpen(true)}
           >
-            <div className="max-w-[400px] truncate">{finalPrompt}</div>
             <span className="text-xs text-muted-foreground flex items-center gap-1 group-hover:text-primary transition-colors">
               <Eye className="h-3 w-3" />
               Click to view

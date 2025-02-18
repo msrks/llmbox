@@ -102,6 +102,7 @@ export const promptEvaluations = pgTable("prompt_evaluations", {
     .default("running"),
   duration: integer("duration"),
   analysisText: text("analysis_text"),
+  numDataset: integer("num_dataset"),
 });
 
 export const promptEvaluationsRelations = relations(
