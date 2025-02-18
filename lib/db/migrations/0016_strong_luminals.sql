@@ -1,0 +1,1 @@
+ALTER TABLE "criteria_examples" ALTER COLUMN "reason" DROP NOT NULL;

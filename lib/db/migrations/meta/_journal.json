@@ -113,6 +113,13 @@
       "when": 1739847644661,
       "tag": "0015_lying_golden_guardian",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1739860811074,
+      "tag": "0016_strong_luminals",
+      "breakpoints": true
     }
   ]
 }
