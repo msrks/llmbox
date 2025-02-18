@@ -21,6 +21,11 @@ export const EvalResult = {
   INCORRECT: "incorrect",
 } as const;
 
+export const Label = {
+  PASS: "pass",
+  FAIL: "fail",
+} as const;
+
 export const PromptEvalState = {
   RUNNING: "running",
   FAILED: "failed",
@@ -29,6 +34,7 @@ export const PromptEvalState = {
 
 export type UploadType = (typeof UploadType)[keyof typeof UploadType];
 export type EvalResult = (typeof EvalResult)[keyof typeof EvalResult];
+export type Label = (typeof Label)[keyof typeof Label];
 export type PromptEvalState =
   (typeof PromptEvalState)[keyof typeof PromptEvalState];
 
@@ -43,9 +49,9 @@ export const files = pgTable(
     uploadType: text("upload_type", { enum: ["manual", "api"] })
       .notNull()
       .default("manual"),
-    aiLabelId: integer("label_id").references(() => labels.id),
+    aiLabel: text("ai_label", { enum: ["pass", "fail"] }),
     aiPromptId: integer("ai_prompt_id").references(() => llmPrompts.id),
-    humanLabelId: integer("human_label_id").references(() => labels.id),
+    humanLabel: text("human_label", { enum: ["pass", "fail"] }),
     embedding: vector("embedding", { dimensions: 1536 }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
@@ -58,11 +64,6 @@ export const files = pgTable(
 );
 
 export const filesRelations = relations(files, ({ one }) => ({
-  aiLabel: one(labels, { fields: [files.aiLabelId], references: [labels.id] }),
-  humanLabel: one(labels, {
-    fields: [files.humanLabelId],
-    references: [labels.id],
-  }),
   aiPrompt: one(llmPrompts, {
     fields: [files.aiPromptId],
     references: [llmPrompts.id],
@@ -168,9 +169,7 @@ export const evalResults = pgTable("eval_results", {
   promptEvalId: integer("prompt_eval_id")
     .references(() => promptEvaluations.id)
     .notNull(),
-  llmLabelId: integer("llm_label_id")
-    .references(() => labels.id)
-    .notNull(),
+  llmLabel: text("llm_label", { enum: ["pass", "fail"] }).notNull(),
   llmReason: text("llm_reason").notNull(),
   result: text("result", { enum: ["correct", "incorrect"] }).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -185,20 +184,14 @@ export const evalResultsRelations = relations(evalResults, ({ one }) => ({
     fields: [evalResults.promptEvalId],
     references: [promptEvaluations.id],
   }),
-  llmLabel: one(labels, {
-    fields: [evalResults.llmLabelId],
-    references: [labels.id],
-  }),
 }));
 
-export type Label = typeof labels.$inferSelect;
-export type NewLabel = typeof labels.$inferInsert;
+export type File = typeof files.$inferSelect;
+export type NewFile = typeof files.$inferInsert;
 export type Criteria = typeof criterias.$inferSelect;
 export type NewCriteria = typeof criterias.$inferInsert;
 export type CriteriaExample = typeof criteriaExamples.$inferSelect;
 export type NewCriteriaExample = typeof criteriaExamples.$inferInsert;
-export type File = typeof files.$inferSelect;
-export type NewFile = typeof files.$inferInsert;
 export type LlmPrompt = typeof llmPrompts.$inferSelect;
 export type NewLlmPrompt = typeof llmPrompts.$inferInsert;
 export type Spec = typeof specs.$inferSelect;

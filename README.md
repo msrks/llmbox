@@ -44,16 +44,10 @@ erDiagram
         string mimeType
         int size
         string uploadType
-        int aiLabelId FK
+        enum aiLabel "pass|fail"
         int aiPromptId FK
-        int humanLabelId FK
+        enum humanLabel "pass|fail"
         vector embedding
-        timestamp createdAt
-    }
-    labels {
-        int id PK
-        string name
-        string description
         timestamp createdAt
     }
     criterias {
@@ -96,14 +90,12 @@ erDiagram
         int id PK
         int fileId FK
         int promptEvalId FK
-        int llmLabelId FK
+        enum llmLabel "pass|fail"
         string llmReason
         string result
         timestamp createdAt
     }
 
-    files ||--o| labels : "aiLabel"
-    files ||--o| labels : "humanLabel"
     files ||--o| llmPrompts : "aiPrompt"
     files ||--o{ criteriaExamples : "examples"
     criterias ||--o{ criteriaExamples : "examples"
@@ -114,5 +106,4 @@ erDiagram
     promptEvaluations ||--o{ evalResults : "evalResults"
     evalResults ||--|| files : "file"
     evalResults ||--|| promptEvaluations : "promptEval"
-    evalResults ||--|| labels : "llmLabel"
 ```
