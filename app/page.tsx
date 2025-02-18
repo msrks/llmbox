@@ -1,28 +1,30 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
+import { db } from "@/lib/db/drizzle";
+import { projects } from "@/lib/db/schema";
+import { NewProjectDialog } from "./_components/new-project-dialog";
+import { desc } from "drizzle-orm";
 
-const projects = [
-  {
-    id: "default",
-    name: "Default Project",
-    description: "The default project for all your needs",
-  },
-  // Add more projects as needed
-];
+export default async function HomePage() {
+  const projectList = await db.query.projects.findMany({
+    orderBy: [desc(projects.createdAt)],
+  });
 
-export default function HomePage() {
   return (
     <div className="container mx-auto py-10">
       <div className="space-y-8">
-        <div>
-          <h1 className="text-3xl font-bold">Welcome to LLMBox</h1>
-          <p className="text-muted-foreground">
-            Select a project to get started
-          </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">Welcome to LLMBox</h1>
+            <p className="text-muted-foreground">
+              Select a project to get started
+            </p>
+          </div>
+          <NewProjectDialog />
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project) => (
+          {projectList.map((project) => (
             <Card key={project.id}>
               <CardHeader>
                 <CardTitle>{project.name}</CardTitle>
