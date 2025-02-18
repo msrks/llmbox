@@ -3,6 +3,7 @@
 import { db } from "@/lib/db/drizzle";
 import { projects } from "@/lib/db/schema";
 import { z } from "zod";
+import { eq } from "drizzle-orm";
 
 const createProjectSchema = z.object({
   name: z.string().min(1),
@@ -51,5 +52,15 @@ export async function handleNewProject(formData: FormData) {
     return { success: true };
   } catch {
     return { error: "Failed to create project" };
+  }
+}
+
+export async function deleteProject(projectId: string) {
+  try {
+    await db.delete(projects).where(eq(projects.id, parseInt(projectId)));
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete project:", error);
+    return { error: "Failed to delete project" };
   }
 }

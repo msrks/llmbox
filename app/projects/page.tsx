@@ -5,6 +5,7 @@ import { db } from "@/lib/db/drizzle";
 import { projects } from "@/lib/db/schema";
 import { NewProjectDialog } from "./_components/new-project-dialog";
 import { desc } from "drizzle-orm";
+import { DeleteProjectButton } from "./_components/delete-project-button";
 
 export default async function HomePage() {
   const projectList = await db.query.projects.findMany({
@@ -26,8 +27,9 @@ export default async function HomePage() {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {projectList.map((project) => (
             <Card key={project.id}>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>{project.name}</CardTitle>
+                <DeleteProjectButton projectId={project.id} />
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-muted-foreground mb-4">
