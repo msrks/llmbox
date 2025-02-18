@@ -20,9 +20,9 @@ export function FinalPromptDialog({
 }: FinalPromptDialogProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh]">
+      <DialogContent className="max-w-7xl max-h-[99vh]">
         <DialogHeader>
-          <DialogTitle>Final Prompt</DialogTitle>
+          <DialogTitle className="text-sm">Final Prompt</DialogTitle>
         </DialogHeader>
         <div className="overflow-y-auto whitespace-pre-wrap text-xs">
           {finalPrompt}

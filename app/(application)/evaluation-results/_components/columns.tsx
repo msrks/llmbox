@@ -8,7 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { FinalPromptDialog } from "./final-prompt-dialog";
-import { Eye } from "lucide-react";
+import { Eye, Trash2 } from "lucide-react";
+import { deleteEvaluationResult } from "../actions";
+import { toast } from "sonner";
 
 export const columns: ColumnDef<PromptEvaluation>[] = [
   {
@@ -128,6 +130,35 @@ export const columns: ColumnDef<PromptEvaluation>[] = [
         <Badge variant={variants[state]}>
           {state.charAt(0).toUpperCase() + state.slice(1)}
         </Badge>
+      );
+    },
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => {
+      const evaluation = row.original;
+
+      const handleDelete = async () => {
+        try {
+          const result = await deleteEvaluationResult(evaluation.id);
+          if (result.success) {
+            toast.success("Evaluation deleted successfully");
+            // Refresh the page to update the table
+            window.location.reload();
+          } else {
+            toast.error(result.error || "Failed to delete evaluation");
+          }
+        } catch {
+          toast.error("An error occurred while deleting");
+        }
+      };
+
+      return (
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={handleDelete}>
+            <Trash2 className="h-4 w-4 text-destructive" />
+          </Button>
+        </div>
       );
     },
   },
