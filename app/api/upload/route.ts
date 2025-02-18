@@ -8,6 +8,7 @@ export async function POST(request: NextRequest) {
     const formData = await request.formData();
     const uploadedFiles = formData.getAll("files");
     const label = formData.get("label");
+    const projectId = formData.get("projectId");
 
     if (!uploadedFiles || uploadedFiles.length === 0) {
       return NextResponse.json({ error: "No files received" }, { status: 400 });
@@ -16,6 +17,13 @@ export async function POST(request: NextRequest) {
     if (!label || (label !== Label.PASS && label !== Label.FAIL)) {
       return NextResponse.json(
         { error: "Valid label (pass/fail) is required" },
+        { status: 400 }
+      );
+    }
+
+    if (!projectId || isNaN(Number(projectId))) {
+      return NextResponse.json(
+        { error: "Valid projectId is required" },
         { status: 400 }
       );
     }
@@ -44,6 +52,7 @@ export async function POST(request: NextRequest) {
       const [fileRecord] = await db
         .insert(files)
         .values({
+          projectId: Number(projectId),
           fileName,
           originalName: file.name,
           mimeType: file.type,
