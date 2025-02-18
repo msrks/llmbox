@@ -76,10 +76,6 @@ export const filesRelations = relations(files, ({ one, many }) => ({
   }),
   filesToCriterias: many(filesToCriterias),
   evalResults: many(evalResults),
-  criterias: many(criterias),
-  llmPrompts: many(llmPrompts),
-  specs: many(specs),
-  promptEvaluations: many(promptEvaluations),
 }));
 
 export const criterias = pgTable("criterias", {

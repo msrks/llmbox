@@ -7,7 +7,7 @@ import { TileView } from "./_components/tile-view";
 import { useParams } from "next/navigation";
 import { useState } from "react";
 import { useDataset } from "./_hooks/use-dataset";
-
+import { PageTitle } from "@/components/page-title";
 export default function DatasetPage() {
   const params = useParams();
   const projectId = params.projectId as string;
@@ -29,7 +29,7 @@ export default function DatasetPage() {
     <div className="container mx-auto space-y-8">
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-semibold tracking-tight">Dataset</h2>
+          <PageTitle>Dataset</PageTitle>
           <div className="flex space-x-2">
             <Button
               variant={viewMode === "list" ? "default" : "outline"}
