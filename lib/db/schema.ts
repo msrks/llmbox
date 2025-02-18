@@ -65,7 +65,7 @@ export const files = pgTable(
   ]
 );
 
-export const filesRelations = relations(files, ({ one }) => ({
+export const filesRelations = relations(files, ({ one, many }) => ({
   aiPrompt: one(llmPrompts, {
     fields: [files.aiPromptId],
     references: [llmPrompts.id],
@@ -74,6 +74,13 @@ export const filesRelations = relations(files, ({ one }) => ({
     fields: [files.projectId],
     references: [projects.id],
   }),
+  filesToCriterias: many(filesToCriterias),
+  evalResults: many(evalResults),
+  labels: many(labels),
+  criterias: many(criterias),
+  llmPrompts: many(llmPrompts),
+  specs: many(specs),
+  promptEvaluations: many(promptEvaluations),
 }));
 
 export const labels = pgTable("labels", {
@@ -100,15 +107,15 @@ export const criterias = pgTable("criterias", {
 });
 
 export const criteriasRelations = relations(criterias, ({ many, one }) => ({
-  examples: many(criteriaExamples),
+  filesToCriterias: many(filesToCriterias),
   project: one(projects, {
     fields: [criterias.projectId],
     references: [projects.id],
   }),
 }));
 
-export const criteriaExamples = pgTable(
-  "criteria_examples",
+export const filesToCriterias = pgTable(
+  "files_to_criterias",
   {
     fileId: integer("file_id")
       .references(() => files.id)
@@ -125,15 +132,15 @@ export const criteriaExamples = pgTable(
   })
 );
 
-export const criteriaExamplesRelations = relations(
-  criteriaExamples,
+export const filesToCriteriasRelations = relations(
+  filesToCriterias,
   ({ one }) => ({
     file: one(files, {
-      fields: [criteriaExamples.fileId],
+      fields: [filesToCriterias.fileId],
       references: [files.id],
     }),
     criteria: one(criterias, {
-      fields: [criteriaExamples.criteriaId],
+      fields: [filesToCriterias.criteriaId],
       references: [criterias.id],
     }),
   })
@@ -252,8 +259,8 @@ export type File = typeof files.$inferSelect;
 export type NewFile = typeof files.$inferInsert;
 export type Criteria = typeof criterias.$inferSelect;
 export type NewCriteria = typeof criterias.$inferInsert;
-export type CriteriaExample = typeof criteriaExamples.$inferSelect;
-export type NewCriteriaExample = typeof criteriaExamples.$inferInsert;
+export type CriteriaExample = typeof filesToCriterias.$inferSelect;
+export type NewCriteriaExample = typeof filesToCriterias.$inferInsert;
 export type LlmPrompt = typeof llmPrompts.$inferSelect;
 export type NewLlmPrompt = typeof llmPrompts.$inferInsert;
 export type Spec = typeof specs.$inferSelect;

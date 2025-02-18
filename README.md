@@ -65,7 +65,7 @@ erDiagram
         string description
         timestamp createdAt
     }
-    criteriaExamples {
+    filesToCriterias {
         int fileId PK,FK "part of composite PK"
         int criteriaId PK,FK "part of composite PK"
         boolean isFail
@@ -107,6 +107,7 @@ erDiagram
         timestamp createdAt
     }
 
+
     projects ||--o{ files : "files"
     projects ||--o{ criterias : "criterias"
     projects ||--o{ llmPrompts : "llmPrompts"
@@ -114,10 +115,18 @@ erDiagram
     projects ||--o{ promptEvaluations : "promptEvaluations"
 
     files ||--o| llmPrompts : "aiPrompt"
-    files ||--o{ criteriaExamples : "examples"
-    criterias ||--o{ criteriaExamples : "examples"
-    criteriaExamples ||--|| files : "file"
-    criteriaExamples ||--|| criterias : "criteria"
+    files ||--o{ filesToCriterias : "filesToCriterias"
+    files ||--o{ evalResults : "evalResults"
+    files ||--o{ labels : "labels"
+    files ||--o{ criterias : "criterias"
+    files ||--o{ llmPrompts : "llmPrompts"
+    files ||--o{ specs : "specs"
+    files ||--o{ promptEvaluations : "promptEvaluations"
+
+    criterias ||--o{ filesToCriterias : "filesToCriterias"
+    filesToCriterias ||--|| files : "file"
+    filesToCriterias ||--|| criterias : "criteria"
+
     promptEvaluations ||--|| llmPrompts : "prompt"
     promptEvaluations ||--|| specs : "spec"
     promptEvaluations ||--o{ evalResults : "evalResults"
