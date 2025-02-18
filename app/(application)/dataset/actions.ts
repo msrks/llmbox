@@ -50,7 +50,7 @@ export async function getCriterias() {
 export async function createCriteriaExample(data: {
   fileId: number;
   criteriaId: number;
-  isPositive: boolean;
+  isFail: boolean;
   reason: string | null;
 }) {
   try {
@@ -59,7 +59,7 @@ export async function createCriteriaExample(data: {
       .values({
         fileId: data.fileId,
         criteriaId: data.criteriaId,
-        isPositive: data.isPositive,
+        isFail: data.isFail,
         reason: data.reason,
       })
       .returning();
@@ -176,7 +176,7 @@ export async function getCriteriaExamples(fileId: number) {
       .select({
         id: criteriaExamples.id,
         criteriaId: criteriaExamples.criteriaId,
-        isPositive: criteriaExamples.isPositive,
+        isFail: criteriaExamples.isFail,
         reason: criteriaExamples.reason,
         criteriaName: criterias.name,
       })

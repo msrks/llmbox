@@ -1,0 +1,1 @@
+ALTER TABLE "criteria_examples" RENAME COLUMN "is_positive" TO "is_fail";

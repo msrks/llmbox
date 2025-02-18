@@ -22,7 +22,7 @@ import { Card, CardContent } from "@/components/ui/card";
 
 interface CriteriaState {
   id: number;
-  isPositive: boolean;
+  isFail: boolean;
   reason: string;
 }
 
@@ -33,7 +33,7 @@ interface AddCriteriaExampleDialogProps {
   onSubmit: (data: {
     fileId: number;
     criteriaId: number;
-    isPositive: boolean;
+    isFail: boolean;
     reason: string | null;
   }) => Promise<void>;
 }
@@ -49,7 +49,7 @@ export function AddCriteriaExampleDialog({
   const [criteriaStates, setCriteriaStates] = useState<CriteriaState[]>(
     criterias.map((criteria) => ({
       id: criteria.id,
-      isPositive: true,
+      isFail: false,
       reason: "",
     }))
   );
@@ -64,7 +64,7 @@ export function AddCriteriaExampleDialog({
           onSubmit({
             fileId,
             criteriaId: state.id,
-            isPositive: state.isPositive,
+            isFail: state.isFail,
             reason: state.reason?.trim() || null,
           })
         )
@@ -76,7 +76,7 @@ export function AddCriteriaExampleDialog({
       setCriteriaStates(
         criterias.map((criteria) => ({
           id: criteria.id,
-          isPositive: true,
+          isFail: false,
           reason: "",
         }))
       );
@@ -130,14 +130,14 @@ export function AddCriteriaExampleDialog({
                         </div>
                         <div className="flex items-center gap-2">
                           <Label htmlFor={`type-${criteria.id}`}>
-                            Positive Example
+                            Fail Example
                           </Label>
                           <Switch
                             id={`type-${criteria.id}`}
-                            checked={state.isPositive}
+                            checked={state.isFail}
                             onCheckedChange={(checked) =>
                               updateCriteriaState(criteria.id, {
-                                isPositive: checked,
+                                isFail: checked,
                               })
                             }
                           />
@@ -155,7 +155,7 @@ export function AddCriteriaExampleDialog({
                             })
                           }
                           placeholder={`Explain why this ${
-                            state.isPositive ? "meets" : "doesn't meet"
+                            state.isFail ? "fails" : "passes"
                           } the criteria...`}
                           className="h-24"
                         />

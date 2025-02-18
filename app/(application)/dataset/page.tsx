@@ -28,7 +28,7 @@ export default function Home() {
       Array<{
         id: number;
         criteriaId: number;
-        isPositive: boolean;
+        isFail: boolean;
         reason: string | null;
         criteriaName: string;
       }>
@@ -144,7 +144,7 @@ export default function Home() {
   const handleAddExample = async (data: {
     fileId: number;
     criteriaId: number;
-    isPositive: boolean;
+    isFail: boolean;
     reason: string | null;
   }) => {
     const result = await createCriteriaExample(data);

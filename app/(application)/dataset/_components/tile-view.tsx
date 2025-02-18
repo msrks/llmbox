@@ -29,7 +29,7 @@ interface TileViewProps {
     Array<{
       id: number;
       criteriaId: number;
-      isPositive: boolean;
+      isFail: boolean;
       reason: string | null;
       criteriaName: string;
     }>
@@ -37,7 +37,7 @@ interface TileViewProps {
   onAddExample: (data: {
     fileId: number;
     criteriaId: number;
-    isPositive: boolean;
+    isFail: boolean;
     reason: string | null;
   }) => Promise<void>;
 }
@@ -119,7 +119,7 @@ export function TileView({
                   variant="outline"
                   className="flex items-center gap-1"
                 >
-                  {example.isPositive ? (
+                  {!example.isFail ? (
                     <CheckCircle2 className="h-3 w-3 text-green-500" />
                   ) : (
                     <XCircle className="h-3 w-3 text-red-500" />

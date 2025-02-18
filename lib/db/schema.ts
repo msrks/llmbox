@@ -92,7 +92,7 @@ export const criteriaExamples = pgTable("criteria_examples", {
   criteriaId: integer("criteria_id")
     .references(() => criterias.id)
     .notNull(),
-  isPositive: boolean("is_positive").notNull(),
+  isFail: boolean("is_fail").notNull(),
   reason: text("reason"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

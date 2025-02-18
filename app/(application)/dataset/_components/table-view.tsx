@@ -47,7 +47,7 @@ interface TableViewProps {
     Array<{
       id: number;
       criteriaId: number;
-      isPositive: boolean;
+      isFail: boolean;
       reason: string | null;
       criteriaName: string;
     }>
@@ -55,7 +55,7 @@ interface TableViewProps {
   onAddExample: (data: {
     fileId: number;
     criteriaId: number;
-    isPositive: boolean;
+    isFail: boolean;
     reason: string | null;
   }) => Promise<void>;
 }
