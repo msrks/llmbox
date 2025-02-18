@@ -9,6 +9,7 @@ import {
   index,
   real,
   boolean,
+  primaryKey,
 } from "drizzle-orm/pg-core";
 
 export const UploadType = {
@@ -106,18 +107,23 @@ export const criteriasRelations = relations(criterias, ({ many, one }) => ({
   }),
 }));
 
-export const criteriaExamples = pgTable("criteria_examples", {
-  id: serial("id").primaryKey(),
-  fileId: integer("file_id")
-    .references(() => files.id)
-    .notNull(),
-  criteriaId: integer("criteria_id")
-    .references(() => criterias.id)
-    .notNull(),
-  isFail: boolean("is_fail").notNull(),
-  reason: text("reason"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+export const criteriaExamples = pgTable(
+  "criteria_examples",
+  {
+    fileId: integer("file_id")
+      .references(() => files.id)
+      .notNull(),
+    criteriaId: integer("criteria_id")
+      .references(() => criterias.id)
+      .notNull(),
+    isFail: boolean("is_fail").notNull(),
+    reason: text("reason"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.fileId, table.criteriaId] }),
+  })
+);
 
 export const criteriaExamplesRelations = relations(
   criteriaExamples,

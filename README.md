@@ -66,9 +66,8 @@ erDiagram
         timestamp createdAt
     }
     criteriaExamples {
-        int id PK
-        int fileId FK
-        int criteriaId FK
+        int fileId PK,FK "part of composite PK"
+        int criteriaId PK,FK "part of composite PK"
         boolean isFail
         string reason
         timestamp createdAt

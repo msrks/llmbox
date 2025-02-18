@@ -1,0 +1,2 @@
+ALTER TABLE "criteria_examples" ADD CONSTRAINT "criteria_examples_file_id_criteria_id_pk" PRIMARY KEY("file_id","criteria_id");--> statement-breakpoint
+ALTER TABLE "criteria_examples" DROP COLUMN "id";
