@@ -45,6 +45,11 @@ const menuGroups = [
         icon: Tag,
       },
       {
+        title: "Criterias",
+        url: "/criterias",
+        icon: Book,
+      },
+      {
         title: "Manual Upload",
         url: "/upload",
         icon: Upload,
