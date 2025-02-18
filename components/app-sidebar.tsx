@@ -40,14 +40,9 @@ const menuGroups = [
         icon: File,
       },
       {
-        title: "Labels",
-        url: "/labels",
-        icon: Tag,
-      },
-      {
         title: "Criterias",
         url: "/criterias",
-        icon: Book,
+        icon: Tag,
       },
       {
         title: "Manual Upload",
