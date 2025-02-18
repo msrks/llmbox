@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback } from "react";
 import { useDropzone } from "react-dropzone";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Label as UILabel } from "@/components/ui/label";
 import { Loader2, UploadIcon } from "lucide-react";
 import {
   Select,
@@ -14,23 +14,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import { getLabels } from "../labels/actions";
-import type { Label as LabelType } from "@/lib/db/schema";
+import { Label } from "@/lib/db/schema";
 
 export default function UploadPage() {
   const [uploading, setUploading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
-  const [labels, setLabels] = useState<LabelType[]>([]);
-
-  useEffect(() => {
-    const fetchLabels = async () => {
-      const result = await getLabels();
-      if (!("error" in result)) {
-        setLabels(result.labels);
-      }
-    };
-    fetchLabels();
-  }, []);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     setSelectedFiles(acceptedFiles);
@@ -95,17 +83,14 @@ export default function UploadPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <Label htmlFor="labelId">Label</Label>
-          <Select name="labelId">
+          <UILabel htmlFor="label">Label</UILabel>
+          <Select name="label" required>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select a label" />
             </SelectTrigger>
             <SelectContent>
-              {labels.map((label) => (
-                <SelectItem key={label.id} value={label.id.toString()}>
-                  {label.name}
-                </SelectItem>
-              ))}
+              <SelectItem value={Label.PASS}>Pass</SelectItem>
+              <SelectItem value={Label.FAIL}>Fail</SelectItem>
             </SelectContent>
           </Select>
         </div>

@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db/drizzle";
-import { files } from "@/lib/db/schema";
+import { files, criteriaExamples, criterias } from "@/lib/db/schema";
 import { desc, eq } from "drizzle-orm";
 import {
   generatePresignedUrl,
@@ -10,18 +10,15 @@ import {
 
 export async function getFilesList() {
   try {
-    const fileList = await db.query.files.findMany({
-      orderBy: desc(files.createdAt),
-      with: {
-        humanLabel: true,
-        aiLabel: true,
-      },
-    });
+    const fileList = await db
+      .select()
+      .from(files)
+      .orderBy(desc(files.createdAt));
 
     return {
       files: fileList.map((file) => ({
         id: file.id,
-        name: file.fileName,
+        fileName: file.fileName,
         originalName: file.originalName,
         size: file.size,
         mimeType: file.mimeType,
@@ -34,6 +31,44 @@ export async function getFilesList() {
   } catch (error) {
     return {
       error: error instanceof Error ? error.message : "Failed to fetch files",
+    };
+  }
+}
+
+export async function getCriterias() {
+  try {
+    const criteriasList = await db.select().from(criterias);
+    return { criterias: criteriasList };
+  } catch (error) {
+    return {
+      error:
+        error instanceof Error ? error.message : "Failed to fetch criterias",
+    };
+  }
+}
+
+export async function createCriteriaExample(data: {
+  fileId: number;
+  criteriaId: number;
+  isPositive: boolean;
+  reason: string;
+}) {
+  try {
+    const [example] = await db
+      .insert(criteriaExamples)
+      .values({
+        fileId: data.fileId,
+        criteriaId: data.criteriaId,
+        isPositive: data.isPositive,
+        reason: data.reason,
+      })
+      .returning();
+
+    return { example };
+  } catch (error) {
+    return {
+      error:
+        error instanceof Error ? error.message : "Failed to create example",
     };
   }
 }

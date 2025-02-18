@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { FileDeleteDialog } from "@/components/file-delete-dialog";
 import { FileInfo } from "@/lib/types";
-import { Label } from "@/lib/db/schema";
+import { Label, Criteria } from "@/lib/db/schema";
+import { Badge } from "@/components/ui/badge";
+import { AddCriteriaExampleDialog } from "./add-criteria-example-dialog";
 
 type FileWithLabels = FileInfo & {
   humanLabel?: Label | null;
@@ -18,13 +20,27 @@ interface ColumnOptions {
   isImageFile: (mimeType: string | null) => boolean;
   onDownload: (fileId: number, originalName: string) => void;
   onDelete: (fileId: number) => Promise<void>;
+  criterias: Criteria[];
+  onAddExample: (data: {
+    fileId: number;
+    criteriaId: number;
+    isPositive: boolean;
+    reason: string;
+  }) => Promise<void>;
 }
+
+const getLabelBadgeVariant = (label: Label | null | undefined) => {
+  if (!label) return "secondary";
+  return label === Label.PASS ? "default" : "destructive";
+};
 
 export const getColumns = ({
   previewUrls,
   isImageFile,
   onDownload,
   onDelete,
+  criterias,
+  onAddExample,
 }: ColumnOptions): ColumnDef<FileWithLabels>[] => [
   {
     accessorKey: "preview",
@@ -126,7 +142,11 @@ export const getColumns = ({
     header: "Human Label",
     cell: ({ row }) => {
       const label = row.original.humanLabel;
-      return <div>{label?.name || "-"}</div>;
+      return (
+        <Badge variant={getLabelBadgeVariant(label)}>
+          {label?.toUpperCase() || "UNLABELED"}
+        </Badge>
+      );
     },
   },
   {
@@ -134,7 +154,11 @@ export const getColumns = ({
     header: "AI Label",
     cell: ({ row }) => {
       const label = row.original.aiLabel;
-      return <div>{label?.name || "-"}</div>;
+      return (
+        <Badge variant={getLabelBadgeVariant(label)}>
+          {label?.toUpperCase() || "UNLABELED"}
+        </Badge>
+      );
     },
   },
   {
@@ -151,6 +175,12 @@ export const getColumns = ({
           >
             <Download className="h-4 w-4" />
           </Button>
+          <AddCriteriaExampleDialog
+            fileId={file.id}
+            fileName={file.originalName}
+            criterias={criterias}
+            onSubmit={onAddExample}
+          />
           <FileDeleteDialog
             fileName={file.originalName}
             onDelete={() => onDelete(file.id)}

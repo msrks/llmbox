@@ -29,7 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { FileInfo } from "@/lib/types";
-import { Label } from "@/lib/db/schema";
+import { Label, Criteria } from "@/lib/db/schema";
 import { getColumns } from "./columns";
 
 interface TableViewProps {
@@ -41,6 +41,13 @@ interface TableViewProps {
   isImageFile: (mimeType: string | null) => boolean;
   onDownload: (fileId: number, originalName: string) => void;
   onDelete: (fileId: number) => Promise<void>;
+  criterias: Criteria[];
+  onAddExample: (data: {
+    fileId: number;
+    criteriaId: number;
+    isPositive: boolean;
+    reason: string;
+  }) => Promise<void>;
 }
 
 export function TableView({
@@ -49,6 +56,8 @@ export function TableView({
   isImageFile,
   onDownload,
   onDelete,
+  criterias,
+  onAddExample,
 }: TableViewProps) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -64,6 +73,8 @@ export function TableView({
         isImageFile,
         onDownload,
         onDelete,
+        criterias,
+        onAddExample,
       }),
     [previewUrls, isImageFile, onDownload, onDelete]
   );

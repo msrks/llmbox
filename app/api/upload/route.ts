@@ -1,21 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { saveFileInBucket } from "@/lib/s3-file-management";
 import { db } from "@/lib/db/drizzle";
-import { files } from "@/lib/db/schema";
+import { files, Label } from "@/lib/db/schema";
 
 export async function POST(request: NextRequest) {
   try {
     const formData = await request.formData();
     const uploadedFiles = formData.getAll("files");
-    const labelId = formData.get("labelId");
+    const label = formData.get("label");
 
     if (!uploadedFiles || uploadedFiles.length === 0) {
       return NextResponse.json({ error: "No files received" }, { status: 400 });
     }
 
-    if (!labelId) {
+    if (!label || (label !== Label.PASS && label !== Label.FAIL)) {
       return NextResponse.json(
-        { error: "Label ID is required" },
+        { error: "Valid label (pass/fail) is required" },
         { status: 400 }
       );
     }
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
           originalName: file.name,
           mimeType: file.type,
           size: buffer.length,
-          humanLabelId: parseInt(labelId as string),
+          humanLabel: label,
         })
         .returning();
 

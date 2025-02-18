@@ -1,13 +1,35 @@
+"use client";
+
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
+import { FileDeleteDialog } from "@/components/file-delete-dialog";
 import { FileInfo } from "@/lib/types";
+import { Label, Criteria } from "@/lib/db/schema";
+import { Badge } from "@/components/ui/badge";
+import { AddCriteriaExampleDialog } from "./add-criteria-example-dialog";
+
+const getLabelBadgeVariant = (label: Label | null | undefined) => {
+  if (!label) return "secondary";
+  return label === Label.PASS ? "default" : "destructive";
+};
 
 interface TileViewProps {
-  files: FileInfo[];
+  files: (FileInfo & {
+    humanLabel?: Label | null;
+    aiLabel?: Label | null;
+  })[];
   previewUrls: Record<number, string>;
   isImageFile: (mimeType: string | null) => boolean;
   onDownload: (fileId: number, originalName: string) => void;
-  onDelete: (fileId: number) => void;
+  onDelete: (fileId: number) => Promise<void>;
+  criterias: Criteria[];
+  onAddExample: (data: {
+    fileId: number;
+    criteriaId: number;
+    isPositive: boolean;
+    reason: string;
+  }) => Promise<void>;
 }
 
 export function TileView({
@@ -16,34 +38,36 @@ export function TileView({
   isImageFile,
   onDownload,
   onDelete,
+  criterias,
+  onAddExample,
 }: TileViewProps) {
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
       {files.map((file) => (
         <div
           key={file.id}
-          className="border rounded-lg p-4 space-y-4 hover:shadow-md transition-shadow"
+          className="relative group border rounded-lg p-4 space-y-2"
         >
-          <div className="aspect-square relative bg-muted rounded-md overflow-hidden">
+          <div className="relative aspect-square">
             {isImageFile(file.mimeType) ? (
               previewUrls[file.id] ? (
                 <Image
                   src={previewUrls[file.id]}
                   alt={file.originalName}
                   fill
-                  className="object-contain"
+                  className="object-contain rounded-md"
                 />
               ) : (
-                <div className="w-full h-full flex items-center justify-center">
+                <div className="w-full h-full flex items-center justify-center bg-muted rounded-md">
                   <span className="text-sm text-muted-foreground">
                     Loading...
                   </span>
                 </div>
               )
             ) : (
-              <div className="w-full h-full flex items-center justify-center">
+              <div className="w-full h-full flex items-center justify-center bg-muted rounded-md">
                 <svg
-                  className="w-16 h-16 text-muted-foreground"
+                  className="w-12 h-12 text-muted-foreground"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -58,33 +82,45 @@ export function TileView({
               </div>
             )}
           </div>
-          <div className="space-y-2">
-            <h3 className="font-medium truncate" title={file.originalName}>
+
+          <div className="space-y-1">
+            <p
+              className="text-sm font-medium truncate"
+              title={file.originalName}
+            >
               {file.originalName}
-            </h3>
-            <div className="text-sm text-muted-foreground space-y-1">
-              <p>{(file.size / 1024).toFixed(2)} KB</p>
-              <p className="capitalize">{file.uploadType}</p>
-              <p>{new Date(file.lastModified).toLocaleString()}</p>
+            </p>
+            <p className="text-xs text-muted-foreground">
+              {(file.size / 1024).toFixed(2)} KB
+            </p>
+            <div className="flex gap-2">
+              <Badge variant={getLabelBadgeVariant(file.humanLabel)}>
+                {file.humanLabel?.toUpperCase() || "UNLABELED"}
+              </Badge>
+              <Badge variant={getLabelBadgeVariant(file.aiLabel)}>
+                {file.aiLabel?.toUpperCase() || "UNLABELED"}
+              </Badge>
             </div>
-            <div className="flex space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1"
-                onClick={() => onDownload(file.id, file.originalName)}
-              >
-                Download
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
-                onClick={() => onDelete(file.id)}
-              >
-                Delete
-              </Button>
-            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => onDownload(file.id, file.originalName)}
+            >
+              <Download className="h-4 w-4" />
+            </Button>
+            <AddCriteriaExampleDialog
+              fileId={file.id}
+              fileName={file.originalName}
+              criterias={criterias}
+              onSubmit={onAddExample}
+            />
+            <FileDeleteDialog
+              fileName={file.originalName}
+              onDelete={() => onDelete(file.id)}
+            />
           </div>
         </div>
       ))}

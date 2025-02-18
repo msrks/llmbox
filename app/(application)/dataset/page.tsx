@@ -6,16 +6,21 @@ import {
   getFileDownloadUrl,
   getFilePreviewUrl,
   deleteFile,
+  getCriterias,
+  createCriteriaExample,
 } from "./actions";
 import { Button } from "@/components/ui/button";
 import { LayoutGrid, List } from "lucide-react";
 import { TableView } from "./_components/table-view";
 import { TileView } from "./_components/tile-view";
 import { FileInfo } from "@/lib/types";
+import { Criteria } from "@/lib/db/schema";
+import { toast } from "sonner";
 
 export default function Home() {
   const [error, setError] = useState<string | null>(null);
   const [files, setFiles] = useState<FileInfo[]>([]);
+  const [criterias, setCriterias] = useState<Criteria[]>([]);
   const [loadingFiles, setLoadingFiles] = useState(true);
   const [previewUrls, setPreviewUrls] = useState<Record<number, string>>({});
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
@@ -26,7 +31,17 @@ export default function Home() {
 
   useEffect(() => {
     fetchFiles();
+    fetchCriterias();
   }, []);
+
+  const fetchCriterias = async () => {
+    const result = await getCriterias();
+    if ("error" in result) {
+      toast.error(result.error);
+    } else {
+      setCriterias(result.criterias);
+    }
+  };
 
   const fetchPreviewUrls = useCallback(async () => {
     const newPreviewUrls: Record<number, string> = {};
@@ -94,6 +109,18 @@ export default function Home() {
     }
   };
 
+  const handleAddExample = async (data: {
+    fileId: number;
+    criteriaId: number;
+    isPositive: boolean;
+    reason: string;
+  }) => {
+    const result = await createCriteriaExample(data);
+    if ("error" in result) {
+      throw new Error(result.error);
+    }
+  };
+
   return (
     <div className="container mx-auto space-y-8">
       {error && (
@@ -132,6 +159,8 @@ export default function Home() {
             isImageFile={isImageFile}
             onDownload={handleDownload}
             onDelete={handleDelete}
+            criterias={criterias}
+            onAddExample={handleAddExample}
           />
         ) : (
           <TileView
@@ -140,6 +169,8 @@ export default function Home() {
             isImageFile={isImageFile}
             onDownload={handleDownload}
             onDelete={handleDelete}
+            criterias={criterias}
+            onAddExample={handleAddExample}
           />
         )}
       </div>
