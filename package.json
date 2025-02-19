@@ -38,6 +38,7 @@
     "cmdk": "1.0.0",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.39.3",
+    "drizzle-zod": "^0.7.0",
     "install": "^0.13.0",
     "lucide-react": "^0.475.0",
     "minio": "^8.0.4",
