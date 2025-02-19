@@ -28,51 +28,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { FileInfo } from "@/lib/types";
-import { Label, Criteria } from "@/lib/db/schema";
 import { getColumns } from "./columns";
+import { Dataset } from "../hooks";
 
-interface TableViewProps {
-  files: (FileInfo & {
-    humanLabel?: Label | null;
-    aiLabel?: Label | null;
-  })[];
-  previewUrls: Record<number, string>;
-  isImageFile: (mimeType: string | null) => boolean;
-  onDownload: (fileId: number, originalName: string) => void;
-  onDelete: (fileId: number) => Promise<void>;
-  criterias: Criteria[];
-  filesToCriterias: Record<
-    number,
-    Array<{
-      fileId: number;
-      criteriaId: number;
-      isFail: boolean;
-      reason: string | null;
-      criteria: {
-        name: string;
-        description: string | null;
-      };
-    }>
-  >;
-  onAddExample: (data: {
-    fileId: number;
-    criteriaId: number;
-    isFail: boolean;
-    reason: string | null;
-  }) => Promise<void>;
-}
-
-export function TableView({
-  files,
-  previewUrls,
-  isImageFile,
-  onDownload,
-  onDelete,
-  criterias,
-  filesToCriterias,
-  onAddExample,
-}: TableViewProps) {
+export function TableView(dataset: Dataset) {
+  const { criterias, filesWithCriterias } = dataset;
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -80,30 +40,13 @@ export function TableView({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
 
-  const columns = React.useMemo(
-    () =>
-      getColumns({
-        previewUrls,
-        isImageFile,
-        onDownload,
-        onDelete,
-        criterias,
-        filesToCriterias,
-        onAddExample,
-      }),
-    [
-      previewUrls,
-      isImageFile,
-      onDownload,
-      onDelete,
-      criterias,
-      filesToCriterias,
-      onAddExample,
-    ]
-  );
+  const columns = getColumns({
+    criterias,
+    filesWithCriterias,
+  });
 
   const table = useReactTable({
-    data: files,
+    data: filesWithCriterias,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,

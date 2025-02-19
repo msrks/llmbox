@@ -4,77 +4,51 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Download, CheckCircle2, XCircle } from "lucide-react";
 import { FileDeleteDialog } from "@/components/file-delete-dialog";
-import { FileInfo } from "@/lib/types";
-import { Label, Criteria } from "@/lib/db/schema";
+import { Label } from "@/lib/db/schema";
 import { Badge } from "@/components/ui/badge";
 import { AddCriteriaExampleDialog } from "./add-criteria-example-dialog";
-
+import { Dataset } from "../hooks";
+import { getPresignedUrl } from "../actions";
 const getLabelBadgeVariant = (label: Label | null | undefined) => {
   if (!label) return "secondary";
   return label === Label.PASS ? "default" : "destructive";
 };
 
-interface TileViewProps {
-  files: (FileInfo & {
-    humanLabel?: Label | null;
-    aiLabel?: Label | null;
-  })[];
-  previewUrls: Record<number, string>;
-  isImageFile: (mimeType: string | null) => boolean;
-  onDownload: (fileId: number, originalName: string) => void;
-  onDelete: (fileId: number) => Promise<void>;
-  criterias: Criteria[];
-  criteriaExamples: Record<
-    number,
-    Array<{
-      id: number;
-      criteriaId: number;
-      isFail: boolean;
-      reason: string | null;
-      criteriaName: string;
-    }>
-  >;
-  onAddExample: (data: {
-    fileId: number;
-    criteriaId: number;
-    isFail: boolean;
-    reason: string | null;
-  }) => Promise<void>;
-}
+export function TileView(dataset: Dataset) {
+  const handleDownload = async (fileId: number) => {
+    const url = await getPresignedUrl(fileId);
+    window.open(url, "_blank");
+  };
 
-export function TileView({
-  files,
-  previewUrls,
-  isImageFile,
-  onDownload,
-  onDelete,
-  criterias,
-  criteriaExamples,
-  onAddExample,
-}: TileViewProps) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      {files.map((file) => (
+      {dataset.filesWithCriterias.map((file) => (
         <div
           key={file.id}
           className="relative group border rounded-lg p-4 space-y-2"
         >
           <div className="relative aspect-square">
-            {isImageFile(file.mimeType) ? (
-              previewUrls[file.id] ? (
-                <Image
-                  src={previewUrls[file.id]}
-                  alt={file.originalName}
-                  fill
-                  className="object-contain rounded-md"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center bg-muted rounded-md">
-                  <span className="text-sm text-muted-foreground">
-                    Loading...
-                  </span>
-                </div>
-              )
+            {dataset.isImageFile(file.mimeType) ? (
+              // dataset.previewUrls[file.id] ? (
+              //   <Image
+              //     src={dataset.previewUrls[file.id]}
+              //     alt={file.originalName}
+              //     fill
+              //     className="object-contain rounded-md"
+              //   />
+              // ) : (
+              //   <div className="w-full h-full flex items-center justify-center bg-muted rounded-md">
+              //     <span className="text-sm text-muted-foreground">
+              //       Loading...
+              //     </span>
+              //   </div>
+              // )
+              <Image
+                src={file.fileName}
+                alt={file.originalName}
+                fill
+                className="object-contain rounded-md"
+              />
             ) : (
               <div className="w-full h-full flex items-center justify-center bg-muted rounded-md">
                 <svg
@@ -113,18 +87,18 @@ export function TileView({
               </Badge>
             </div>
             <div className="flex gap-2 flex-wrap">
-              {(criteriaExamples[file.id] || []).map((example) => (
+              {file.filesToCriterias.map((example) => (
                 <Badge
-                  key={example.id}
+                  key={example.criteria.id}
                   variant="outline"
                   className="flex items-center gap-1"
                 >
-                  {!example.isFail ? (
-                    <CheckCircle2 className="h-3 w-3 text-green-500" />
-                  ) : (
+                  {example.criteria.name}
+                  {example.isFail ? (
                     <XCircle className="h-3 w-3 text-red-500" />
+                  ) : (
+                    <CheckCircle2 className="h-3 w-3 text-green-500" />
                   )}
-                  {example.criteriaName}
                 </Badge>
               ))}
             </div>
@@ -134,19 +108,19 @@ export function TileView({
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => onDownload(file.id, file.originalName)}
+              onClick={() => handleDownload(file.id)}
             >
               <Download className="h-4 w-4" />
             </Button>
             <AddCriteriaExampleDialog
               fileId={file.id}
               fileName={file.originalName}
-              criterias={criterias}
-              onSubmit={onAddExample}
+              criterias={dataset.criterias}
+              onSubmit={dataset.upsertFile2Criteria}
             />
             <FileDeleteDialog
               fileName={file.originalName}
-              onDelete={() => onDelete(file.id)}
+              onDelete={() => dataset.handleDelete(file.id)}
             />
           </div>
         </div>

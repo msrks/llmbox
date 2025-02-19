@@ -6,41 +6,15 @@ import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { FileDeleteDialog } from "@/components/file-delete-dialog";
 import { FileInfo } from "@/lib/types";
-import { Label, Criteria } from "@/lib/db/schema";
+import { Criteria, Label } from "@/lib/db/schema";
 import { Badge } from "@/components/ui/badge";
 import { AddCriteriaExampleDialog } from "./add-criteria-example-dialog";
+import { FileWithCriterias } from "../actions";
 
 type FileWithLabels = FileInfo & {
   humanLabel?: Label | null;
   aiLabel?: Label | null;
 };
-
-interface ColumnOptions {
-  previewUrls: Record<number, string>;
-  isImageFile: (mimeType: string | null) => boolean;
-  onDownload: (fileId: number, originalName: string) => void;
-  onDelete: (fileId: number) => Promise<void>;
-  criterias: Criteria[];
-  filesToCriterias: Record<
-    number,
-    Array<{
-      fileId: number;
-      criteriaId: number;
-      isFail: boolean;
-      reason: string | null;
-      criteria: {
-        name: string;
-        description: string | null;
-      };
-    }>
-  >;
-  onAddExample: (data: {
-    fileId: number;
-    criteriaId: number;
-    isFail: boolean;
-    reason: string | null;
-  }) => Promise<void>;
-}
 
 const getLabelBadgeVariant = (label: Label | null | undefined) => {
   if (!label) return "secondary";
@@ -48,14 +22,12 @@ const getLabelBadgeVariant = (label: Label | null | undefined) => {
 };
 
 export const getColumns = ({
-  previewUrls,
-  isImageFile,
-  onDownload,
-  onDelete,
   criterias,
-  filesToCriterias,
-  onAddExample,
-}: ColumnOptions): ColumnDef<FileWithLabels>[] => [
+  filesWithCriterias,
+}: {
+  criterias: Criteria[];
+  filesWithCriterias: FileWithCriterias;
+}): ColumnDef<FileWithLabels>[] => [
   {
     accessorKey: "originalName",
     header: "Name",

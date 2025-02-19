@@ -1,127 +1,26 @@
 "use server";
 
 import { db } from "@/lib/db/drizzle";
-import { files, filesToCriterias, criterias } from "@/lib/db/schema";
+import {
+  files,
+  filesToCriterias,
+  criterias,
+  NewFileToCriteria,
+} from "@/lib/db/schema";
 import { desc, eq } from "drizzle-orm";
 import {
   generatePresignedUrl,
   deleteFileFromBucket,
 } from "@/lib/s3-file-management";
 
-export async function getFilesList(projectId: string) {
-  try {
-    const fileList = await db
-      .select()
-      .from(files)
-      .where(eq(files.projectId, parseInt(projectId)))
-      .orderBy(desc(files.createdAt));
-
-    return {
-      files: fileList.map((file) => ({
-        id: file.id,
-        fileName: file.fileName,
-        originalName: file.originalName,
-        size: file.size,
-        mimeType: file.mimeType,
-        uploadType: file.uploadType,
-        lastModified: file.createdAt,
-        humanLabel: file.humanLabel,
-        aiLabel: file.aiLabel,
-      })),
-    };
-  } catch (error) {
-    return {
-      error: error instanceof Error ? error.message : "Failed to fetch files",
-    };
-  }
-}
-
-export async function getCriterias(projectId: string) {
-  try {
-    const criteriasList = await db
-      .select()
-      .from(criterias)
-      .where(eq(criterias.projectId, parseInt(projectId)));
-    return { criterias: criteriasList };
-  } catch (error) {
-    return {
-      error:
-        error instanceof Error ? error.message : "Failed to fetch criterias",
-    };
-  }
-}
-
-export async function createCriteriaExample(data: {
-  fileId: number;
-  criteriaId: number;
-  isFail: boolean;
-  reason?: string;
-}) {
-  return db.insert(filesToCriterias).values(data).returning();
-}
-
-export async function getFileDownloadUrl(fileId: number) {
-  try {
-    const file = await db
-      .select()
-      .from(files)
-      .where(eq(files.id, fileId))
-      .limit(1);
-
-    if (!file || file.length === 0) {
-      throw new Error("File not found");
-    }
-
-    const bucketName = process.env.S3_BUCKET_NAME;
-    if (!bucketName) {
-      throw new Error("S3_BUCKET_NAME must be set");
-    }
-
-    const presignedUrl = await generatePresignedUrl(
-      bucketName,
-      file[0].fileName
-    );
-    return { url: presignedUrl };
-  } catch (error) {
-    return {
-      error:
-        error instanceof Error
-          ? error.message
-          : "Failed to generate download URL",
-    };
-  }
-}
-
-export async function getFilePreviewUrl(fileId: number) {
-  try {
-    const file = await db
-      .select()
-      .from(files)
-      .where(eq(files.id, fileId))
-      .limit(1);
-
-    if (!file || file.length === 0) {
-      throw new Error("File not found");
-    }
-
-    const bucketName = process.env.S3_BUCKET_NAME;
-    if (!bucketName) {
-      throw new Error("S3_BUCKET_NAME must be set");
-    }
-
-    const presignedUrl = await generatePresignedUrl(
-      bucketName,
-      file[0].fileName
-    );
-    return { url: presignedUrl };
-  } catch (error) {
-    return {
-      error:
-        error instanceof Error
-          ? error.message
-          : "Failed to generate preview URL",
-    };
-  }
+export async function upsertFileToCriteria(data: NewFileToCriteria) {
+  return db
+    .insert(filesToCriterias)
+    .values(data)
+    .onConflictDoUpdate({
+      target: [filesToCriterias.fileId, filesToCriterias.criteriaId],
+      set: data,
+    });
 }
 
 export async function deleteFile(fileId: number) {
@@ -157,9 +56,57 @@ export async function deleteFile(fileId: number) {
   }
 }
 
-export async function getFilesToCriterias(fileId: number) {
+export async function getFilesList(projectId: string) {
+  return db.query.files.findMany({
+    where: eq(files.projectId, parseInt(projectId)),
+    orderBy: desc(files.createdAt),
+  });
+}
+
+export async function getFileWithCriterias(fileId: number) {
   return db.query.filesToCriterias.findMany({
     where: eq(filesToCriterias.fileId, fileId),
     with: { criteria: true },
   });
 }
+
+export async function getPresignedUrl(fileId: number) {
+  const file = await db
+    .select()
+    .from(files)
+    .where(eq(files.id, fileId))
+    .limit(1);
+
+  if (!file || file.length === 0) {
+    throw new Error("File not found");
+  }
+
+  const bucketName = process.env.S3_BUCKET_NAME;
+  if (!bucketName) {
+    throw new Error("S3_BUCKET_NAME must be set");
+  }
+
+  const presignedUrl = await generatePresignedUrl(bucketName, file[0].fileName);
+  return presignedUrl;
+}
+
+export async function getFilesWithCriterias(projectId: string) {
+  return db.query.files.findMany({
+    where: eq(files.projectId, parseInt(projectId)),
+    with: { filesToCriterias: { with: { criteria: true } } },
+  });
+}
+
+export async function getCriterias(projectId: string) {
+  return db.query.criterias.findMany({
+    where: eq(criterias.projectId, parseInt(projectId)),
+  });
+}
+
+export type FileWithCriterias = Awaited<
+  ReturnType<typeof getFileWithCriterias>
+>;
+
+export type FilesWithCriterias = Awaited<
+  ReturnType<typeof getFilesWithCriterias>
+>;
