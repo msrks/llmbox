@@ -1,17 +1,16 @@
 import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileIcon, MessagesSquare, ClipboardCheck } from "lucide-react";
-import { getProject } from "@/lib/db/queries";
 import { formatDistanceToNow } from "@/lib/utils";
 import { PageTitle } from "@/components/page-title";
-
+import { getProjectWithStats } from "@/lib/db/queries/projects";
 export default async function Page({
   params,
 }: {
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
-  const project = await getProject(parseInt(projectId));
+  const project = await getProjectWithStats(parseInt(projectId));
   if (!project) {
     notFound();
   }
