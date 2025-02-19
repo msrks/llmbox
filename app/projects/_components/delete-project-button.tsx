@@ -2,7 +2,6 @@ import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -35,9 +34,10 @@ export function DeleteProjectButton({ projectId }: DeleteProjectButtonProps) {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={() => deleteProjectAction(projectId)}>
-            Delete
-          </AlertDialogAction>
+          <form action={deleteProjectAction}>
+            <input type="hidden" name="projectId" value={projectId} />
+            <Button type="submit">Delete</Button>
+          </form>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>

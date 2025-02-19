@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { redirect } from "next/navigation";
 import { createProject } from "@/lib/db/queries/projects";
 import { deleteProject } from "@/lib/db/queries/projects";
+import { z } from "zod";
 
 export async function createProjectAction(formData: FormData) {
   const result = createInsertSchema(projects).safeParse({
@@ -22,11 +23,20 @@ export async function createProjectAction(formData: FormData) {
   redirect(`/${newProjects[0].id}`);
 }
 
-export async function deleteProjectAction(projectId: number) {
-  try {
-    await deleteProject(projectId);
-    redirect(`/projects`);
-  } catch {
-    toast.error("Failed to delete project");
+export async function deleteProjectAction(formData: FormData) {
+  const result = z
+    .object({
+      projectId: z.string(),
+    })
+    .safeParse({
+      projectId: formData.get("projectId"),
+    });
+
+  if (!result.success) {
+    toast.error(result.error.errors[0].message);
+    return;
   }
+
+  await deleteProject(parseInt(result.data.projectId));
+  redirect(`/projects`);
 }
