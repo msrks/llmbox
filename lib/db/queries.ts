@@ -1,5 +1,3 @@
-"use server";
-
 import { db } from "@/lib/db/drizzle";
 import { projects } from "@/lib/db/schema";
 import { sql } from "drizzle-orm";

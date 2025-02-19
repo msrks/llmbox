@@ -1,25 +1,9 @@
 import { notFound } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileIcon, MessagesSquare, ClipboardCheck } from "lucide-react";
-import { getProject } from "./actions";
-function formatDistanceToNow(date: Date) {
-  const now = new Date();
-  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-  const diffInMinutes = Math.floor(diffInSeconds / 60);
-  const diffInHours = Math.floor(diffInMinutes / 60);
-  const diffInDays = Math.floor(diffInHours / 24);
-
-  if (diffInDays > 0) {
-    return `${diffInDays} day${diffInDays === 1 ? "" : "s"}`;
-  }
-  if (diffInHours > 0) {
-    return `${diffInHours} hour${diffInHours === 1 ? "" : "s"}`;
-  }
-  if (diffInMinutes > 0) {
-    return `${diffInMinutes} minute${diffInMinutes === 1 ? "" : "s"}`;
-  }
-  return "less than a minute";
-}
+import { getProject } from "@/lib/db/queries";
+import { formatDistanceToNow } from "@/lib/utils";
+import { PageTitle } from "@/components/page-title";
 
 export default async function Page({
   params,
@@ -28,20 +12,17 @@ export default async function Page({
 }) {
   const { projectId } = await params;
   const project = await getProject(parseInt(projectId));
-
   if (!project) {
     notFound();
   }
 
   return (
-    <div className="container mx-auto p-6">
+    <div className=" mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">{project.name}</h1>
-        {project.description && (
-          <p className="text-muted-foreground mt-2">{project.description}</p>
-        )}
-        <p className="text-sm text-muted-foreground mt-2">
-          Created {formatDistanceToNow(project.createdAt)} ago
+        <PageTitle>{project.name}</PageTitle>
+        <p className="text-muted-foreground">
+          <span>{project.description}</span>
+          <span>Created {formatDistanceToNow(project.createdAt)} ago</span>
         </p>
       </div>
 
