@@ -11,6 +11,7 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
+  ColumnDef,
 } from "@tanstack/react-table";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,9 +31,17 @@ import {
 } from "@/components/ui/table";
 import { getColumns } from "./columns";
 import { Dataset } from "../hooks";
+import { FilesWithCriterias } from "../actions";
 
-export function TableView(dataset: Dataset) {
-  const { criterias, filesWithCriterias } = dataset;
+type FileWithLabels = FilesWithCriterias[number];
+
+export function TableView({
+  criterias,
+  filesWithCriterias,
+}: {
+  criterias: Dataset["criterias"];
+  filesWithCriterias: FilesWithCriterias;
+}) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -42,12 +51,11 @@ export function TableView(dataset: Dataset) {
 
   const columns = getColumns({
     criterias,
-    filesWithCriterias,
   });
 
-  const table = useReactTable({
+  const table = useReactTable<FileWithLabels>({
     data: filesWithCriterias,
-    columns,
+    columns: columns as ColumnDef<FileWithLabels>[],
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),

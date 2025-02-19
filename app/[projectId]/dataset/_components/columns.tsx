@@ -3,18 +3,17 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, Download, CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
 import { FileDeleteDialog } from "@/components/file-delete-dialog";
-import { FileInfo } from "@/lib/types";
 import { Criteria, Label } from "@/lib/db/schema";
 import { Badge } from "@/components/ui/badge";
 import { AddCriteriaExampleDialog } from "./add-criteria-example-dialog";
-import { FileWithCriterias } from "../actions";
+import { FilesWithCriterias } from "../actions";
+import { getPresignedUrl, deleteFile } from "../actions";
+import { upsertFileToCriteria } from "../actions";
+import { toast } from "sonner";
+import { FilePreview } from "./file-preview";
 
-type FileWithLabels = FileInfo & {
-  humanLabel?: Label | null;
-  aiLabel?: Label | null;
-};
+type FileWithLabels = FilesWithCriterias[number];
 
 const getLabelBadgeVariant = (label: Label | null | undefined) => {
   if (!label) return "secondary";
@@ -23,10 +22,8 @@ const getLabelBadgeVariant = (label: Label | null | undefined) => {
 
 export const getColumns = ({
   criterias,
-  filesWithCriterias,
 }: {
   criterias: Criteria[];
-  filesWithCriterias: FileWithCriterias;
 }): ColumnDef<FileWithLabels>[] => [
   {
     accessorKey: "originalName",
@@ -40,38 +37,12 @@ export const getColumns = ({
       const file = row.original;
       return (
         <div className="relative w-16 h-16">
-          {isImageFile(file.mimeType) ? (
-            previewUrls[file.id] ? (
-              <Image
-                src={previewUrls[file.id]}
-                alt={file.originalName}
-                fill
-                className="object-contain rounded-md"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-muted rounded-md">
-                <span className="text-sm text-muted-foreground">
-                  Loading...
-                </span>
-              </div>
-            )
-          ) : (
-            <div className="w-full h-full flex items-center justify-center bg-muted rounded-md">
-              <svg
-                className="w-8 h-8 text-muted-foreground"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-                />
-              </svg>
-            </div>
-          )}
+          <FilePreview
+            fileId={file.id}
+            fileName={file.originalName}
+            mimeType={file.mimeType}
+            className="w-full h-full"
+          />
         </div>
       );
     },
@@ -84,7 +55,7 @@ export const getColumns = ({
     ),
   },
   {
-    accessorKey: "lastModified",
+    accessorKey: "createdAt",
     header: ({ column }) => (
       <Button
         variant="ghost"
@@ -95,9 +66,7 @@ export const getColumns = ({
       </Button>
     ),
     cell: ({ row }) => {
-      return (
-        <div>{new Date(row.getValue("lastModified")).toLocaleString()}</div>
-      );
+      return <div>{new Date(row.getValue("createdAt")).toLocaleString()}</div>;
     },
   },
   {
@@ -129,11 +98,9 @@ export const getColumns = ({
     header: "Criterias",
     cell: ({ row }) => {
       const file = row.original;
-      const examples = filesToCriterias[file.id] || [];
-
       return (
         <div key={file.id} className="flex items-center gap-2 flex-wrap">
-          {examples.map((example) => (
+          {file.filesToCriterias.map((example) => (
             <Badge
               key={`${example.fileId}-${example.criteriaId}`}
               variant="outline"
@@ -151,7 +118,14 @@ export const getColumns = ({
             fileId={file.id}
             fileName={file.originalName}
             criterias={criterias}
-            onSubmit={onAddExample}
+            onSubmit={async (data) => {
+              try {
+                await upsertFileToCriteria(data);
+                toast.success("Added criteria example");
+              } catch {
+                toast.error("Failed to add criteria example");
+              }
+            }}
           />
         </div>
       );
@@ -167,13 +141,27 @@ export const getColumns = ({
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => onDownload(file.id, file.originalName)}
+            onClick={async () => {
+              const url = await getPresignedUrl(file.id);
+              window.open(url, "_blank");
+            }}
           >
             <Download className="h-4 w-4" />
           </Button>
           <FileDeleteDialog
             fileName={file.originalName}
-            onDelete={() => onDelete(file.id)}
+            onDelete={async () => {
+              try {
+                const result = await deleteFile(file.id);
+                if ("error" in result) {
+                  toast.error(result.error);
+                  return;
+                }
+                toast.success("File deleted successfully");
+              } catch {
+                toast.error("Failed to delete file");
+              }
+            }}
           />
         </div>
       );

@@ -43,9 +43,9 @@ export default function DatasetPage() {
         ) : dataset.filesWithCriterias.length === 0 ? (
           <div className="text-muted-foreground">No files found</div>
         ) : viewMode === "list" ? (
-          <TableView dataset={dataset} />
+          <TableView {...dataset} />
         ) : (
-          <TileView dataset={dataset} />
+          <TileView {...dataset} />
         )}
       </div>
     </div>

@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Download, CheckCircle2, XCircle } from "lucide-react";
 import { FileDeleteDialog } from "@/components/file-delete-dialog";
@@ -9,12 +8,19 @@ import { Badge } from "@/components/ui/badge";
 import { AddCriteriaExampleDialog } from "./add-criteria-example-dialog";
 import { Dataset } from "../hooks";
 import { getPresignedUrl } from "../actions";
+import { FilePreview } from "./file-preview";
+
 const getLabelBadgeVariant = (label: Label | null | undefined) => {
   if (!label) return "secondary";
   return label === Label.PASS ? "default" : "destructive";
 };
 
-export function TileView(dataset: Dataset) {
+export function TileView({
+  filesWithCriterias,
+  criterias,
+  upsertFile2Criteria,
+  handleDelete,
+}: Dataset) {
   const handleDownload = async (fileId: number) => {
     const url = await getPresignedUrl(fileId);
     window.open(url, "_blank");
@@ -22,50 +28,18 @@ export function TileView(dataset: Dataset) {
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      {dataset.filesWithCriterias.map((file) => (
+      {filesWithCriterias.map((file) => (
         <div
           key={file.id}
           className="relative group border rounded-lg p-4 space-y-2"
         >
           <div className="relative aspect-square">
-            {dataset.isImageFile(file.mimeType) ? (
-              // dataset.previewUrls[file.id] ? (
-              //   <Image
-              //     src={dataset.previewUrls[file.id]}
-              //     alt={file.originalName}
-              //     fill
-              //     className="object-contain rounded-md"
-              //   />
-              // ) : (
-              //   <div className="w-full h-full flex items-center justify-center bg-muted rounded-md">
-              //     <span className="text-sm text-muted-foreground">
-              //       Loading...
-              //     </span>
-              //   </div>
-              // )
-              <Image
-                src={file.fileName}
-                alt={file.originalName}
-                fill
-                className="object-contain rounded-md"
-              />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center bg-muted rounded-md">
-                <svg
-                  className="w-12 h-12 text-muted-foreground"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"
-                  />
-                </svg>
-              </div>
-            )}
+            <FilePreview
+              fileId={file.id}
+              fileName={file.originalName}
+              mimeType={file.mimeType}
+              className="w-full h-full"
+            />
           </div>
 
           <div className="space-y-1">
@@ -115,12 +89,12 @@ export function TileView(dataset: Dataset) {
             <AddCriteriaExampleDialog
               fileId={file.id}
               fileName={file.originalName}
-              criterias={dataset.criterias}
-              onSubmit={dataset.upsertFile2Criteria}
+              criterias={criterias}
+              onSubmit={upsertFile2Criteria}
             />
             <FileDeleteDialog
               fileName={file.originalName}
-              onDelete={() => dataset.handleDelete(file.id)}
+              onDelete={() => handleDelete(file.id)}
             />
           </div>
         </div>
