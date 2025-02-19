@@ -8,10 +8,7 @@ import {
   NewFileToCriteria,
 } from "@/lib/db/schema";
 import { desc, eq } from "drizzle-orm";
-import {
-  generatePresignedUrl,
-  deleteFileFromBucket,
-} from "@/lib/s3-file-management";
+import { deleteFileFromBucket } from "@/lib/s3-file-management";
 
 export async function upsertFileToCriteria(data: NewFileToCriteria) {
   return db
@@ -68,26 +65,6 @@ export async function getFileWithCriterias(fileId: number) {
     where: eq(filesToCriterias.fileId, fileId),
     with: { criteria: true },
   });
-}
-
-export async function getPresignedUrl(fileId: number) {
-  const file = await db
-    .select()
-    .from(files)
-    .where(eq(files.id, fileId))
-    .limit(1);
-
-  if (!file || file.length === 0) {
-    throw new Error("File not found");
-  }
-
-  const bucketName = process.env.S3_BUCKET_NAME;
-  if (!bucketName) {
-    throw new Error("S3_BUCKET_NAME must be set");
-  }
-
-  const presignedUrl = await generatePresignedUrl(bucketName, file[0].fileName);
-  return presignedUrl;
 }
 
 export async function getFilesWithCriterias(projectId: string) {

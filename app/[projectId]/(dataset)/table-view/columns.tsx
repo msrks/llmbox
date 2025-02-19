@@ -1,20 +1,21 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
+
 import { ArrowUpDown, Download, CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FileDeleteDialog } from "@/components/file-delete-dialog";
-import { Criteria, Label } from "@/lib/db/schema";
+import { Label } from "@/lib/db/schema";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
-  getPresignedUrl,
   deleteFile,
   upsertFileToCriteria,
   FilesWithCriterias,
-} from "../../actions";
-import { FilePreview } from "../../_components/file-preview";
-import { AddCriteriaExampleDialog } from "../../_components/add-criteria-example-dialog";
+} from "../actions";
+import { FilePreview } from "../../../../components/file-preview";
+import { AddCriteriaExampleDialog } from "../_components/add-criteria-example-dialog";
+import { getPresignedUrlByFileNameAction } from "@/app/actions";
 
 type FileWithLabels = FilesWithCriterias[number];
 
@@ -23,26 +24,19 @@ const getLabelBadgeVariant = (label: Label | null | undefined) => {
   return label === Label.PASS ? "default" : "destructive";
 };
 
-export const getColumns = ({
-  criterias,
-}: {
-  criterias: Criteria[];
-}): ColumnDef<FileWithLabels>[] => [
+export const columns: ColumnDef<FileWithLabels>[] = [
   {
     accessorKey: "originalName",
     header: "Name",
-    enableHiding: false,
   },
   {
     accessorKey: "preview",
-    header: "Preview",
     cell: ({ row }) => {
       const file = row.original;
       return (
         <div className="relative w-16 h-16">
           <FilePreview
-            fileId={file.id}
-            fileName={file.originalName}
+            fileName={file.fileName}
             mimeType={file.mimeType}
             className="w-full h-full"
           />
@@ -52,7 +46,6 @@ export const getColumns = ({
   },
   {
     accessorKey: "uploadType",
-    header: "Upload Type",
     cell: ({ row }) => (
       <span className="capitalize">{row.getValue("uploadType")}</span>
     ),
@@ -119,8 +112,7 @@ export const getColumns = ({
           ))}
           <AddCriteriaExampleDialog
             fileId={file.id}
-            fileName={file.originalName}
-            criterias={criterias}
+            fileName={file.fileName}
             onSubmit={async (data) => {
               try {
                 await upsertFileToCriteria(data);
@@ -145,14 +137,14 @@ export const getColumns = ({
             variant="ghost"
             size="icon"
             onClick={async () => {
-              const url = await getPresignedUrl(file.id);
+              const url = await getPresignedUrlByFileNameAction(file.fileName);
               window.open(url, "_blank");
             }}
           >
             <Download className="h-4 w-4" />
           </Button>
           <FileDeleteDialog
-            fileName={file.originalName}
+            fileName={file.fileName}
             onDelete={async () => {
               try {
                 const result = await deleteFile(file.id);

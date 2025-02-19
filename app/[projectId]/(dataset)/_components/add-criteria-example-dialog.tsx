@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,9 +16,11 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { PlusCircle } from "lucide-react";
-import { Criteria } from "@/lib/db/schema";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
+import { getCriterias } from "../actions";
+import { Criteria } from "@/lib/db/schema";
+import { useParams } from "next/navigation";
 
 interface CriteriaState {
   id: number;
@@ -29,7 +31,6 @@ interface CriteriaState {
 interface AddCriteriaExampleDialogProps {
   fileId: number;
   fileName: string;
-  criterias: Criteria[];
   onSubmit: (data: {
     fileId: number;
     criteriaId: number;
@@ -41,18 +42,30 @@ interface AddCriteriaExampleDialogProps {
 export function AddCriteriaExampleDialog({
   fileId,
   fileName,
-  criterias,
   onSubmit,
 }: AddCriteriaExampleDialogProps) {
+  const { projectId } = useParams();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [criteriaStates, setCriteriaStates] = useState<CriteriaState[]>(
-    criterias.map((criteria) => ({
-      id: criteria.id,
-      isFail: false,
-      reason: "",
-    }))
-  );
+  const [criterias, setCriterias] = useState<Criteria[]>([]);
+  const [criteriaStates, setCriteriaStates] = useState<CriteriaState[]>([]);
+
+  useEffect(() => {
+    const fetchCriterias = async () => {
+      if (!projectId) return;
+      const criterias = await getCriterias(projectId as string);
+      setCriterias(criterias);
+      // Initialize criteriaStates when criterias are fetched
+      setCriteriaStates(
+        criterias.map((criteria) => ({
+          id: criteria.id,
+          isFail: false,
+          reason: "",
+        }))
+      );
+    };
+    fetchCriterias();
+  }, [projectId]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,14 +73,14 @@ export function AddCriteriaExampleDialog({
     try {
       // Submit each criteria example
       await Promise.all(
-        criteriaStates.map((state) =>
-          onSubmit({
+        criteriaStates.map((state) => {
+          return onSubmit({
             fileId,
             criteriaId: state.id,
             isFail: state.isFail,
             reason: state.reason?.trim() || null,
-          })
-        )
+          });
+        })
       );
 
       toast.success("Examples added successfully");
