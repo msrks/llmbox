@@ -18,9 +18,6 @@ import Link from "next/link";
 import { ThemeToggle } from "../../../components/theme-toggle";
 import { Button } from "../../../components/ui/button";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { toast } from "sonner";
-import { getProjectsAction } from "./actions";
 import {
   Select,
   SelectContent,
@@ -42,6 +39,7 @@ import {
   SidebarHeader,
   useSidebar,
 } from "@/components/ui/sidebar";
+import { Project } from "@/lib/db/schema";
 // Menu items.
 const getMenuGroups = (projectId: string) => [
   {
@@ -121,32 +119,13 @@ const getMenuGroups = (projectId: string) => [
   },
 ];
 
-export function AppSidebar() {
+export function AppSidebar({ projects }: { projects: Project[] }) {
   const { projectId } = useParams();
   const { toggleSidebar, state } = useSidebar();
   const isCollapsed = state === "collapsed";
   const currentProjectId = typeof projectId === "string" ? projectId : "";
   const menuGroups = getMenuGroups(currentProjectId);
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
-  const [projects, setProjects] = useState<
-    { id: number; name: string; description: string | null }[]
-  >([]);
-
-  useEffect(() => {
-    const loadProjects = async () => {
-      try {
-        setLoading(true);
-        const projectList = await getProjectsAction();
-        setProjects(projectList);
-      } catch {
-        toast.error("Failed to load projects");
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadProjects();
-  }, []);
 
   return (
     <Sidebar collapsible="icon">
@@ -162,7 +141,6 @@ export function AppSidebar() {
         {/* Project Selector is hidden on collapsed mode */}
         {!isCollapsed && (
           <Select
-            disabled={loading}
             value={currentProjectId}
             onValueChange={(value) => {
               router.push(`/${value}`);
