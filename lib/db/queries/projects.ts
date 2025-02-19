@@ -1,12 +1,30 @@
 import { db } from "@/lib/db/drizzle";
-import { projects } from "@/lib/db/schema";
+import { projects, NewProject, Project } from "@/lib/db/schema";
 import { sql } from "drizzle-orm";
 import { files } from "@/lib/db/schema";
 import { llmPrompts } from "@/lib/db/schema";
 import { promptEvaluations } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
+export async function createProject(data: NewProject) {
+  return db.insert(projects).values(data).returning();
+}
+
+export async function updateProject(projectId: number, data: Partial<Project>) {
+  return db.update(projects).set(data).where(eq(projects.id, projectId));
+}
+
+export async function deleteProject(projectId: number) {
+  return db.delete(projects).where(eq(projects.id, projectId));
+}
+
 export async function getProject(projectId: number) {
+  return db.query.projects.findFirst({
+    where: eq(projects.id, projectId),
+  });
+}
+
+export async function getProjectWithStats(projectId: number) {
   const project = await db
     .select({
       id: projects.id,
