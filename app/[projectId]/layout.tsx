@@ -1,4 +1,4 @@
-import { AppSidebar } from "@/components/app-sidebar";
+import { AppSidebar } from "@/app/[projectId]/_components/app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
 export default function ApplicationLayout({

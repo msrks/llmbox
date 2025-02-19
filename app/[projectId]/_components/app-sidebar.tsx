@@ -15,12 +15,12 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import Link from "next/link";
-import { ThemeToggle } from "./theme-toggle";
-import { Button } from "./ui/button";
+import { ThemeToggle } from "../../../components/theme-toggle";
+import { Button } from "../../../components/ui/button";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-
+import { getProjectsAction } from "./actions";
 import {
   Select,
   SelectContent,
@@ -42,7 +42,6 @@ import {
   SidebarHeader,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { getProjects } from "@/app/projects/actions";
 // Menu items.
 const getMenuGroups = (projectId: string) => [
   {
@@ -138,7 +137,7 @@ export function AppSidebar() {
     const loadProjects = async () => {
       try {
         setLoading(true);
-        const projectList = await getProjects();
+        const projectList = await getProjectsAction();
         setProjects(projectList);
       } catch {
         toast.error("Failed to load projects");
