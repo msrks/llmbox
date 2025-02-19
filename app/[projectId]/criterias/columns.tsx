@@ -1,3 +1,5 @@
+"use client";
+
 import { ColumnDef } from "@tanstack/react-table";
 import { Criteria } from "@/lib/db/schema";
 import { DeleteCriteriaDialog } from "./delete-criteria-dialog";
