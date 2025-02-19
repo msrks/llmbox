@@ -14,9 +14,8 @@ export function DeleteCriteriaDialog({ id }: { id: string }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button size="sm">
-          <Trash className="h-4 w-4 mr-2" />
-          Delete Criteria
+        <Button size="sm" variant="ghost">
+          <Trash className="h-4 w-4" />
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">

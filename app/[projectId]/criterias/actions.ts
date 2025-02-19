@@ -5,46 +5,35 @@ import {
   deleteCriteria,
   updateCriteria,
 } from "@/lib/db/queries/criterias";
-import { toast } from "sonner";
 import { createInsertSchema } from "drizzle-zod";
 import { criterias } from "@/lib/db/schema";
-
+import { revalidatePath } from "next/cache";
 export async function updateCriteriaAction(formData: FormData) {
   const result = createInsertSchema(criterias).safeParse({
     name: formData.get("name"),
     description: formData.get("description"),
   });
-
-  if (!result.success) {
-    toast.error(result.error.errors[0].message);
-    return;
-  }
-
+  if (!result.success) throw new Error(result.error.errors[0].message);
   await updateCriteria(formData.get("id") as string, result.data);
-  toast.success("Criteria updated successfully");
 }
 
 export async function deleteCriteriaAction(formData: FormData) {
   const id = formData.get("id");
-  if (!id) {
-    toast.error("ID is required");
-    return;
-  }
+  if (!id) throw new Error("ID is required");
   await deleteCriteria(id.toString());
-  toast.success("Criteria deleted successfully");
 }
 
 export async function createCriteriaAction(formData: FormData) {
   const result = createInsertSchema(criterias).safeParse({
     name: formData.get("name"),
     description: formData.get("description"),
+    projectId: Number(formData.get("projectId")),
   });
 
   if (!result.success) {
-    toast.error(result.error.errors[0].message);
-    return;
+    throw new Error(result.error.errors[0].message);
   }
 
   await createCriteria(result.data);
-  toast.success("Criteria created successfully");
+  revalidatePath(`/projects/${result.data.projectId}/criterias`);
 }

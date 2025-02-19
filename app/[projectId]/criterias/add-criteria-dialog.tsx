@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Plus } from "lucide-react";
 import { createCriteriaAction } from "./actions";
 
-export function AddCriteriaDialog() {
+export function AddCriteriaDialog({ projectId }: { projectId: number }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -27,6 +27,7 @@ export function AddCriteriaDialog() {
         </DialogHeader>
         <form action={createCriteriaAction} className="space-y-6">
           <div className="space-y-4">
+            <input type="hidden" name="projectId" value={projectId} />
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
               <Input

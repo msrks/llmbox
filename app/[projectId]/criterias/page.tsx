@@ -10,7 +10,6 @@ export default async function Page({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
-
   const criterias = await getCriterias(projectId);
 
   return (
@@ -18,7 +17,7 @@ export default async function Page({
       <div className="w-full mx-auto space-y-4">
         <div className="flex flex-row items-center justify-between">
           <PageTitle>Criterias</PageTitle>
-          <AddCriteriaDialog />
+          <AddCriteriaDialog projectId={Number(projectId)} />
         </div>
         <DataTable columns={columns} data={criterias} />
       </div>

@@ -7,7 +7,7 @@ import { EditCriteriaDialog } from "./edit-criteria-dialog";
 
 function ActionCell({ criteria }: { criteria: Criteria }) {
   return (
-    <div className="flex gap-2">
+    <div className="flex gap-1">
       <EditCriteriaDialog criteria={criteria} />
       <DeleteCriteriaDialog id={criteria.id.toString()} />
     </div>

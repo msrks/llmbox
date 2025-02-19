@@ -11,12 +11,14 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Criteria } from "@/lib/db/schema";
 import { updateCriteriaAction } from "./actions";
-
+import { Pencil } from "lucide-react";
 export function EditCriteriaDialog({ criteria }: { criteria: Criteria }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button size="sm">Edit</Button>
+        <Button size="sm" variant="ghost">
+          <Pencil className="h-4 w-4" />
+        </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
