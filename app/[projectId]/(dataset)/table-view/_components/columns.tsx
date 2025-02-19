@@ -6,12 +6,15 @@ import { Button } from "@/components/ui/button";
 import { FileDeleteDialog } from "@/components/file-delete-dialog";
 import { Criteria, Label } from "@/lib/db/schema";
 import { Badge } from "@/components/ui/badge";
-import { AddCriteriaExampleDialog } from "./add-criteria-example-dialog";
-import { FilesWithCriterias } from "../actions";
-import { getPresignedUrl, deleteFile } from "../actions";
-import { upsertFileToCriteria } from "../actions";
 import { toast } from "sonner";
-import { FilePreview } from "./file-preview";
+import {
+  getPresignedUrl,
+  deleteFile,
+  upsertFileToCriteria,
+  FilesWithCriterias,
+} from "../../actions";
+import { FilePreview } from "../../_components/file-preview";
+import { AddCriteriaExampleDialog } from "../../_components/add-criteria-example-dialog";
 
 type FileWithLabels = FilesWithCriterias[number];
 

@@ -30,8 +30,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { getColumns } from "./columns";
-import { Dataset } from "../hooks";
-import { FilesWithCriterias } from "../actions";
+
+import { Dataset } from "../../hooks";
+import { FilesWithCriterias } from "../../actions";
 
 type FileWithLabels = FilesWithCriterias[number];
 

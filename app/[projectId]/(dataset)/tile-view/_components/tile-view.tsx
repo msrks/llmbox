@@ -5,10 +5,10 @@ import { Download, CheckCircle2, XCircle } from "lucide-react";
 import { FileDeleteDialog } from "@/components/file-delete-dialog";
 import { Label } from "@/lib/db/schema";
 import { Badge } from "@/components/ui/badge";
-import { AddCriteriaExampleDialog } from "./add-criteria-example-dialog";
-import { Dataset } from "../hooks";
-import { getPresignedUrl } from "../actions";
-import { FilePreview } from "./file-preview";
+import { AddCriteriaExampleDialog } from "../../dataset/_components/add-criteria-example-dialog";
+import { Dataset } from "../../hooks";
+import { getPresignedUrl } from "../../actions";
+import { FilePreview } from "../../dataset/_components/file-preview";
 
 const getLabelBadgeVariant = (label: Label | null | undefined) => {
   if (!label) return "secondary";
