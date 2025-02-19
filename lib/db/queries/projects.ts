@@ -24,6 +24,10 @@ export async function getProject(projectId: number) {
   });
 }
 
+export async function getProjects() {
+  return db.query.projects.findMany();
+}
+
 export async function getProjectWithStats(projectId: number) {
   const project = await db
     .select({

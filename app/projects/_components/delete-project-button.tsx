@@ -1,5 +1,3 @@
-"use client";
-
 import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,28 +11,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { deleteProject } from "../actions";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+import { deleteProjectAction } from "./actions";
 
 interface DeleteProjectButtonProps {
   projectId: number;
 }
 
 export function DeleteProjectButton({ projectId }: DeleteProjectButtonProps) {
-  const router = useRouter();
-
-  const handleDelete = async () => {
-    const result = await deleteProject(projectId.toString());
-
-    if (result.error) {
-      toast.error(result.error);
-    } else {
-      toast.success("Project deleted successfully");
-      router.refresh();
-    }
-  };
-
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -52,7 +35,9 @@ export function DeleteProjectButton({ projectId }: DeleteProjectButtonProps) {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+          <AlertDialogAction onClick={() => deleteProjectAction(projectId)}>
+            Delete
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
