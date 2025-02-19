@@ -3,9 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
 import { db } from "@/lib/db/drizzle";
 import { projects } from "@/lib/db/schema";
-import { NewProjectDialog } from "./_components/new-project-dialog";
+import { NewProjectDialog } from "./new-project-dialog";
 import { desc } from "drizzle-orm";
-import { DeleteProjectButton } from "./_components/delete-project-button";
+import { DeleteProjectButton } from "./delete-project-button";
 
 export default async function HomePage() {
   const projectList = await db.query.projects.findMany({

@@ -1,82 +1,50 @@
 "use server";
 
-import { db } from "@/lib/db/drizzle";
 import {
-  criterias,
-  filesToCriterias,
-  type NewCriteria,
-  type NewFileToCriteria,
-} from "@/lib/db/schema";
-import { desc, eq } from "drizzle-orm";
+  createCriteria,
+  deleteCriteria,
+  updateCriteria,
+} from "@/lib/db/queries/criterias";
+import { toast } from "sonner";
+import { createInsertSchema } from "drizzle-zod";
+import { criterias } from "@/lib/db/schema";
 
-export async function getCriterias() {
-  try {
-    const criteriasList = await db
-      .select()
-      .from(criterias)
-      .orderBy(desc(criterias.createdAt));
-    return { criterias: criteriasList };
-  } catch (error) {
-    return {
-      error:
-        error instanceof Error ? error.message : "Failed to fetch criterias",
-    };
+export async function updateCriteriaAction(formData: FormData) {
+  const result = createInsertSchema(criterias).safeParse({
+    name: formData.get("name"),
+    description: formData.get("description"),
+  });
+
+  if (!result.success) {
+    toast.error(result.error.errors[0].message);
+    return;
   }
+
+  await updateCriteria(formData.get("id") as string, result.data);
+  toast.success("Criteria updated successfully");
 }
 
-export async function createCriteria(data: NewCriteria) {
-  try {
-    const [newCriteria] = await db.insert(criterias).values(data).returning();
-    return { criteria: newCriteria };
-  } catch (error) {
-    return {
-      error:
-        error instanceof Error ? error.message : "Failed to create criteria",
-    };
+export async function deleteCriteriaAction(formData: FormData) {
+  const id = formData.get("id");
+  if (!id) {
+    toast.error("ID is required");
+    return;
   }
+  await deleteCriteria(id.toString());
+  toast.success("Criteria deleted successfully");
 }
 
-export async function updateCriteria(id: number, data: NewCriteria) {
-  try {
-    const [updatedCriteria] = await db
-      .update(criterias)
-      .set(data)
-      .where(eq(criterias.id, id))
-      .returning();
-    return { criteria: updatedCriteria };
-  } catch (error) {
-    return {
-      error:
-        error instanceof Error ? error.message : "Failed to update criteria",
-    };
-  }
-}
+export async function createCriteriaAction(formData: FormData) {
+  const result = createInsertSchema(criterias).safeParse({
+    name: formData.get("name"),
+    description: formData.get("description"),
+  });
 
-export async function deleteCriteria(id: number) {
-  try {
-    await db.delete(criterias).where(eq(criterias.id, id));
-    return { success: true };
-  } catch (error) {
-    return {
-      error:
-        error instanceof Error ? error.message : "Failed to delete criteria",
-    };
+  if (!result.success) {
+    toast.error(result.error.errors[0].message);
+    return;
   }
-}
 
-export async function createFileToCriteria(data: NewFileToCriteria) {
-  try {
-    const [newFileToCriteria] = await db
-      .insert(filesToCriterias)
-      .values(data)
-      .returning();
-    return { fileToCriteria: newFileToCriteria };
-  } catch (error) {
-    return {
-      error:
-        error instanceof Error
-          ? error.message
-          : "Failed to create file to criteria",
-    };
-  }
+  await createCriteria(result.data);
+  toast.success("Criteria created successfully");
 }

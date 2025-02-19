@@ -3,7 +3,7 @@ import { criterias, NewCriteria, Criteria } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
 export async function createCriteria(data: NewCriteria) {
-  return db.insert(criterias).values(data);
+  return db.insert(criterias).values(data).returning();
 }
 
 export async function updateCriteria(
