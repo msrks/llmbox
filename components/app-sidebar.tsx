@@ -7,12 +7,12 @@ import {
   Sparkles,
   PanelLeftClose,
   PanelLeft,
-  File,
   Book,
   ChartBar,
   Home,
   Rocket,
   List,
+  LayoutGrid,
 } from "lucide-react";
 import Link from "next/link";
 import { ThemeToggle } from "./theme-toggle";
@@ -49,9 +49,14 @@ const getMenuGroups = (projectId: string) => [
     label: "Dataset",
     items: [
       {
-        title: "Dataset",
-        url: `/${projectId}/dataset`,
-        icon: File,
+        title: "Table View",
+        url: `/${projectId}/table-view`,
+        icon: List,
+      },
+      {
+        title: "Tile View",
+        url: `/${projectId}/tile-view`,
+        icon: LayoutGrid,
       },
       {
         title: "Criterias",
