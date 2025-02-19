@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { Label } from "@/lib/db/schema";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -33,3 +34,8 @@ export function formatDistanceToNow(date: Date) {
   }
   return "less than a minute";
 }
+
+export const getLabelBadgeVariant = (label: Label | null | undefined) => {
+  if (!label) return "secondary";
+  return label === Label.PASS ? "default" : "destructive";
+};

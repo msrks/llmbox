@@ -3,40 +3,26 @@
 import { Button } from "@/components/ui/button";
 import { Download, CheckCircle2, XCircle } from "lucide-react";
 import { FileDeleteDialog } from "@/components/file-delete-dialog";
-import { Label } from "@/lib/db/schema";
 import { Badge } from "@/components/ui/badge";
-import { AddCriteriaExampleDialog } from "../../dataset/_components/add-criteria-example-dialog";
-import { Dataset } from "../../hooks";
-import { getPresignedUrl } from "../../actions";
-import { FilePreview } from "../../dataset/_components/file-preview";
+import { FilePreview } from "@/components/file-preview";
+import { deleteFileAction, upsertFileToCriteriaAction } from "../actions";
+import { getPresignedUrlByFileNameAction } from "@/app/actions";
+import { AddCriteriaExampleDialog } from "@/app/[projectId]/(dataset)/add-criteria-example-dialog";
+import { toast } from "sonner";
+import { getLabelBadgeVariant } from "@/lib/utils";
+import { FileWithCriterias } from "@/lib/db/queries/files";
 
-const getLabelBadgeVariant = (label: Label | null | undefined) => {
-  if (!label) return "secondary";
-  return label === Label.PASS ? "default" : "destructive";
-};
-
-export function TileView({
-  filesWithCriterias,
-  criterias,
-  upsertFile2Criteria,
-  handleDelete,
-}: Dataset) {
-  const handleDownload = async (fileId: number) => {
-    const url = await getPresignedUrl(fileId);
-    window.open(url, "_blank");
-  };
-
+export function DataTile({ data }: { data: FileWithCriterias[] }) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-      {filesWithCriterias.map((file) => (
+      {data.map((file) => (
         <div
           key={file.id}
           className="relative group border rounded-lg p-4 space-y-2"
         >
           <div className="relative aspect-square">
             <FilePreview
-              fileId={file.id}
-              fileName={file.originalName}
+              fileName={file.fileName}
               mimeType={file.mimeType}
               className="w-full h-full"
             />
@@ -82,19 +68,37 @@ export function TileView({
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => handleDownload(file.id)}
+              onClick={async () => {
+                const url = await getPresignedUrlByFileNameAction(
+                  file.fileName
+                );
+                window.open(url, "_blank");
+              }}
             >
               <Download className="h-4 w-4" />
             </Button>
             <AddCriteriaExampleDialog
               fileId={file.id}
-              fileName={file.originalName}
-              criterias={criterias}
-              onSubmit={upsertFile2Criteria}
+              fileName={file.fileName}
+              onSubmit={async (data) => {
+                try {
+                  await upsertFileToCriteriaAction(data);
+                  toast.success("Added criteria example");
+                } catch {
+                  toast.error("Failed to add criteria example");
+                }
+              }}
             />
             <FileDeleteDialog
-              fileName={file.originalName}
-              onDelete={() => handleDelete(file.id)}
+              fileName={file.fileName}
+              onDelete={async () => {
+                try {
+                  await deleteFileAction(file.id, file.fileName);
+                  toast.success("File deleted successfully");
+                } catch {
+                  toast.error("Failed to delete file");
+                }
+              }}
             />
           </div>
         </div>

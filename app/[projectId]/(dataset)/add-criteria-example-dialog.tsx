@@ -18,9 +18,9 @@ import { toast } from "sonner";
 import { PlusCircle } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent } from "@/components/ui/card";
-import { getCriterias } from "../actions";
 import { Criteria } from "@/lib/db/schema";
 import { useParams } from "next/navigation";
+import { getCriteriasAction } from "./actions";
 
 interface CriteriaState {
   id: number;
@@ -53,7 +53,7 @@ export function AddCriteriaExampleDialog({
   useEffect(() => {
     const fetchCriterias = async () => {
       if (!projectId) return;
-      const criterias = await getCriterias(projectId as string);
+      const criterias = await getCriteriasAction(projectId as string);
       setCriterias(criterias);
       // Initialize criteriaStates when criterias are fetched
       setCriteriaStates(

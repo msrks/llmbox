@@ -44,7 +44,7 @@ export type CriteriaWithFiles = Awaited<
   ReturnType<typeof getCriteriaByIdWithFiles>
 >;
 
-export async function getCriteriasByProjectId(projectId: string) {
+export async function getCriterias(projectId: string) {
   return db.query.criterias.findMany({
     where: eq(criterias.projectId, parseInt(projectId)),
   });

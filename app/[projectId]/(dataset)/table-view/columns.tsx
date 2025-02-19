@@ -5,26 +5,16 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, Download, CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FileDeleteDialog } from "@/components/file-delete-dialog";
-import { Label } from "@/lib/db/schema";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import {
-  deleteFile,
-  upsertFileToCriteria,
-  FilesWithCriterias,
-} from "../actions";
+import { deleteFileAction, upsertFileToCriteriaAction } from "../actions";
 import { FilePreview } from "../../../../components/file-preview";
-import { AddCriteriaExampleDialog } from "../_components/add-criteria-example-dialog";
+import { AddCriteriaExampleDialog } from "../add-criteria-example-dialog";
 import { getPresignedUrlByFileNameAction } from "@/app/actions";
+import { FileWithCriterias } from "@/lib/db/queries/files";
+import { getLabelBadgeVariant } from "@/lib/utils";
 
-type FileWithLabels = FilesWithCriterias[number];
-
-const getLabelBadgeVariant = (label: Label | null | undefined) => {
-  if (!label) return "secondary";
-  return label === Label.PASS ? "default" : "destructive";
-};
-
-export const columns: ColumnDef<FileWithLabels>[] = [
+export const columns: ColumnDef<FileWithCriterias>[] = [
   {
     accessorKey: "originalName",
     header: "Name",
@@ -115,7 +105,7 @@ export const columns: ColumnDef<FileWithLabels>[] = [
             fileName={file.fileName}
             onSubmit={async (data) => {
               try {
-                await upsertFileToCriteria(data);
+                await upsertFileToCriteriaAction(data);
                 toast.success("Added criteria example");
               } catch {
                 toast.error("Failed to add criteria example");
@@ -147,11 +137,7 @@ export const columns: ColumnDef<FileWithLabels>[] = [
             fileName={file.fileName}
             onDelete={async () => {
               try {
-                const result = await deleteFile(file.id);
-                if ("error" in result) {
-                  toast.error(result.error);
-                  return;
-                }
+                await deleteFileAction(file.id, file.fileName);
                 toast.success("File deleted successfully");
               } catch {
                 toast.error("Failed to delete file");

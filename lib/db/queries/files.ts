@@ -16,37 +16,12 @@ export async function upsertFileToCriteria(data: NewFileToCriteria) {
     });
 }
 
-export async function deleteFile(fileId: number) {
-  try {
-    // First, get the file information
-    const file = await db
-      .select()
-      .from(files)
-      .where(eq(files.id, fileId))
-      .limit(1);
-
-    if (!file || file.length === 0) {
-      throw new Error("File not found");
-    }
-
-    const bucketName = process.env.S3_BUCKET_NAME;
-    if (!bucketName) {
-      throw new Error("S3_BUCKET_NAME must be set");
-    }
-
-    // Delete from S3
-    await deleteFileFromBucket(bucketName, file[0].fileName);
-
-    // Delete from database
-    await db.delete(files).where(eq(files.id, fileId));
-
-    return { success: true };
-  } catch (error) {
-    console.error("Error deleting file:", error);
-    return {
-      error: error instanceof Error ? error.message : "Failed to delete file",
-    };
-  }
+export async function deleteFile(fileId: number, fileName: string) {
+  const bucketName = process.env.S3_BUCKET_NAME;
+  if (!bucketName) throw new Error("S3_BUCKET_NAME must be set");
+  await deleteFileFromBucket(bucketName, fileName);
+  await db.delete(files).where(eq(files.id, fileId));
+  return { success: true };
 }
 
 export async function getFilesList(projectId: string) {
@@ -57,10 +32,12 @@ export async function getFilesList(projectId: string) {
 }
 
 export async function getFileWithCriterias(fileId: number) {
-  return db.query.filesToCriterias.findMany({
-    where: eq(filesToCriterias.fileId, fileId),
-    with: { criteria: true },
+  const file = await db.query.files.findFirst({
+    where: eq(files.id, fileId),
+    with: { filesToCriterias: { with: { criteria: true } } },
   });
+  if (!file) throw new Error("File not found");
+  return file;
 }
 
 export async function getPresignedUrl(fileId: number) {
@@ -92,8 +69,4 @@ export async function getFilesWithCriterias(projectId: string) {
 
 export type FileWithCriterias = Awaited<
   ReturnType<typeof getFileWithCriterias>
->;
-
-export type FilesWithCriterias = Awaited<
-  ReturnType<typeof getFilesWithCriterias>
 >;
