@@ -2,7 +2,8 @@ import { columns } from "./columns";
 import { PageTitle } from "@/components/page-title";
 import { DataTable } from "@/components/data-table";
 import { getCriterias } from "@/lib/db/queries/criterias";
-import { AddCriteriaDialog } from "./add-criteria-dialog";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default async function Page({
   params,
@@ -17,7 +18,9 @@ export default async function Page({
       <div className="w-full mx-auto space-y-4">
         <div className="flex flex-row items-center justify-between">
           <PageTitle>Criterias</PageTitle>
-          <AddCriteriaDialog projectId={Number(projectId)} />
+          <Link href={`/${projectId}/criterias/new`}>
+            <Button>Add Criteria</Button>
+          </Link>
         </div>
         <DataTable columns={columns} data={criterias} />
       </div>

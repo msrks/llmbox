@@ -1,20 +1,6 @@
 import { db } from "@/lib/db/drizzle";
-import { criterias, NewCriteria, Criteria } from "@/lib/db/schema";
+import { criterias, NewCriteria } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
-
-export async function createCriteria(data: NewCriteria) {
-  return db.insert(criterias).values(data).returning();
-}
-
-export async function updateCriteria(
-  criteriaId: string,
-  data: Partial<Criteria>
-) {
-  return db
-    .update(criterias)
-    .set(data)
-    .where(eq(criterias.id, parseInt(criteriaId)));
-}
 
 export async function upsertCriteria(data: NewCriteria) {
   return db
@@ -24,10 +10,13 @@ export async function upsertCriteria(data: NewCriteria) {
 }
 
 export async function deleteCriteria(criteriaId: string) {
-  return db.delete(criterias).where(eq(criterias.id, parseInt(criteriaId)));
+  return db
+    .delete(criterias)
+    .where(eq(criterias.id, parseInt(criteriaId)))
+    .returning();
 }
 
-export async function getCriteriaById(criteriaId: string) {
+export async function getCriteria(criteriaId: string) {
   return db.query.criterias.findFirst({
     where: eq(criterias.id, parseInt(criteriaId)),
   });
