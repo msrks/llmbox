@@ -1,7 +1,12 @@
 "use server";
 
-import { db } from "@/lib/db/drizzle";
-import { labels, llmPrompts, promptEvaluations, specs } from "@/lib/db/schema";
+import { db } from "@/lib/db";
+import {
+  labels,
+  promptTemplates,
+  promptEvaluations,
+  specs,
+} from "@/lib/db/schema";
 import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
 
@@ -15,11 +20,7 @@ export async function createEvaluation(formData: FormData) {
     }
 
     // Fetch the prompt template
-    const promptTemplate = await db
-      .select()
-      .from(llmPrompts)
-      .where(eq(llmPrompts.id, promptId))
-      .then((rows) => rows[0]?.promptTemplate);
+    const promptTemplate = await getPromptTemplate(promptId);
 
     if (!promptTemplate) {
       return { error: "Prompt template not found" };
@@ -41,7 +42,7 @@ export async function createEvaluation(formData: FormData) {
     const labelsList = allLabels.map((label) => label.name).join(", ");
 
     // Generate the final prompt by replacing placeholders
-    const finalPrompt = promptTemplate
+    const finalPrompt = promptTemplate.text
       .replace("{{INSPECTION_SPEC}}", specification)
       .replace("{{LABELS}}", labelsList);
 
@@ -77,4 +78,12 @@ export async function createEvaluation(formData: FormData) {
     console.error("Failed to create evaluation:", error);
     return { error: "Failed to create evaluation" };
   }
+}
+
+export async function getPromptTemplate(promptId: number) {
+  const [prompt] = await db
+    .select()
+    .from(promptTemplates)
+    .where(eq(promptTemplates.id, promptId));
+  return prompt;
 }

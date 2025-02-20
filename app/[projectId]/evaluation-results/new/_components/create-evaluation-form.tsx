@@ -10,14 +10,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { createEvaluation } from "../actions";
-import { llmPrompts, specs } from "@/lib/db/schema";
+import { promptTemplates, specs } from "@/lib/db/schema";
 import { toast } from "sonner";
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useParams } from "next/navigation";
 
 interface CreateEvaluationFormProps {
-  prompts: (typeof llmPrompts.$inferSelect)[];
+  prompts: (typeof promptTemplates.$inferSelect)[];
   specifications: (typeof specs.$inferSelect)[];
 }
 
@@ -58,8 +58,8 @@ export function CreateEvaluationForm({
           <SelectContent>
             {prompts.map((prompt) => (
               <SelectItem key={prompt.id} value={prompt.id.toString()}>
-                {prompt.promptTemplate.substring(0, 100)}
-                {prompt.promptTemplate.length > 100 ? "..." : ""}
+                {prompt.text.substring(0, 100)}
+                {prompt.text.length > 100 ? "..." : ""}
               </SelectItem>
             ))}
           </SelectContent>

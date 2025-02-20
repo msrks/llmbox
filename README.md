@@ -39,7 +39,7 @@ Zero cloud LLM dependency, 100% local!
 erDiagram
     projects ||--o{ files : "has"
     projects ||--o{ criterias : "has"
-    projects ||--o{ llmPrompts : "has"
+    projects ||--o{ promptTemplates : "has"
     projects ||--o{ specs : "has"
     projects ||--o{ promptEvaluations : "has"
 
@@ -86,11 +86,11 @@ erDiagram
         timestamp createdAt
     }
 
-    llmPrompts ||--o{ promptEvaluations : "used_in"
-    llmPrompts {
+    promptTemplates ||--o{ promptEvaluations : "used_in"
+    promptTemplates {
         int id PK
         int projectId FK
-        string promptTemplate
+        string text
         timestamp createdAt
     }
 

@@ -5,16 +5,20 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { db } from "@/lib/db/drizzle";
-import { llmPrompts, specs } from "@/lib/db/schema";
+import { db } from "@/lib/db";
 import { desc } from "drizzle-orm";
+import { promptTemplates, specs } from "@/lib/db/schema";
 import { CreateEvaluationForm } from "./_components/create-evaluation-form";
 
-export default async function NewEvaluationPage() {
+export default async function NewEvaluationPage({
+  params: { projectId },
+}: {
+  params: { projectId: string };
+}) {
   const prompts = await db
     .select()
-    .from(llmPrompts)
-    .orderBy(desc(llmPrompts.createdAt));
+    .from(promptTemplates)
+    .orderBy(desc(promptTemplates.createdAt));
   const specifications = await db
     .select()
     .from(specs)

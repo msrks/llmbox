@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import type { LlmPrompt } from "@/lib/db/schema";
+import type { PromptTemplate } from "@/lib/db/schema";
 import { columns } from "./_components/columns";
 import { DataTable } from "./_components/data-table";
 import { Button } from "@/components/ui/button";
@@ -24,7 +24,7 @@ interface CreatePromptDialogProps {
 interface PromptFormProps {
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => Promise<void>;
   isSubmitting: boolean;
-  promptTemplate: string;
+  text: string;
   onPromptChange: (value: string) => void;
   onGenerateTemplate: () => void;
 }
@@ -79,7 +79,7 @@ function HighlightedTextarea({
 function PromptForm({
   onSubmit,
   isSubmitting,
-  promptTemplate,
+  text,
   onPromptChange,
   onGenerateTemplate,
 }: PromptFormProps) {
@@ -100,12 +100,12 @@ function PromptForm({
           </Button>
         </div>
         <HighlightedTextarea
-          id="promptTemplate"
-          name="promptTemplate"
+          id="text"
+          name="text"
           placeholder="Enter prompt template"
           rows={20}
           required
-          value={promptTemplate}
+          value={text}
           onChange={(e) => onPromptChange(e.target.value)}
           className="h-full resize-none"
         />
@@ -126,18 +126,18 @@ function CreatePromptDialog({
   projectId,
 }: CreatePromptDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [promptTemplate, setPromptTemplate] = useState("");
+  const [text, setText] = useState("");
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsSubmitting(true);
 
     try {
-      await createPrompt(promptTemplate, projectId);
+      await createPrompt(projectId, text, `/${projectId}/prompt-templates`);
       toast.success("Prompt created successfully");
       onPromptCreated();
       onOpenChange(false);
-      setPromptTemplate("");
+      setText("");
     } catch (error) {
       toast.error(
         error instanceof Error ? error.message : "Failed to create prompt"
@@ -148,7 +148,7 @@ function CreatePromptDialog({
   };
 
   const handleGenerateTemplate = () => {
-    setPromptTemplate(IMAGE_CLASSIFIER_TEMPLATE);
+    setText(IMAGE_CLASSIFIER_TEMPLATE);
   };
 
   return (
@@ -157,8 +157,8 @@ function CreatePromptDialog({
         <PromptForm
           onSubmit={handleSubmit}
           isSubmitting={isSubmitting}
-          promptTemplate={promptTemplate}
-          onPromptChange={setPromptTemplate}
+          text={text}
+          onPromptChange={setText}
           onGenerateTemplate={handleGenerateTemplate}
         />
       </DialogContent>
@@ -166,15 +166,13 @@ function CreatePromptDialog({
   );
 }
 
-export function PromptsClient({
-  initialPrompts,
-  projectId,
-}: {
-  initialPrompts: LlmPrompt[];
-  projectId: string;
-}) {
+interface PromptsClientProps {
+  initialPrompts: PromptTemplate[];
+}
+
+export default function PromptsClient({ initialPrompts }: PromptsClientProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [prompts, setPrompts] = useState<LlmPrompt[]>(initialPrompts);
+  const [prompts, setPrompts] = useState<PromptTemplate[]>(initialPrompts);
 
   const refreshPrompts = async () => {
     try {

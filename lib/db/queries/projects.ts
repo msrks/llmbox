@@ -2,7 +2,7 @@ import { db } from "@/lib/db/drizzle";
 import { projects, NewProject, Project } from "@/lib/db/schema";
 import { sql } from "drizzle-orm";
 import { files } from "@/lib/db/schema";
-import { llmPrompts } from "@/lib/db/schema";
+import { promptTemplates } from "@/lib/db/schema";
 import { promptEvaluations } from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
@@ -52,8 +52,8 @@ export async function getProjectWithStats(projectId: number) {
 
   const [promptCount] = await db
     .select({ count: sql<number>`count(*)::int` })
-    .from(llmPrompts)
-    .where(eq(llmPrompts.projectId, projectId));
+    .from(promptTemplates)
+    .where(eq(promptTemplates.projectId, projectId));
 
   const [evalCount] = await db
     .select({ count: sql<number>`count(*)::int` })
@@ -68,4 +68,11 @@ export async function getProjectWithStats(projectId: number) {
       evaluations: evalCount?.count ?? 0,
     },
   };
+}
+
+export async function getPromptTemplates(projectId: number) {
+  return await db
+    .select()
+    .from(promptTemplates)
+    .where(eq(promptTemplates.projectId, projectId));
 }

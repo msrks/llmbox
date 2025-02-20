@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { LlmPrompt } from "@/lib/db/schema";
+import { PromptTemplate } from "@/lib/db/schema";
 import { formatDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
@@ -19,7 +19,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 
-const DeletePromptCell = ({ prompt }: { prompt: LlmPrompt }) => {
+const DeletePromptCell = ({ prompt }: { prompt: PromptTemplate }) => {
   const router = useRouter();
   const params = useParams();
   const projectId = params.projectId as string;
@@ -56,16 +56,16 @@ const DeletePromptCell = ({ prompt }: { prompt: LlmPrompt }) => {
   );
 };
 
-export const columns: ColumnDef<LlmPrompt>[] = [
+export const columns: ColumnDef<PromptTemplate>[] = [
   {
     accessorKey: "id",
     header: "ID",
   },
   {
-    accessorKey: "promptTemplate",
+    accessorKey: "text",
     header: "Prompt Template",
     cell: ({ row }) => {
-      const template = row.getValue("promptTemplate") as string;
+      const template = row.getValue("text") as string;
       // Split the template by {{...}} patterns and create an array of regular text and highlighted spans
       const parts = template.split(/(\{\{.*?\}\})/);
       return (
