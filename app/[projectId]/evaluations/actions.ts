@@ -171,6 +171,8 @@ export async function createEvaluationForm(
       duration: Math.round((Date.now() - startTime) / 1000),
       numDataset: totalEvaluations,
     });
+
+    revalidatePath(`/${newEvaluation.projectId}/evaluations`);
   });
 
   redirect(`/${result.data.projectId}/evaluations`);
