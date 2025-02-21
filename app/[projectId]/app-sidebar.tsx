@@ -15,8 +15,8 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import Link from "next/link";
-import { ThemeToggle } from "../../../components/theme-toggle";
-import { Button } from "../../../components/ui/button";
+import { ThemeToggle } from "../../components/theme-toggle";
+import { Button } from "../../components/ui/button";
 import { useParams, useRouter } from "next/navigation";
 import {
   Select,
@@ -81,8 +81,8 @@ const getMenuGroups = (projectId: string) => [
         icon: Book,
       },
       {
-        title: "Evaluation Results",
-        url: `/${projectId}/evaluation-results`,
+        title: "Evaluations",
+        url: `/${projectId}/evaluations`,
         icon: ChartBar,
       },
     ],

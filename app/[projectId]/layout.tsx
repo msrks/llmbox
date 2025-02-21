@@ -1,4 +1,4 @@
-import { AppSidebar } from "@/app/[projectId]/_components/app-sidebar";
+import { AppSidebar } from "@/app/[projectId]/app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { getProjects } from "@/lib/db/queries/projects";
 

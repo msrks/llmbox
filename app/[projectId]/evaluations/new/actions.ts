@@ -3,12 +3,12 @@
 import { db } from "@/lib/db";
 import {
   labels,
-  promptTemplates,
   promptEvaluations,
+  promptTemplates,
   specs,
 } from "@/lib/db/schema";
-import { revalidatePath } from "next/cache";
 import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 
 export async function createEvaluation(formData: FormData) {
   try {
@@ -72,7 +72,7 @@ export async function createEvaluation(formData: FormData) {
       // The task can be retried later if needed
     }
 
-    revalidatePath("/evaluation-results");
+    revalidatePath("/evaluations");
     return { success: true };
   } catch (error) {
     console.error("Failed to create evaluation:", error);

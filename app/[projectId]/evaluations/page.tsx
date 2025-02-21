@@ -25,7 +25,7 @@ export default async function PromptEvaluationsPage() {
           </p>
         </div>
         <Button asChild>
-          <Link href="/evaluation-results/new">Create New Evaluation</Link>{" "}
+          <Link href="/evaluations/new">Create New Evaluation</Link>{" "}
           <Plus className="h-4 w-4 ml-2" />
         </Button>
       </div>

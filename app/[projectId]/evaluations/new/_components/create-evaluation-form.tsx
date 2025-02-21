@@ -38,7 +38,7 @@ export function CreateEvaluationForm({
           toast.error(result.error);
         } else {
           toast.success("Evaluation created successfully");
-          router.push(`/${projectId}/evaluation-results`);
+          router.push(`/${projectId}/evaluations`);
           router.refresh();
         }
       } catch {

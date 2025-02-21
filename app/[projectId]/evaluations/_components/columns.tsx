@@ -22,7 +22,7 @@ export const columns: ColumnDef<PromptEvaluation>[] = [
       const id = row.getValue("id") as string;
       return (
         <Link
-          href={`/evaluation-results/${id}`}
+          href={`/evaluations/${id}`}
           className="text-primary hover:underline"
         >
           {id}

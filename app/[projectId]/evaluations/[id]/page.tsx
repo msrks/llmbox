@@ -34,7 +34,7 @@ export default async function EvaluationDetailsPage({
   return (
     <div className="container space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/evaluation-results">
+        <Link href="/evaluations">
           <Button variant="ghost" size="icon">
             <ArrowLeft className="h-4 w-4" />
           </Button>
