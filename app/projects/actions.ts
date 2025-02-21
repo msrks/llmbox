@@ -1,11 +1,10 @@
 "use server";
 
+import { createProject, deleteProject } from "@/lib/db/queries/projects";
 import { projects } from "@/lib/db/schema";
 import { createInsertSchema } from "drizzle-zod";
-import { toast } from "sonner";
 import { redirect } from "next/navigation";
-import { createProject } from "@/lib/db/queries/projects";
-import { deleteProject } from "@/lib/db/queries/projects";
+import { toast } from "sonner";
 import { z } from "zod";
 
 export async function createProjectAction(formData: FormData) {
