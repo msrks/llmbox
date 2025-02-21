@@ -1,41 +1,31 @@
 "use server";
 
-import { db } from "@/lib/db";
-import { revalidatePath } from "next/cache";
+import {
+  createPromptTemplate,
+  deletePromptTemplate,
+} from "@/lib/db/queries/promptTemplates";
 import { promptTemplates } from "@/lib/db/schema";
-import { eq, desc } from "drizzle-orm";
+import { createInsertSchema } from "drizzle-zod";
+import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
-export async function getPrompts(projectId: number) {
-  return await db
-    .select()
-    .from(promptTemplates)
-    .where(eq(promptTemplates.projectId, projectId))
-    .orderBy(desc(promptTemplates.createdAt));
+export async function createPromptTemplateForm(formData: FormData) {
+  const result = createInsertSchema(promptTemplates).safeParse({
+    id: formData.get("id") ? Number(formData.get("id")) : undefined,
+    text: formData.get("text"),
+    projectId: Number(formData.get("projectId")),
+  });
+
+  if (!result.success) {
+    throw new Error(result.error.errors[0].message);
+  }
+
+  await createPromptTemplate(result.data);
+  redirect(`/${result.data.projectId}/prompt-templates`);
 }
 
-export async function createPrompt(
-  projectId: number,
-  text: string,
-  path: string
-) {
-  try {
-    await db.insert(promptTemplates).values({
-      projectId,
-      text,
-    });
-    revalidatePath(path);
-    return { success: true };
-  } catch (error) {
-    return { success: false };
-  }
-}
-
-export async function deletePrompt(id: number, path: string) {
-  try {
-    await db.delete(promptTemplates).where(eq(promptTemplates.id, id));
-    revalidatePath(path);
-    return { success: true };
-  } catch (error) {
-    return { success: false };
-  }
+export async function deletePromptTemplateAction(id: string) {
+  const deletedPromptTemplate = await deletePromptTemplate(id);
+  revalidatePath(`/${deletedPromptTemplate[0].projectId}/prompt-templates`);
+  return { success: true };
 }
