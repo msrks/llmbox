@@ -40,7 +40,7 @@ erDiagram
     projects ||--o{ files : "has"
     projects ||--o{ criterias : "has"
     projects ||--o{ promptTemplates : "has"
-    projects ||--o{ specs : "has"
+    projects ||--o{ inspectionSpecs : "has"
     projects ||--o{ promptEvaluations : "has"
 
     projects {
@@ -94,11 +94,11 @@ erDiagram
         timestamp createdAt
     }
 
-    specs ||--o{ promptEvaluations : "used_in"
-    specs {
+    inspectionSpecs ||--o{ promptEvaluations : "used_in"
+    inspectionSpecs {
         int id PK
         int projectId FK
-        string description
+        string text
         timestamp createdAt
     }
 

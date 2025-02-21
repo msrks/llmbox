@@ -1,15 +1,15 @@
 import { relations } from "drizzle-orm";
 import {
-  timestamp,
+  boolean,
+  index,
   integer,
   pgTable,
+  primaryKey,
+  real,
   serial,
   text,
+  timestamp,
   vector,
-  index,
-  real,
-  boolean,
-  primaryKey,
 } from "drizzle-orm/pg-core";
 
 export const UploadType = {
@@ -143,19 +143,22 @@ export const promptTemplatesRelations = relations(
   })
 );
 
-export const specs = pgTable("specs", {
+export const inspectionSpecs = pgTable("inspection_specs", {
   id: serial("id").primaryKey(),
   projectId: integer("project_id").notNull(),
-  description: text("description").notNull(),
+  text: text("text").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const specsRelations = relations(specs, ({ one }) => ({
-  project: one(projects, {
-    fields: [specs.projectId],
-    references: [projects.id],
-  }),
-}));
+export const inspectionSpecsRelations = relations(
+  inspectionSpecs,
+  ({ one }) => ({
+    project: one(projects, {
+      fields: [inspectionSpecs.projectId],
+      references: [projects.id],
+    }),
+  })
+);
 
 export const promptEvaluations = pgTable("prompt_evaluations", {
   id: serial("id").primaryKey(),
@@ -165,7 +168,7 @@ export const promptEvaluations = pgTable("prompt_evaluations", {
     .references(() => promptTemplates.id)
     .notNull(),
   specId: integer("spec_id")
-    .references(() => specs.id)
+    .references(() => inspectionSpecs.id)
     .notNull(),
   finalPrompt: text("final_prompt").notNull(),
   score: real("score"),
@@ -184,15 +187,16 @@ export const promptEvaluationsRelations = relations(
       fields: [promptEvaluations.promptId],
       references: [promptTemplates.id],
     }),
-    spec: one(specs, {
+    spec: one(inspectionSpecs, {
       fields: [promptEvaluations.specId],
-      references: [specs.id],
+      references: [inspectionSpecs.id],
     }),
     project: one(projects, {
       fields: [promptEvaluations.projectId],
       references: [projects.id],
     }),
     evalResults: many(evalResults),
+    inspectionSpecs: many(inspectionSpecs),
   })
 );
 
@@ -233,7 +237,7 @@ export const projectsRelations = relations(projects, ({ many }) => ({
   files: many(files),
   criterias: many(criterias),
   promptTemplates: many(promptTemplates),
-  specs: many(specs),
+  inspectionSpecs: many(inspectionSpecs),
   promptEvaluations: many(promptEvaluations),
 }));
 
@@ -245,8 +249,8 @@ export type FileToCriteria = typeof filesToCriterias.$inferSelect;
 export type NewFileToCriteria = typeof filesToCriterias.$inferInsert;
 export type PromptTemplate = typeof promptTemplates.$inferSelect;
 export type NewPromptTemplate = typeof promptTemplates.$inferInsert;
-export type Spec = typeof specs.$inferSelect;
-export type NewSpec = typeof specs.$inferInsert;
+export type InspectionSpec = typeof inspectionSpecs.$inferSelect;
+export type NewInspectionSpec = typeof inspectionSpecs.$inferInsert;
 export type PromptEvaluation = typeof promptEvaluations.$inferSelect;
 export type NewPromptEvaluation = typeof promptEvaluations.$inferInsert;
 export type EvalResultRow = typeof evalResults.$inferSelect;

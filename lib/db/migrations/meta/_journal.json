@@ -169,6 +169,20 @@
       "when": 1740029052809,
       "tag": "0023_acoustic_meggan",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1740114049044,
+      "tag": "0024_narrow_whistler",
+      "breakpoints": true
+    },
+    {
+      "idx": 25,
+      "version": "7",
+      "when": 1740114364177,
+      "tag": "0025_adorable_tana_nile",
+      "breakpoints": true
     }
   ]
 }

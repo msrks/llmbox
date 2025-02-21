@@ -1,7 +1,7 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { Spec } from "@/lib/db/schema";
+import { InspectionSpec } from "@/lib/db/schema";
 import { Button } from "@/components/ui/button";
 import { Pencil, Trash2 } from "lucide-react";
 import {
@@ -12,16 +12,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
 
-export const columns: ColumnDef<Spec>[] = [
+export type InspectionSpecWithActions = InspectionSpec & {
+  onEdit?: (spec: InspectionSpec) => void;
+  onDelete?: (spec: InspectionSpec) => void;
+};
+
+export const columns: ColumnDef<InspectionSpecWithActions>[] = [
   {
     accessorKey: "id",
     header: "ID",
   },
   {
-    accessorKey: "description",
-    header: "Description",
+    accessorKey: "text",
+    header: "Text",
     cell: ({ row }) => {
-      const template = row.getValue("description") as string;
+      const template = row.getValue("text") as string;
       // Split the template by {{...}} patterns and create an array of regular text and highlighted spans
       const parts = template.split(/(\{\{.*?\}\})/);
       return (

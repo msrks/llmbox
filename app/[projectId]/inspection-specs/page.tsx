@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import type { Spec } from "@/lib/db/schema";
-import { columns } from "./columns";
-import { DataTable } from "./data-table";
+import type { InspectionSpec } from "@/lib/db/schema";
+import { columns, InspectionSpecWithActions } from "./columns";
+import { DataTable } from "@/components/data-table";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
@@ -12,6 +12,7 @@ import { Plus, Wand2 } from "lucide-react";
 import { TEMPLATE } from "./templates";
 import { getSpecs, createSpec, updateSpec, deleteSpec } from "./actions";
 import { PageTitle } from "@/components/page-title";
+import { useParams } from "next/navigation";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,16 +33,16 @@ interface CreateSpecDialogProps {
 interface SpecFormProps {
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => Promise<void>;
   isSubmitting: boolean;
-  description: string;
-  onDescriptionChange: (value: string) => void;
+  text: string;
+  onTextChange: (value: string) => void;
   onGenerateTemplate: () => void;
 }
 
 function SpecForm({
   onSubmit,
   isSubmitting,
-  description,
-  onDescriptionChange,
+  text,
+  onTextChange,
   onGenerateTemplate,
 }: SpecFormProps) {
   return (
@@ -60,13 +61,13 @@ function SpecForm({
           </Button>
         </div>
         <Textarea
-          id="description"
-          name="description"
-          placeholder="Enter specification description"
+          id="text"
+          name="text"
+          placeholder="Enter specification text"
           rows={10}
           required
-          value={description}
-          onChange={(e) => onDescriptionChange(e.target.value)}
+          value={text}
+          onChange={(e) => onTextChange(e.target.value)}
           className="h-full resize-none"
         />
       </div>
@@ -84,16 +85,18 @@ export function CreateSpecDialog({
   onOpenChange,
   onSpecCreated,
 }: CreateSpecDialogProps) {
-  const [description, setDescription] = useState("");
+  const params = useParams();
+  const projectId = params.projectId as string;
+  const [text, setText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsSubmitting(true);
     try {
-      await createSpec(description);
+      await createSpec(projectId, text);
       toast.success("Specification created successfully");
-      setDescription("");
+      setText("");
       onOpenChange(false);
       onSpecCreated();
     } catch (error) {
@@ -108,7 +111,7 @@ export function CreateSpecDialog({
   };
 
   const handleGenerateTemplate = () => {
-    setDescription(TEMPLATE);
+    setText(TEMPLATE);
   };
 
   return (
@@ -117,8 +120,8 @@ export function CreateSpecDialog({
         <SpecForm
           onSubmit={handleSubmit}
           isSubmitting={isSubmitting}
-          description={description}
-          onDescriptionChange={setDescription}
+          text={text}
+          onTextChange={setText}
           onGenerateTemplate={handleGenerateTemplate}
         />
       </DialogContent>
@@ -127,7 +130,7 @@ export function CreateSpecDialog({
 }
 
 interface EditSpecDialogProps {
-  spec: Spec | null;
+  spec: InspectionSpec | null;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   onSpecUpdated: () => void;
@@ -139,12 +142,14 @@ export function EditSpecDialog({
   onOpenChange,
   onSpecUpdated,
 }: EditSpecDialogProps) {
-  const [description, setDescription] = useState(spec?.description || "");
+  const params = useParams();
+  const projectId = params.projectId as string;
+  const [text, setText] = useState(spec?.text || "");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (spec) {
-      setDescription(spec.description);
+      setText(spec.text);
     }
   }, [spec]);
 
@@ -154,7 +159,7 @@ export function EditSpecDialog({
 
     try {
       if (!spec) return;
-      await updateSpec(spec.id, description);
+      await updateSpec(projectId, spec.id, text);
       toast.success("Specification updated successfully");
       onOpenChange(false);
       onSpecUpdated();
@@ -172,8 +177,8 @@ export function EditSpecDialog({
           <div className="space-y-2">
             <DialogTitle>Edit Inspection Specification</DialogTitle>
             <Textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              value={text}
+              onChange={(e) => setText(e.target.value)}
               placeholder="Enter specification..."
               className="h-[200px]"
             />
@@ -198,11 +203,13 @@ export function EditSpecDialog({
 }
 
 const SpecsClient = () => {
-  const [specs, setSpecs] = useState<Spec[]>([]);
+  const params = useParams();
+  const projectId = params.projectId as string;
+  const [specs, setSpecs] = useState<InspectionSpecWithActions[]>([]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [selectedSpec, setSelectedSpec] = useState<Spec | null>(null);
+  const [selectedSpec, setSelectedSpec] = useState<InspectionSpec | null>(null);
 
   useEffect(() => {
     fetchSpecs();
@@ -210,19 +217,24 @@ const SpecsClient = () => {
 
   const fetchSpecs = async () => {
     try {
-      const response = await getSpecs();
-      setSpecs(response.specs);
+      const response = await getSpecs(projectId);
+      const specsWithActions = response.specs.map((spec) => ({
+        ...spec,
+        onEdit: handleEdit,
+        onDelete: handleDelete,
+      }));
+      setSpecs(specsWithActions);
     } catch {
       toast.error("Failed to fetch specifications");
     }
   };
 
-  const handleEdit = (spec: Spec) => {
+  const handleEdit = (spec: InspectionSpec) => {
     setSelectedSpec(spec);
     setIsEditDialogOpen(true);
   };
 
-  const handleDelete = (spec: Spec) => {
+  const handleDelete = (spec: InspectionSpec) => {
     setSelectedSpec(spec);
     setIsDeleteDialogOpen(true);
   };
@@ -231,7 +243,7 @@ const SpecsClient = () => {
     if (!selectedSpec) return;
 
     try {
-      await deleteSpec(selectedSpec.id);
+      await deleteSpec(projectId, selectedSpec.id);
       toast.success("Specification deleted successfully");
       fetchSpecs();
     } catch {
@@ -242,35 +254,17 @@ const SpecsClient = () => {
     }
   };
 
-  const columnsWithCallbacks = columns.map((col) => {
-    if (col.id === "actions") {
-      return {
-        ...col,
-        cell: ({ row }) => {
-          const spec = row.original;
-          return col.cell?.({
-            row: {
-              ...row,
-              original: { ...spec, onEdit: handleEdit, onDelete: handleDelete },
-            },
-          });
-        },
-      };
-    }
-    return col;
-  });
-
   return (
-    <div className="space-y-4">
-      <div className="flex justify-between items-center">
+    <div className="container mx-auto py-10">
+      <div className="flex justify-between items-center mb-6">
         <PageTitle>Inspection Specifications</PageTitle>
         <Button onClick={() => setIsCreateDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
+          <Plus className="mr-2 h-4 w-4" />
           New Specification
         </Button>
       </div>
 
-      <DataTable columns={columnsWithCallbacks} data={specs} />
+      <DataTable columns={columns} data={specs} />
 
       <CreateSpecDialog
         isOpen={isCreateDialogOpen}
@@ -299,10 +293,7 @@ const SpecsClient = () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              onClick={handleDeleteConfirm}
-              className="bg-red-600"
-            >
+            <AlertDialogAction onClick={handleDeleteConfirm}>
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>

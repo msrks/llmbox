@@ -1,0 +1,1 @@
+ALTER TABLE "inspection_specs" RENAME COLUMN "description" TO "text";
