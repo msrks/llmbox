@@ -53,7 +53,6 @@ erDiagram
 
     files ||--o{ filesToCriterias : "has"
     files ||--o{ evalResults : "has"
-    files ||--o{ promptEvaluations : "evaluated_by"
     files {
         int id PK
         int projectId FK
@@ -106,8 +105,8 @@ erDiagram
     promptEvaluations {
         int id PK
         int projectId FK
-        int promptId FK
-        int specId FK
+        int promptTemplateId FK
+        int inspectionSpecId FK
         string finalPrompt
         float score
         enum state

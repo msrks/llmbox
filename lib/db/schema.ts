@@ -183,11 +183,11 @@ export const promptEvaluations = pgTable("prompt_evaluations", {
 export const promptEvaluationsRelations = relations(
   promptEvaluations,
   ({ one, many }) => ({
-    prompt: one(promptTemplates, {
+    promptTemplate: one(promptTemplates, {
       fields: [promptEvaluations.promptId],
       references: [promptTemplates.id],
     }),
-    spec: one(inspectionSpecs, {
+    inspectionSpec: one(inspectionSpecs, {
       fields: [promptEvaluations.specId],
       references: [inspectionSpecs.id],
     }),
@@ -196,7 +196,6 @@ export const promptEvaluationsRelations = relations(
       references: [projects.id],
     }),
     evalResults: many(evalResults),
-    inspectionSpecs: many(inspectionSpecs),
   })
 );
 
