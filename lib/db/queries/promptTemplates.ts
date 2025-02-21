@@ -1,5 +1,5 @@
-import { eq } from "drizzle-orm";
 import { db } from "@/lib/db/drizzle";
+import { eq } from "drizzle-orm";
 import { NewPromptTemplate, promptTemplates } from "../schema";
 
 export async function createPromptTemplate(data: NewPromptTemplate) {

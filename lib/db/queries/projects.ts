@@ -1,10 +1,13 @@
 import { db } from "@/lib/db/drizzle";
-import { projects, NewProject, Project } from "@/lib/db/schema";
-import { sql } from "drizzle-orm";
-import { files } from "@/lib/db/schema";
-import { promptTemplates } from "@/lib/db/schema";
-import { promptEvaluations } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
+import {
+  files,
+  NewProject,
+  Project,
+  projects,
+  promptEvaluations,
+  promptTemplates,
+} from "@/lib/db/schema";
+import { eq, sql } from "drizzle-orm";
 
 export async function createProject(data: NewProject) {
   return db.insert(projects).values(data).returning();

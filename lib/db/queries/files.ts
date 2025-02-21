@@ -1,10 +1,10 @@
 import { db } from "@/lib/db/drizzle";
 import { files, filesToCriterias, NewFileToCriteria } from "@/lib/db/schema";
-import { desc, eq } from "drizzle-orm";
 import {
-  generatePresignedUrl,
   deleteFileFromBucket,
+  generatePresignedUrl,
 } from "@/lib/s3-file-management";
+import { desc, eq } from "drizzle-orm";
 
 export async function upsertFileToCriteria(data: NewFileToCriteria) {
   return db
