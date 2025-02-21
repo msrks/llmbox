@@ -99,30 +99,32 @@ export default function CreateForm({ projectId }: { projectId: string }) {
         <Button
           type="button"
           variant="outline"
-          size="sm"
+          size="default"
+          className="gap-2"
           onClick={() => setText(PROMPT_TEMPLATE)}
         >
-          <Wand2 className="h-4 w-4 mr-2" />
+          <Wand2 className="h-4 w-4" />
           Generate Prompt
         </Button>
       </div>
-      <form action={createPromptTemplateForm}>
-        <div className="space-y-4">
+      <form action={createPromptTemplateForm} className="h-[calc(100vh-12rem)]">
+        <div className="space-y-4 h-full">
           <input type="hidden" name="projectId" value={projectId} />
-          <div className="space-y-2">
+          <div className="space-y-2 h-[calc(100%-4rem)]">
             <Label htmlFor="text">Text</Label>
-            <HighlightedTextarea
-              id="text"
-              name="text"
-              placeholder="Enter prompt template"
-              rows={20}
-              required
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              className="h-full resize-none"
-            />
+            <div className="h-[calc(100%-2rem)]">
+              <HighlightedTextarea
+                id="text"
+                name="text"
+                placeholder="Enter prompt template"
+                required
+                value={text}
+                onChange={(e) => setText(e.target.value)}
+                className="h-full resize-none"
+              />
+            </div>
           </div>
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2">
             <Link href={`/${projectId}/prompt-templates`}>
               <Button type="button" variant="outline">
                 Cancel
