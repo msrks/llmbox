@@ -16,24 +16,24 @@ export async function upsertFileToCriteria(data: NewFileToCriteria) {
     });
 }
 
-export async function deleteFile(fileId: number, fileName: string) {
+export async function deleteFile(id: number, fileName: string) {
   const bucketName = process.env.S3_BUCKET_NAME;
   if (!bucketName) throw new Error("S3_BUCKET_NAME must be set");
   await deleteFileFromBucket(bucketName, fileName);
-  await db.delete(files).where(eq(files.id, fileId));
+  await db.delete(files).where(eq(files.id, id));
   return { success: true };
 }
 
-export async function getFilesList(projectId: string) {
+export async function getFilesList(projectId: number) {
   return db.query.files.findMany({
-    where: eq(files.projectId, parseInt(projectId)),
+    where: eq(files.projectId, projectId),
     orderBy: desc(files.createdAt),
   });
 }
 
-export async function getFileWithCriterias(fileId: number) {
+export async function getFileWithCriterias(id: number) {
   const file = await db.query.files.findFirst({
-    where: eq(files.id, fileId),
+    where: eq(files.id, id),
     with: { filesToCriterias: { with: { criteria: true } } },
   });
   if (!file) throw new Error("File not found");
@@ -60,9 +60,9 @@ export async function getPresignedUrl(fileId: number) {
   return presignedUrl;
 }
 
-export async function getFilesWithCriterias(projectId: string) {
+export async function getFilesWithCriterias(projectId: number) {
   return db.query.files.findMany({
-    where: eq(files.projectId, parseInt(projectId)),
+    where: eq(files.projectId, projectId),
     with: { filesToCriterias: { with: { criteria: true } } },
   });
 }

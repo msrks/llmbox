@@ -9,22 +9,19 @@ export async function upsertCriteria(data: NewCriteria) {
     .onConflictDoUpdate({ target: [criterias.id], set: data });
 }
 
-export async function deleteCriteria(criteriaId: string) {
-  return db
-    .delete(criterias)
-    .where(eq(criterias.id, parseInt(criteriaId)))
-    .returning();
+export async function deleteCriteria(id: number) {
+  return db.delete(criterias).where(eq(criterias.id, id)).returning();
 }
 
-export async function getCriteria(criteriaId: string) {
+export async function getCriteria(id: number) {
   return db.query.criterias.findFirst({
-    where: eq(criterias.id, parseInt(criteriaId)),
+    where: eq(criterias.id, id),
   });
 }
 
-export async function getCriteriaByIdWithFiles(criteriaId: string) {
+export async function getCriteriaByIdWithFiles(id: number) {
   return db.query.criterias.findFirst({
-    where: eq(criterias.id, parseInt(criteriaId)),
+    where: eq(criterias.id, id),
     with: { filesToCriterias: { with: { file: true } } },
   });
 }
@@ -33,8 +30,8 @@ export type CriteriaWithFiles = Awaited<
   ReturnType<typeof getCriteriaByIdWithFiles>
 >;
 
-export async function getCriterias(projectId: string) {
+export async function getCriterias(projectId: number) {
   return db.query.criterias.findMany({
-    where: eq(criterias.projectId, parseInt(projectId)),
+    where: eq(criterias.projectId, projectId),
   });
 }

@@ -13,17 +13,17 @@ export async function createProject(data: NewProject) {
   return db.insert(projects).values(data).returning();
 }
 
-export async function updateProject(projectId: number, data: Partial<Project>) {
-  return db.update(projects).set(data).where(eq(projects.id, projectId));
+export async function updateProject(id: number, data: Partial<Project>) {
+  return db.update(projects).set(data).where(eq(projects.id, id));
 }
 
-export async function deleteProject(projectId: number) {
-  return db.delete(projects).where(eq(projects.id, projectId));
+export async function deleteProject(id: number) {
+  return db.delete(projects).where(eq(projects.id, id));
 }
 
-export async function getProject(projectId: number) {
+export async function getProject(id: number) {
   return db.query.projects.findFirst({
-    where: eq(projects.id, projectId),
+    where: eq(projects.id, id),
   });
 }
 
@@ -31,7 +31,7 @@ export async function getProjects() {
   return db.query.projects.findMany();
 }
 
-export async function getProjectWithStats(projectId: number) {
+export async function getProjectWithStats(id: number) {
   const project = await db
     .select({
       id: projects.id,
@@ -40,7 +40,7 @@ export async function getProjectWithStats(projectId: number) {
       createdAt: projects.createdAt,
     })
     .from(projects)
-    .where(eq(projects.id, projectId))
+    .where(eq(projects.id, id))
     .limit(1);
 
   if (!project.length) {
@@ -51,17 +51,17 @@ export async function getProjectWithStats(projectId: number) {
   const [fileCount] = await db
     .select({ count: sql<number>`count(*)::int` })
     .from(files)
-    .where(eq(files.projectId, projectId));
+    .where(eq(files.projectId, id));
 
   const [promptCount] = await db
     .select({ count: sql<number>`count(*)::int` })
     .from(promptTemplates)
-    .where(eq(promptTemplates.projectId, projectId));
+    .where(eq(promptTemplates.projectId, id));
 
   const [evalCount] = await db
     .select({ count: sql<number>`count(*)::int` })
     .from(promptEvaluations)
-    .where(eq(promptEvaluations.projectId, projectId));
+    .where(eq(promptEvaluations.projectId, id));
 
   return {
     ...project[0],
@@ -73,9 +73,9 @@ export async function getProjectWithStats(projectId: number) {
   };
 }
 
-export async function getPromptTemplates(projectId: number) {
+export async function getPromptTemplates(id: number) {
   return await db
     .select()
     .from(promptTemplates)
-    .where(eq(promptTemplates.projectId, projectId));
+    .where(eq(promptTemplates.projectId, id));
 }

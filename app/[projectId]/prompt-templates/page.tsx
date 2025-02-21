@@ -11,7 +11,7 @@ export default async function Page({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
-  const promptTemplates = await getPromptTemplates(projectId);
+  const promptTemplates = await getPromptTemplates(parseInt(projectId));
 
   return (
     <div className="mx-auto space-y-8">

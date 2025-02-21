@@ -34,7 +34,7 @@ export async function createPromptTemplateForm(
 }
 
 export async function deletePromptTemplateAction(id: string) {
-  const deletedPromptTemplate = await deletePromptTemplate(id);
+  const deletedPromptTemplate = await deletePromptTemplate(parseInt(id));
   revalidatePath(`/${deletedPromptTemplate[0].projectId}/prompt-templates`);
   return { success: true };
 }

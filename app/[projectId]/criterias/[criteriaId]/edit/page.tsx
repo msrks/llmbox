@@ -9,7 +9,7 @@ export default async function Page({
   params: Promise<{ projectId: string; criteriaId: string }>;
 }) {
   const { projectId, criteriaId } = await params;
-  const criteria = await getCriteria(criteriaId);
+  const criteria = await getCriteria(Number(criteriaId));
   if (!criteria) notFound();
 
   return (

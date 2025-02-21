@@ -34,7 +34,7 @@ export async function createInspectionSpecForm(
 }
 
 export async function deleteInspectionSpecAction(id: string) {
-  const deletedInspectionSpec = await deleteInspectionSpec(id);
+  const deletedInspectionSpec = await deleteInspectionSpec(parseInt(id));
   revalidatePath(`/${deletedInspectionSpec[0].projectId}/inspection-specs`);
   return { success: true };
 }

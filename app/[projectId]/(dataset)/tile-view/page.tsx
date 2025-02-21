@@ -8,7 +8,7 @@ export default async function Page({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
-  const filesWithCriterias = await getFilesWithCriterias(projectId);
+  const filesWithCriterias = await getFilesWithCriterias(parseInt(projectId));
 
   return (
     <div className="container mx-auto space-y-8">

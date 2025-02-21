@@ -8,8 +8,8 @@ export default async function Page({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
-  const promptTemplates = await getPromptTemplates(projectId);
-  const inspectionSpecs = await getInspectionSpecs(projectId);
+  const promptTemplates = await getPromptTemplates(parseInt(projectId));
+  const inspectionSpecs = await getInspectionSpecs(parseInt(projectId));
 
   return (
     <CreateForm

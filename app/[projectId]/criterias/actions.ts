@@ -7,7 +7,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function deleteCriteriaAction(id: string) {
-  const deletedCriteria = await deleteCriteria(id);
+  const deletedCriteria = await deleteCriteria(parseInt(id));
   revalidatePath(`/${deletedCriteria[0].projectId}/criterias`);
   return { success: true };
 }

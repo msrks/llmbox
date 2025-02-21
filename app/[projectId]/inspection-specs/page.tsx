@@ -11,7 +11,7 @@ export default async function Page({
   params: Promise<{ projectId: string }>;
 }) {
   const { projectId } = await params;
-  const inspectionSpecs = await getInspectionSpecs(projectId);
+  const inspectionSpecs = await getInspectionSpecs(parseInt(projectId));
 
   return (
     <div className="mx-auto space-y-8">
