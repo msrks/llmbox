@@ -1,6 +1,8 @@
 import { db } from "@/lib/db/drizzle";
 import {
+  criterias,
   files,
+  inspectionSpecs,
   NewProject,
   Project,
   projects,
@@ -63,12 +65,24 @@ export async function getProjectWithStats(id: number) {
     .from(promptEvaluations)
     .where(eq(promptEvaluations.projectId, id));
 
+  const [criteriasCount] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(criterias)
+    .where(eq(criterias.projectId, id));
+
+  const [inspectionSpecsCount] = await db
+    .select({ count: sql<number>`count(*)::int` })
+    .from(inspectionSpecs)
+    .where(eq(inspectionSpecs.projectId, id));
+
   return {
     ...project[0],
     stats: {
       files: fileCount?.count ?? 0,
       prompts: promptCount?.count ?? 0,
       evaluations: evalCount?.count ?? 0,
+      criterias: criteriasCount?.count ?? 0,
+      inspectionSpecs: inspectionSpecsCount?.count ?? 0,
     },
   };
 }
