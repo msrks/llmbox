@@ -2,19 +2,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { upsertCriteriaAction } from "./actions";
+import { upsertCriteriaForm } from "./actions";
 import Link from "next/link";
 import { Criteria } from "@/lib/db/schema";
+import { useActionState } from "react";
 
-export default async function UpsertForm({
+export default function UpsertForm({
   projectId,
   criteria,
 }: {
   projectId: string;
   criteria?: Criteria;
 }) {
+  const [state, formAction, isPending] = useActionState(upsertCriteriaForm, {
+    error: "",
+    name: "",
+    description: "",
+  });
+
   return (
-    <form action={upsertCriteriaAction} className="space-y-6">
+    <form action={formAction} className="space-y-6">
       <div className="space-y-4">
         <input type="hidden" name="projectId" value={projectId} />
         <input type="hidden" name="id" value={criteria?.id} />
@@ -23,7 +30,7 @@ export default async function UpsertForm({
           <Input
             id="name"
             name="name"
-            defaultValue={criteria?.name ?? ""}
+            defaultValue={state.name ?? criteria?.name ?? ""}
             required
           />
         </div>
@@ -32,7 +39,7 @@ export default async function UpsertForm({
           <Textarea
             id="description"
             name="description"
-            defaultValue={criteria?.description ?? ""}
+            defaultValue={state.description ?? criteria?.description ?? ""}
             className="resize-none min-h-[120px]"
             rows={4}
           />
@@ -44,10 +51,11 @@ export default async function UpsertForm({
             Cancel
           </Button>
         </Link>
-        <Button type="submit">
+        <Button type="submit" disabled={isPending}>
           {criteria ? "Update Criteria" : "Create Criteria"}
         </Button>
       </div>
+      {state.error && <div className="text-red-500 text-sm">{state.error}</div>}
     </form>
   );
 }
