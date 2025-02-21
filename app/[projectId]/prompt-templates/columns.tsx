@@ -1,9 +1,10 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
 import { PromptTemplate } from "@/lib/db/schema";
 import { formatDate } from "@/lib/utils";
+import { ColumnDef } from "@tanstack/react-table";
 import { DeletePromptTemplateDialog } from "./delete-dialog";
+
 export const columns: ColumnDef<PromptTemplate>[] = [
   { accessorKey: "id" },
   {
