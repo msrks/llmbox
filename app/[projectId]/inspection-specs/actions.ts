@@ -1,73 +1,40 @@
 "use server";
 
-import { db } from "@/lib/db/drizzle";
+import {
+  createInspectionSpec,
+  deleteInspectionSpec,
+} from "@/lib/db/queries/inspectionSpecs";
 import { inspectionSpecs } from "@/lib/db/schema";
-import { desc, eq } from "drizzle-orm";
+import { createInsertSchema } from "drizzle-zod";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
-export async function getSpecs(projectId: string) {
-  try {
-    const allSpecs = await db
-      .select()
-      .from(inspectionSpecs)
-      .where(eq(inspectionSpecs.projectId, parseInt(projectId)))
-      .orderBy(desc(inspectionSpecs.createdAt));
-    return { specs: allSpecs };
-  } catch (error) {
-    console.error("Failed to fetch specs:", error);
-    throw new Error("Failed to fetch specifications");
+export async function createInspectionSpecForm(
+  prevState: {
+    error: string;
+    text: string;
+  },
+  formData: FormData
+) {
+  const result = createInsertSchema(inspectionSpecs).safeParse({
+    id: formData.get("id") ? Number(formData.get("id")) : undefined,
+    text: formData.get("text"),
+    projectId: Number(formData.get("projectId")),
+  });
+
+  if (!result.success) {
+    return {
+      error: result.error.errors[0].message,
+      text: prevState.text,
+    };
   }
+
+  await createInspectionSpec(result.data);
+  redirect(`/${result.data.projectId}/inspection-specs`);
 }
 
-export async function createSpec(projectId: string, text: string) {
-  try {
-    if (!text) {
-      throw new Error("Text is required");
-    }
-
-    const newSpec = await db
-      .insert(inspectionSpecs)
-      .values({
-        projectId: parseInt(projectId),
-        text,
-      })
-      .returning();
-
-    revalidatePath(`/${projectId}/inspection-specs`);
-    return { spec: newSpec[0] };
-  } catch (error) {
-    console.error("Failed to create spec:", error);
-    throw new Error("Failed to create specification");
-  }
-}
-
-export async function updateSpec(projectId: string, id: number, text: string) {
-  try {
-    if (!text) {
-      throw new Error("Text is required");
-    }
-
-    await db
-      .update(inspectionSpecs)
-      .set({ text })
-      .where(eq(inspectionSpecs.id, id));
-
-    revalidatePath(`/${projectId}/inspection-specs`);
-    return { success: true };
-  } catch (error) {
-    console.error("Failed to update spec:", error);
-    throw new Error("Failed to update specification");
-  }
-}
-
-export async function deleteSpec(projectId: string, id: number) {
-  try {
-    await db.delete(inspectionSpecs).where(eq(inspectionSpecs.id, id));
-    revalidatePath(`/${projectId}/inspection-specs`);
-    console.log("Spec deleted successfully");
-    return { success: true };
-  } catch (error) {
-    console.error("Failed to delete spec:", error);
-    throw new Error("Failed to delete specification");
-  }
+export async function deleteInspectionSpecAction(id: string) {
+  const deletedInspectionSpec = await deleteInspectionSpec(id);
+  revalidatePath(`/${deletedInspectionSpec[0].projectId}/inspection-specs`);
+  return { success: true };
 }

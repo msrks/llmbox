@@ -1,30 +1,14 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
 import { InspectionSpec } from "@/lib/db/schema";
-import { Button } from "@/components/ui/button";
-import { Pencil, Trash2 } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { MoreHorizontal } from "lucide-react";
+import { formatDate } from "@/lib/utils";
+import { ColumnDef } from "@tanstack/react-table";
+import { DeleteInspectionSpecDialog } from "./delete-dialog";
 
-export type InspectionSpecWithActions = InspectionSpec & {
-  onEdit?: (spec: InspectionSpec) => void;
-  onDelete?: (spec: InspectionSpec) => void;
-};
-
-export const columns: ColumnDef<InspectionSpecWithActions>[] = [
-  {
-    accessorKey: "id",
-    header: "ID",
-  },
+export const columns: ColumnDef<InspectionSpec>[] = [
+  { accessorKey: "id" },
   {
     accessorKey: "text",
-    header: "Text",
     cell: ({ row }) => {
       const template = row.getValue("text") as string;
       // Split the template by {{...}} patterns and create an array of regular text and highlighted spans
@@ -47,45 +31,16 @@ export const columns: ColumnDef<InspectionSpecWithActions>[] = [
   },
   {
     accessorKey: "createdAt",
-    header: "Created",
-    cell: ({ row }) => {
-      const date = new Date(row.original.createdAt);
-      return date.toLocaleDateString() + " " + date.toLocaleTimeString();
-    },
+    cell: ({ row }) => formatDate(row.getValue("createdAt")),
   },
   {
     id: "actions",
     cell: ({ row }) => {
-      const spec = row.original;
-
+      const inspectionSpec = row.original;
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              onClick={() => {
-                if (spec.onEdit) spec.onEdit(spec);
-              }}
-            >
-              <Pencil className="mr-2 h-4 w-4" />
-              Edit
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() => {
-                if (spec.onDelete) spec.onDelete(spec);
-              }}
-              className="text-red-600"
-            >
-              <Trash2 className="mr-2 h-4 w-4" />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex gap-1">
+          <DeleteInspectionSpecDialog id={inspectionSpec.id.toString()} />
+        </div>
       );
     },
   },

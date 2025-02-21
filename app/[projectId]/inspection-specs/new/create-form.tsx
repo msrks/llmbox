@@ -8,40 +8,21 @@ import { Wand2 } from "lucide-react";
 import Form from "next/form";
 import Link from "next/link";
 import { useActionState, useRef, useState } from "react";
-import { createPromptTemplateForm } from "../actions";
+import { createInspectionSpecForm } from "../actions";
 
-const TEMPLATE = `You are an AI image classifier tasked with analyzing images according to specific inspection criteria. Your goal is to accurately classify the image based on the given specifications and provide a clear explanation for your classification.
-
-You will be provided with an image input and an inspection specification. The image input will be a text description of the image contents. The inspection specification will detail the criteria you should use to classify the image.
-
-Here is the criterias:
-<criterias>
-{{CRITERIAS}}
-</criterias>
-
-Here is the inspection specification:
-<inspection_spec>
-{{INSPECTION_SPEC}}
-</inspection_spec>
-
-Carefully analyze the image input, paying close attention to the details described. Compare the image contents to the criteria outlined in the inspection specification. Consider all relevant aspects of the image that relate to the specification.
-
-Based on your analysis, determine the appropriate classification for the image. Your classification should be either "Pass" or "Fail" based on whether the image meets all the criteria in the inspection specification.
-
-Provide your response in the following format:
-<classification_response>
-<explanation>
-[Provide a detailed explanation of your reasoning, referencing specific aspects of the image and how they relate to the inspection criteria]
-</explanation>
-<criteria_results>
-[Provide a list of criteria results, each value is either pass or fail]
-</criteria_results>
-<final_result>
-[Provide the final result, either pass or fail]
-</final_result>
-</classification_response>
-
-Ensure that your explanation is clear, concise, and directly relates to the inspection specification. Your classification should be a direct result of your explained reasoning.`;
+const TEMPLATE = `Metal Nut Quality Inspection Criteria
+1. Size: The outer diameter, inner diameter, and thickness must conform to the specified tolerance limits as per design drawings.
+2. Surface Defects:
+2.1. Scratches: No visible scratches exceeding 0.5 mm in width or 5 mm in length. Any deep scratches that compromise structural integrity are unacceptable.
+2.2. Dents: No dents larger than 0.3 mm in depth or affecting functional surfaces.
+2.3. Burrs: No sharp or excessive burrs that could impact assembly or pose safety risks.
+2.4. Corrosion: No visible signs of rust, oxidation, or discoloration on the surface.
+3. Shape and Symmetry: The nut must maintain its designed geometry, with no deformation or warping that affects functionality.
+4. Thread Quality: The internal threading must be free from defects such as cross-threading, damage, or incomplete formation. The nut must properly engage with a standard gauge without excessive resistance.
+5. Cleanliness: The nut must be free from oil, grease, dirt, or any other contaminants that could impact performance.
+6. Machining Marks: Minor tool marks are acceptable as long as they do not affect the integrity or usability of the nut.
+7. Edge Quality: All edges should be smooth and well-finished, with no sharp protrusions that could cause injury or hinder assembly.
+8. Overall Acceptability: If a nut fails to meet any of the above criteria, it must be classified as defective and removed from the acceptable lot.`;
 
 function HighlightedTextarea({
   value,
@@ -93,7 +74,7 @@ function HighlightedTextarea({
 export default function CreateForm({ projectId }: { projectId: string }) {
   const [text, setText] = useState("");
   const [state, formAction, isPending] = useActionState(
-    createPromptTemplateForm,
+    createInspectionSpecForm,
     {
       error: "",
       text: TEMPLATE,
@@ -103,7 +84,7 @@ export default function CreateForm({ projectId }: { projectId: string }) {
   return (
     <div className="w-full mx-auto space-y-4">
       <div className="flex flex-row items-center justify-between">
-        <PageTitle>New Prompt Template</PageTitle>
+        <PageTitle>New Inspection Spec</PageTitle>
         <Button
           type="button"
           variant="outline"
@@ -112,19 +93,19 @@ export default function CreateForm({ projectId }: { projectId: string }) {
           onClick={() => setText(TEMPLATE)}
         >
           <Wand2 className="h-4 w-4" />
-          Generate Prompt
+          Generate Spec
         </Button>
       </div>
       <Form action={formAction} className="h-[calc(100vh-12rem)]">
         <div className="space-y-4 h-full">
           <input type="hidden" name="projectId" value={projectId} />
           <div className="space-y-2 h-[calc(100%-4rem)]">
-            <Label htmlFor="text">Text</Label>
+            <Label htmlFor="text">Inspection Criteria</Label>
             <div className="h-[calc(100%-2rem)]">
               <HighlightedTextarea
                 id="text"
                 name="text"
-                placeholder="Enter prompt template"
+                placeholder="Enter inspection criteria"
                 required
                 value={text}
                 onChange={(e) => setText(e.target.value)}
@@ -133,13 +114,13 @@ export default function CreateForm({ projectId }: { projectId: string }) {
             </div>
           </div>
           <div className="flex justify-end gap-2">
-            <Link href={`/${projectId}/prompt-templates`}>
+            <Link href={`/${projectId}/inspection-specs`}>
               <Button type="button" variant="outline">
                 Cancel
               </Button>
             </Link>
             <Button type="submit" disabled={isPending}>
-              {isPending ? "Creating..." : "Create Prompt Template"}
+              {isPending ? "Creating..." : "Create Inspection Spec"}
             </Button>
           </div>
         </div>

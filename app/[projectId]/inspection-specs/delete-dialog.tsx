@@ -15,14 +15,14 @@ import { Button } from "@/components/ui/button";
 import { Trash } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import { deletePromptTemplateAction } from "./actions";
+import { deleteInspectionSpecAction } from "./actions";
 
-export function DeletePromptTemplateDialog({ id }: { id: string }) {
+export function DeleteInspectionSpecDialog({ id }: { id: string }) {
   const [open, setOpen] = useState(false);
 
   const handleDelete = async () => {
-    await deletePromptTemplateAction(id);
-    toast.success("Prompt template deleted successfully");
+    await deleteInspectionSpecAction(id);
+    toast.success("Inspection spec deleted successfully");
     setOpen(false);
   };
 
@@ -35,9 +35,9 @@ export function DeletePromptTemplateDialog({ id }: { id: string }) {
       </AlertDialogTrigger>
       <AlertDialogContent className="sm:max-w-[600px]">
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Prompt Template</AlertDialogTitle>
+          <AlertDialogTitle>Delete Inspection Spec</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete this prompt template?
+            Are you sure you want to delete this inspection spec?
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
