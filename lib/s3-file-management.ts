@@ -1,5 +1,5 @@
-import * as Minio from "minio";
 import dotenv from "dotenv";
+import * as Minio from "minio";
 
 dotenv.config();
 
@@ -116,4 +116,13 @@ export async function deleteFileFromBucket(
     console.error("Error deleting file from S3:", error);
     throw error;
   }
+}
+
+export function streamToBuffer(stream: NodeJS.ReadableStream): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    const chunks: Buffer[] = [];
+    stream.on("data", (chunk) => chunks.push(chunk));
+    stream.on("end", () => resolve(Buffer.concat(chunks)));
+    stream.on("error", reject);
+  });
 }

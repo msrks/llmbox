@@ -11,14 +11,13 @@ import {
 } from "@/lib/db/queries/promptEvaluations";
 import { getPromptTemplate } from "@/lib/db/queries/promptTemplates";
 import { evalDetails, promptEvaluations } from "@/lib/db/schema";
-import { s3Client } from "@/lib/s3-file-management";
-import { GetObjectOutput } from "@aws-sdk/client-s3";
+import { s3Client, streamToBuffer } from "@/lib/s3-file-management";
 import { createInsertSchema } from "drizzle-zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
-import { Readable } from "node:stream";
 import OpenAI from "openai";
+import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 
 const openai = new OpenAI();
@@ -75,16 +74,6 @@ export async function createEvaluationForm(
     state: "running",
   });
 
-  // Trigger the evaluation task
-  // try {
-  //   await fetch(
-  //     // `${process.env.NEXT_PUBLIC_APP_URL}/api/evaluate?evalId=${newEvaluation.id}`
-  //     `/api/evaluate?evalId=${newEvaluation.id}`
-  //   );
-  // } catch (error) {
-  //   console.error("Failed to trigger evaluation task:", error);
-  // }
-
   after(async () => {
     const startTime = Date.now();
     const filesForEvaluation = await getFilesForEvaluation(projectId);
@@ -93,25 +82,21 @@ export async function createEvaluationForm(
     }
     const evaluationResults = await Promise.all(
       filesForEvaluation.map(async (file) => {
-        const obj = (await s3Client.getObject(
+        const obj = await s3Client.getObject(
           process.env.S3_BUCKET_NAME!,
           file.fileName
-        )) as GetObjectOutput;
+        );
+        const base64Image = (await streamToBuffer(obj)).toString("base64");
 
-        const streamToBuffer = async (stream: Readable) => {
-          const chunks = [];
-          for await (const chunk of stream) {
-            chunks.push(chunk);
-          }
-          return Buffer.concat(chunks);
-        };
-
-        const buffer = await streamToBuffer(obj.Body as Readable);
-        const base64Image = buffer.toString("base64");
-
-        const completion = await openai.chat.completions.create({
+        const completion = await openai.beta.chat.completions.parse({
           model: "gpt-4o-mini",
+          temperature: 0,
+
           messages: [
+            {
+              role: "system",
+              content: `You are a helpful assistant that evaluates images.`,
+            },
             {
               role: "user",
               content: [
@@ -122,28 +107,44 @@ export async function createEvaluationForm(
                 {
                   type: "image_url",
                   image_url: {
-                    url: `data:image/${file.mimeType};base64,${base64Image}`,
+                    url: `data:${file.mimeType};base64,${base64Image}`,
                   },
                 },
               ],
             },
           ],
-          response_format: { type: "json_object" },
+          // <classification_response>
+          // <explanation>
+          // [Provide a detailed explanation of your reasoning, referencing specific aspects of the image and how they relate to the inspection criteria]
+          // </explanation>
+          // <criteria_results>
+          // [Provide a list of criteria results, each value is either pass or fail]
+          // </criteria_results>
+          // <final_result>
+          // [Provide the final result, either pass or fail]
+          // </final_result>
+          // </classification_response>
+          response_format: zodResponseFormat(
+            z.object({
+              explanation: z.string(),
+              criteriaResults: z.array(z.enum(["pass", "fail"])),
+              finalResult: z.enum(["pass", "fail"]),
+            }),
+            "classification_response"
+          ),
         });
 
-        const parsedResponse = JSON.parse(
-          completion.choices[0].message.content || "{}"
-        );
+        const parsedResponse = completion.choices[0].message.parsed;
 
         await db.insert(evalDetails).values({
           fileId: file.id,
           promptEvalId: newEvaluation.id,
-          llmLabel: parsedResponse.classification.toLowerCase() as
+          llmLabel: parsedResponse?.finalResult.toLowerCase() as
             | "pass"
             | "fail",
-          llmReason: parsedResponse.explanation,
+          llmReason: parsedResponse?.explanation || "",
           result:
-            parsedResponse.classification.toLowerCase() ===
+            parsedResponse?.finalResult.toLowerCase() ===
             (file.humanLabel || "").toLowerCase()
               ? "correct"
               : "incorrect",
@@ -151,11 +152,12 @@ export async function createEvaluationForm(
 
         return {
           isCorrect:
-            parsedResponse.classification.toLowerCase() ===
+            parsedResponse?.finalResult.toLowerCase() ===
             (file.humanLabel || "").toLowerCase(),
         };
       })
     );
+    console.log("Evaluation results", evaluationResults);
 
     const validResults = evaluationResults.filter(
       (result): result is { isCorrect: boolean } => result !== null

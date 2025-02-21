@@ -15,10 +15,11 @@ export const columns: ColumnDef<PromptEvaluation>[] = [
   {
     accessorKey: "id",
     cell: ({ row }) => {
-      const id = row.getValue("id") as string;
+      const id = row.original.id;
+      const projectId = row.original.projectId;
       return (
         <Link
-          href={`/evaluations/${id}`}
+          href={`/${projectId}/evaluations/${id}`}
           className="text-primary hover:underline"
         >
           {id}
@@ -29,21 +30,15 @@ export const columns: ColumnDef<PromptEvaluation>[] = [
   {
     accessorKey: "score",
     cell: ({ row }) => {
-      const score = row.getValue("score") as number | null;
+      const score = row.original.score;
       return <div className="font-medium">{score?.toFixed(1)}%</div>;
     },
   },
-  {
-    accessorKey: "numDataset",
-    cell: ({ row }) => {
-      const numDataset = row.getValue("numDataset") as number | null;
-      return <div>{numDataset}</div>;
-    },
-  },
+  { accessorKey: "numDataset" },
   {
     accessorKey: "duration",
     cell: ({ row }) => {
-      const duration = row.getValue("duration") as number | null;
+      const duration = row.original.duration;
       return <div>{duration ? formatDuration(duration) : "-"}</div>;
     },
   },
@@ -51,7 +46,7 @@ export const columns: ColumnDef<PromptEvaluation>[] = [
     accessorKey: "finalPrompt",
     cell: function Cell({ row }) {
       const [isDialogOpen, setIsDialogOpen] = useState(false);
-      const finalPrompt = row.getValue("finalPrompt") as string;
+      const finalPrompt = row.original.finalPrompt;
 
       return (
         <>
@@ -77,7 +72,7 @@ export const columns: ColumnDef<PromptEvaluation>[] = [
   {
     accessorKey: "state",
     cell: ({ row }) => {
-      const state = row.getValue("state") as "running" | "failed" | "finished";
+      const state = row.original.state;
       const variants = {
         running: "secondary",
         failed: "destructive",
@@ -94,7 +89,7 @@ export const columns: ColumnDef<PromptEvaluation>[] = [
   { accessorKey: "inspectionSpecId" },
   {
     accessorKey: "createdAt",
-    cell: ({ row }) => formatDate(row.getValue("createdAt")),
+    cell: ({ row }) => formatDate(row.original.createdAt),
   },
   {
     id: "actions",
