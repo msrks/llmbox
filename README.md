@@ -52,7 +52,7 @@ erDiagram
     }
 
     files ||--o{ filesToCriterias : "has"
-    files ||--o{ evalResults : "has"
+    files ||--o{ evalDetails : "has"
     files {
         int id PK
         int projectId FK
@@ -101,7 +101,7 @@ erDiagram
         timestamp createdAt
     }
 
-    promptEvaluations ||--o{ evalResults : "has"
+    promptEvaluations ||--o{ evalDetails : "has"
     promptEvaluations {
         int id PK
         int projectId FK
@@ -116,7 +116,7 @@ erDiagram
         timestamp createdAt
     }
 
-    evalResults {
+    evalDetails {
         int id PK
         int fileId FK
         int promptEvalId FK

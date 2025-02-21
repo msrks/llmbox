@@ -1,11 +1,14 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useState } from "react";
 
 interface FinalPromptDialogProps {
   isOpen: boolean;
@@ -18,6 +21,12 @@ export function FinalPromptDialog({
   onClose,
   finalPrompt,
 }: FinalPromptDialogProps) {
+  const [isCopied, setIsCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(finalPrompt);
+    setIsCopied(true);
+  };
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-7xl max-h-[99vh]">
@@ -28,6 +37,9 @@ export function FinalPromptDialog({
           {finalPrompt}
         </div>
       </DialogContent>
+      <DialogFooter>
+        <Button onClick={handleCopy}>{isCopied ? "Copied" : "Copy"}</Button>
+      </DialogFooter>
     </Dialog>
   );
 }

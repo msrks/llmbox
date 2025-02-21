@@ -1,35 +1,20 @@
-import { notFound } from "next/navigation";
-import { getEvaluationDetails } from "./actions";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FilePreview } from "@/components/file-preview";
 import { Badge } from "@/components/ui/badge";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getPromptEvaluationWithDetails } from "@/lib/db/queries/promptEvaluations";
 import { ArrowLeft } from "lucide-react";
-import { PromptEvaluation, EvalDetail, File, Label } from "@/lib/db/schema";
-import Image from "next/image";
+import Link from "next/link";
+import { notFound } from "next/navigation";
 
-type EvaluationWithDetails = PromptEvaluation & {
-  evalDetails: (EvalDetail & {
-    file: File & {
-      humanLabel: Label | null;
-    };
-    llmLabel: Label;
-  })[];
-  previewUrls: Record<string, string>;
-};
-
-export default async function EvaluationDetailsPage({
+export default async function Page({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const result = await getEvaluationDetails(parseInt(params.id));
-
-  if (!result.success) {
-    notFound();
-  }
-
-  const evaluation = result.data as EvaluationWithDetails;
+  const { id } = await params;
+  const evaluation = await getPromptEvaluationWithDetails(parseInt(id));
+  if (!evaluation) notFound();
 
   return (
     <div className="container space-y-6">
@@ -105,21 +90,19 @@ export default async function EvaluationDetailsPage({
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
-              {evaluation.evalDetails?.map((result) => (
+              {evaluation.evalDetails?.map((ed) => (
                 <div
-                  key={result.id}
+                  key={ed.id}
                   className="border rounded-lg overflow-hidden bg-card"
                 >
                   <div className="p-3 border-b">
                     <div className="flex items-center justify-between gap-2">
                       <Badge
                         variant={
-                          result.result === "correct"
-                            ? "default"
-                            : "destructive"
+                          ed.result === "correct" ? "default" : "destructive"
                         }
                       >
-                        {result.result.toUpperCase()}
+                        {ed.result.toUpperCase()}
                       </Badge>
                       <span className="text-xs text-muted-foreground">
                         {new Intl.DateTimeFormat("en-US", {
@@ -127,7 +110,7 @@ export default async function EvaluationDetailsPage({
                           day: "numeric",
                           hour: "numeric",
                           minute: "numeric",
-                        }).format(new Date(result.createdAt))}
+                        }).format(new Date(ed.createdAt))}
                       </span>
                     </div>
                   </div>
@@ -136,23 +119,10 @@ export default async function EvaluationDetailsPage({
                       <div className="text-xs font-medium text-muted-foreground mb-1">
                         Input
                       </div>
-                      {result.file.mimeType?.startsWith("image/") ? (
-                        <div className="relative aspect-square w-full bg-muted rounded-md overflow-hidden">
-                          <Image
-                            src={evaluation.previewUrls[result.file.fileName]}
-                            alt={result.file.originalName}
-                            fill
-                            className="object-contain"
-                          />
-                        </div>
-                      ) : (
-                        <div
-                          className="text-sm truncate"
-                          title={result.file.originalName}
-                        >
-                          {result.file.originalName}
-                        </div>
-                      )}
+                      <FilePreview
+                        fileName={ed.file.fileName}
+                        mimeType={ed.file.mimeType}
+                      />
                     </div>
                     <div>
                       <div className="text-xs font-medium text-muted-foreground mb-1">
@@ -164,7 +134,7 @@ export default async function EvaluationDetailsPage({
                             Human
                           </Badge>
                           <div className="text-sm bg-muted p-2 rounded-md flex-1">
-                            {result.file.humanLabel}
+                            {ed.file.humanLabel}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -172,7 +142,7 @@ export default async function EvaluationDetailsPage({
                             LLM
                           </Badge>
                           <div className="text-sm bg-muted p-2 rounded-md flex-1">
-                            {result.llmLabel}
+                            {ed.llmLabel}
                           </div>
                         </div>
                       </div>
