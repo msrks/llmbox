@@ -9,7 +9,13 @@ import { createInsertSchema } from "drizzle-zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-export async function createPromptTemplateForm(formData: FormData) {
+export async function createPromptTemplateForm(
+  prevState: {
+    error: string;
+    text: string;
+  },
+  formData: FormData
+) {
   const result = createInsertSchema(promptTemplates).safeParse({
     id: formData.get("id") ? Number(formData.get("id")) : undefined,
     text: formData.get("text"),
@@ -17,7 +23,10 @@ export async function createPromptTemplateForm(formData: FormData) {
   });
 
   if (!result.success) {
-    throw new Error(result.error.errors[0].message);
+    return {
+      error: result.error.errors[0].message,
+      text: prevState.text,
+    };
   }
 
   await createPromptTemplate(result.data);

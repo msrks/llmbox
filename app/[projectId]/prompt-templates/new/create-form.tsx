@@ -8,6 +8,8 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { Wand2 } from "lucide-react";
 import { PageTitle } from "@/components/page-title";
+import { useActionState } from "react";
+import Form from "next/form";
 
 const PROMPT_TEMPLATE = `You are an AI image classifier tasked with analyzing images according to specific inspection criteria. Your goal is to accurately classify the image based on the given specifications and provide a clear explanation for your classification.
 
@@ -90,7 +92,14 @@ function HighlightedTextarea({
 }
 
 export default function CreateForm({ projectId }: { projectId: string }) {
-  const [text, setText] = useState(PROMPT_TEMPLATE);
+  const [text, setText] = useState("");
+  const [state, formAction, isPending] = useActionState(
+    createPromptTemplateForm,
+    {
+      error: "",
+      text: PROMPT_TEMPLATE,
+    }
+  );
 
   return (
     <div className="w-full mx-auto space-y-4">
@@ -107,7 +116,7 @@ export default function CreateForm({ projectId }: { projectId: string }) {
           Generate Prompt
         </Button>
       </div>
-      <form action={createPromptTemplateForm} className="h-[calc(100vh-12rem)]">
+      <Form action={formAction} className="h-[calc(100vh-12rem)]">
         <div className="space-y-4 h-full">
           <input type="hidden" name="projectId" value={projectId} />
           <div className="space-y-2 h-[calc(100%-4rem)]">
@@ -130,10 +139,15 @@ export default function CreateForm({ projectId }: { projectId: string }) {
                 Cancel
               </Button>
             </Link>
-            <Button type="submit">Create Prompt Template</Button>
+            <Button type="submit" disabled={isPending}>
+              {isPending ? "Creating..." : "Create Prompt Template"}
+            </Button>
           </div>
         </div>
-      </form>
+        {state.error && (
+          <div className="text-red-500 text-sm">{state.error}</div>
+        )}
+      </Form>
     </div>
   );
 }
