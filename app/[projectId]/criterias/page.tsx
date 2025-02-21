@@ -1,9 +1,9 @@
-import { columns } from "./columns";
-import { PageTitle } from "@/components/page-title";
 import { DataTable } from "@/components/data-table";
+import { PageTitle } from "@/components/page-title";
+import { Button } from "@/components/ui/button";
 import { getCriterias } from "@/lib/db/queries/criterias";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { columns } from "./columns";
 
 export default async function Page({
   params,
