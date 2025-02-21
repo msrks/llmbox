@@ -5,11 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { PromptEvaluation, EvalResultRow, File, Label } from "@/lib/db/schema";
+import { PromptEvaluation, EvalDetail, File, Label } from "@/lib/db/schema";
 import Image from "next/image";
 
 type EvaluationWithDetails = PromptEvaluation & {
-  evalResults: (EvalResultRow & {
+  evalDetails: (EvalDetail & {
     file: File & {
       humanLabel: Label | null;
     };
@@ -105,7 +105,7 @@ export default async function EvaluationDetailsPage({
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
-              {evaluation.evalResults?.map((result) => (
+              {evaluation.evalDetails?.map((result) => (
                 <div
                   key={result.id}
                   className="border rounded-lg overflow-hidden bg-card"
@@ -164,7 +164,7 @@ export default async function EvaluationDetailsPage({
                             Human
                           </Badge>
                           <div className="text-sm bg-muted p-2 rounded-md flex-1">
-                            {result.file.humanLabel?.name}
+                            {result.file.humanLabel}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
@@ -172,7 +172,7 @@ export default async function EvaluationDetailsPage({
                             LLM
                           </Badge>
                           <div className="text-sm bg-muted p-2 rounded-md flex-1">
-                            {result.llmLabel.name}
+                            {result.llmLabel}
                           </div>
                         </div>
                       </div>

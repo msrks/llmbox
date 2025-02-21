@@ -75,7 +75,7 @@ export const filesRelations = relations(files, ({ one, many }) => ({
     references: [projects.id],
   }),
   filesToCriterias: many(filesToCriterias),
-  evalResults: many(evalResults),
+  evalDetails: many(evalDetails),
 }));
 
 export const criterias = pgTable("criterias", {
@@ -195,11 +195,11 @@ export const promptEvaluationsRelations = relations(
       fields: [promptEvaluations.projectId],
       references: [projects.id],
     }),
-    evalResults: many(evalResults),
+    evalDetails: many(evalDetails),
   })
 );
 
-export const evalResults = pgTable("eval_results", {
+export const evalDetails = pgTable("eval_details", {
   id: serial("id").primaryKey(),
   fileId: integer("file_id")
     .references(() => files.id)
@@ -213,13 +213,13 @@ export const evalResults = pgTable("eval_results", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-export const evalResultsRelations = relations(evalResults, ({ one }) => ({
+export const evalDetailsRelations = relations(evalDetails, ({ one }) => ({
   file: one(files, {
-    fields: [evalResults.fileId],
+    fields: [evalDetails.fileId],
     references: [files.id],
   }),
   promptEval: one(promptEvaluations, {
-    fields: [evalResults.promptEvalId],
+    fields: [evalDetails.promptEvalId],
     references: [promptEvaluations.id],
   }),
 }));
@@ -252,7 +252,7 @@ export type InspectionSpec = typeof inspectionSpecs.$inferSelect;
 export type NewInspectionSpec = typeof inspectionSpecs.$inferInsert;
 export type PromptEvaluation = typeof promptEvaluations.$inferSelect;
 export type NewPromptEvaluation = typeof promptEvaluations.$inferInsert;
-export type EvalResultRow = typeof evalResults.$inferSelect;
-export type NewEvalResultRow = typeof evalResults.$inferInsert;
+export type EvalDetail = typeof evalDetails.$inferSelect;
+export type NewEvalDetail = typeof evalDetails.$inferInsert;
 export type Project = typeof projects.$inferSelect;
 export type NewProject = typeof projects.$inferInsert;

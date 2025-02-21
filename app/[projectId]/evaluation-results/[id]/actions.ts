@@ -1,7 +1,7 @@
 import { db } from "@/lib/db/drizzle";
 import { promptEvaluations } from "@/lib/db/schema";
-import { eq } from "drizzle-orm";
 import { generatePresignedUrl } from "@/lib/s3-file-management";
+import { eq } from "drizzle-orm";
 
 export async function getEvaluationDetails(id: number) {
   try {
@@ -10,7 +10,7 @@ export async function getEvaluationDetails(id: number) {
       with: {
         prompt: true,
         spec: true,
-        evalResults: {
+        evalDetails: {
           with: {
             file: {
               with: {
@@ -19,7 +19,7 @@ export async function getEvaluationDetails(id: number) {
             },
             llmLabel: true,
           },
-          orderBy: (evalResults, { desc }) => [desc(evalResults.createdAt)],
+          orderBy: (evalDetails, { desc }) => [desc(evalDetails.createdAt)],
         },
       },
     });
@@ -35,7 +35,7 @@ export async function getEvaluationDetails(id: number) {
     }
 
     const previewUrls: Record<string, string> = {};
-    for (const result of evaluation.evalResults) {
+    for (const result of evaluation.evalDetails) {
       if (result.file.mimeType?.startsWith("image/")) {
         previewUrls[result.file.fileName] = await generatePresignedUrl(
           bucketName,

@@ -1,147 +1,110 @@
-import { NextResponse } from "next/server";
 import { db } from "@/lib/db/drizzle";
-import { files, promptEvaluations, evalResults, labels } from "@/lib/db/schema";
-import { eq, isNotNull } from "drizzle-orm";
-import OpenAI from "openai";
-import { PromptEvalState, EvalResult } from "@/lib/db/schema";
+import {
+  evalDetails,
+  EvalResult,
+  files,
+  PromptEvalState,
+  promptEvaluations,
+} from "@/lib/db/schema";
 import { s3Client } from "@/lib/s3-file-management";
+import { eq, isNotNull } from "drizzle-orm";
+import { NextResponse } from "next/server";
+import OpenAI from "openai";
 
 const openai = new OpenAI();
 
-const ModelName = "gpt-4o-mini";
-
-function parseOpenAIResponse(
-  response: string
-): { classification: string; explanation: string } | null {
-  try {
-    // Extract content between tags using regex
-    const classificationMatch = response.match(
-      /<classification>(.*?)<\/classification>/s
-    );
-    const explanationMatch = response.match(
-      /<explanation>(.*?)<\/explanation>/s
-    );
-
-    if (!classificationMatch || !explanationMatch) {
-      console.error("Failed to parse OpenAI response:", response);
-      return null;
-    }
-
-    return {
-      classification: classificationMatch[1].trim(),
-      explanation: explanationMatch[1].trim(),
-    };
-  } catch (error) {
-    console.error("Error parsing OpenAI response:", error);
-    return null;
-  }
-}
-
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const evalId = searchParams.get("evalId");
+  const promptId = searchParams.get("promptId");
+  const specId = searchParams.get("specId");
+  const projectId = searchParams.get("projectId");
 
-  if (!evalId) {
+  if (!promptId || !specId || !projectId) {
     return NextResponse.json(
-      { error: "Missing evalId parameter" },
+      { error: "Missing required parameters" },
       { status: 400 }
     );
   }
 
   try {
     const startTime = Date.now();
-    // Get the prompt evaluation
-    const [evaluation] = await db
-      .select()
-      .from(promptEvaluations)
-      .where(eq(promptEvaluations.id, parseInt(evalId)));
 
-    if (!evaluation) {
+    // Get files with human labels
+    const filesToEvaluate = await db
+      .select()
+      .from(files)
+      .where(eq(files.projectId, parseInt(projectId)))
+      .where(isNotNull(files.humanLabel));
+
+    if (filesToEvaluate.length === 0) {
       return NextResponse.json(
-        { error: "Evaluation not found" },
+        { error: "No files found with human labels" },
         { status: 404 }
       );
     }
 
-    // Get all files with human labels
-    const filesToEvaluate = await db
-      .select()
-      .from(files)
-      .where(isNotNull(files.humanLabelId));
-
-    const bucketName = process.env.S3_BUCKET_NAME;
-    if (!bucketName) {
-      throw new Error("S3_BUCKET_NAME must be set");
-    }
+    // Create evaluation record
+    const [evaluation] = await db
+      .insert(promptEvaluations)
+      .values({
+        projectId: parseInt(projectId),
+        promptId: parseInt(promptId),
+        specId: parseInt(specId),
+        finalPrompt: "Evaluating...",
+        state: PromptEvalState.RUNNING,
+      })
+      .returning();
 
     // Process files in parallel
     const evaluationResults = await Promise.all(
       filesToEvaluate.map(async (file) => {
         try {
-          // Get the human label for comparison
-          const [humanLabel] = await db
-            .select()
-            .from(labels)
-            .where(eq(labels.id, file.humanLabelId!));
-
-          // Get the image data from S3
-          const imageStream = await s3Client.getObject(
-            bucketName,
-            file.fileName
-          );
-          const chunks: Buffer[] = [];
-          for await (const chunk of imageStream) {
-            chunks.push(chunk);
-          }
-          const imageBuffer = Buffer.concat(chunks);
-          const base64Image = imageBuffer.toString("base64");
-
-          // Call OpenAI API with the image and prompt
-          const response = await openai.chat.completions.create({
-            model: ModelName,
-            messages: [
-              {
-                role: "user",
-                content: [
-                  { type: "text", text: evaluation.finalPrompt },
-                  {
-                    type: "image_url",
-                    image_url: {
-                      url: `data:${file.mimeType};base64,${base64Image}`,
-                    },
-                  },
-                ],
-              },
-            ],
-            max_tokens: 1000,
+          // Get file content from S3
+          const response = await s3Client.getObject({
+            Bucket: process.env.S3_BUCKET_NAME!,
+            Key: file.fileName,
           });
 
-          // Extract and parse the AI's response
-          const aiResponse = response.choices[0].message.content;
-          const parsedResponse = parseOpenAIResponse(aiResponse || "");
+          const content = await new Promise<string>((resolve, reject) => {
+            let data = "";
+            response
+              .createReadStream()
+              .on("data", (chunk) => (data += chunk))
+              .on("end", () => resolve(data))
+              .on("error", reject);
+          });
 
-          if (!parsedResponse) {
-            console.error(`Failed to parse response for file ${file.id}`);
-            return null;
-          }
+          // Call OpenAI for classification
+          const completion = await openai.chat.completions.create({
+            model: "gpt-4",
+            messages: [
+              {
+                role: "system",
+                content: `You are an AI assistant that classifies content based on given criteria. Your response should be in JSON format with two fields: "classification" (either "pass" or "fail") and "explanation" (a brief reason for the classification).`,
+              },
+              {
+                role: "user",
+                content: `Please classify the following content:\n\n${content}`,
+              },
+            ],
+            response_format: { type: "json_object" },
+          });
 
-          // Create a new label for the AI's response
-          const [newLabel] = await db
-            .insert(labels)
-            .values({
-              name: parsedResponse.classification,
-            })
-            .returning();
+          const parsedResponse = JSON.parse(
+            completion.choices[0].message.content || "{}"
+          );
 
           // Create eval result
-          await db.insert(evalResults).values({
+          await db.insert(evalDetails).values({
             fileId: file.id,
             promptEvalId: evaluation.id,
-            llmLabelId: newLabel.id,
+            llmLabel: parsedResponse.classification.toLowerCase() as
+              | "pass"
+              | "fail",
             llmReason: parsedResponse.explanation,
             result:
               parsedResponse.classification.toLowerCase() ===
-              humanLabel.name.toLowerCase()
+              (file.humanLabel || "").toLowerCase()
                 ? EvalResult.CORRECT
                 : EvalResult.INCORRECT,
           });
@@ -150,7 +113,7 @@ export async function GET(request: Request) {
           return {
             isCorrect:
               parsedResponse.classification.toLowerCase() ===
-              humanLabel.name.toLowerCase(),
+              (file.humanLabel || "").toLowerCase(),
           };
         } catch (error) {
           console.error(`Error processing file ${file.id}:`, error);
@@ -190,37 +153,24 @@ export async function GET(request: Request) {
         : "The prompt performed poorly and needs major revisions."
     }`;
 
-    // Update evaluation state to finished and set score
+    // Update evaluation with results
     await db
       .update(promptEvaluations)
       .set({
+        score,
         state: PromptEvalState.FINISHED,
-        score: score,
-        duration: duration,
-        analysisText: analysisText,
+        duration,
+        analysisText,
         numDataset: totalEvaluations,
       })
       .where(eq(promptEvaluations.id, evaluation.id));
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error("Error in evaluation:", error);
-
-    // Update evaluation state to failed if there's an error
-    if (evalId) {
-      await db
-        .update(promptEvaluations)
-        .set({
-          state: PromptEvalState.FAILED,
-          analysisText: `Evaluation failed: ${
-            error instanceof Error ? error.message : "Unknown error occurred"
-          }`,
-        })
-        .where(eq(promptEvaluations.id, parseInt(evalId)));
-    }
+    console.error("Evaluation error:", error);
 
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: "Failed to process evaluation" },
       { status: 500 }
     );
   }
