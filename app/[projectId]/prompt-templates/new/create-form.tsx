@@ -8,7 +8,7 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { Wand2 } from "lucide-react";
 import { PageTitle } from "@/components/page-title";
-import { TEMPLATE } from "./template";
+import { PROMPT_TEMPLATE } from "./template";
 
 function HighlightedTextarea({
   value,
@@ -58,7 +58,7 @@ function HighlightedTextarea({
 }
 
 export default function CreateForm({ projectId }: { projectId: string }) {
-  const [text, setText] = useState(TEMPLATE);
+  const [text, setText] = useState(PROMPT_TEMPLATE);
 
   return (
     <div className="w-full mx-auto space-y-4">
@@ -68,7 +68,7 @@ export default function CreateForm({ projectId }: { projectId: string }) {
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => setText(TEMPLATE)}
+          onClick={() => setText(PROMPT_TEMPLATE)}
         >
           <Wand2 className="h-4 w-4 mr-2" />
           Generate Prompt

@@ -1,4 +1,4 @@
-export const TEMPLATE = `You are an AI image classifier tasked with analyzing images according to specific inspection criteria. Your goal is to accurately classify the image based on the given specifications and provide a clear explanation for your classification.
+export const PROMPT_TEMPLATE = `You are an AI image classifier tasked with analyzing images according to specific inspection criteria. Your goal is to accurately classify the image based on the given specifications and provide a clear explanation for your classification.
 
 You will be provided with an image input and an inspection specification. The image input will be a text description of the image contents. The inspection specification will detail the criteria you should use to classify the image.
 
