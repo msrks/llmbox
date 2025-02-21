@@ -31,7 +31,7 @@ export const columns: ColumnDef<PromptEvaluation>[] = [
     accessorKey: "score",
     cell: ({ row }) => {
       const score = row.original.score;
-      return <div className="font-medium">{score?.toFixed(1)}%</div>;
+      return <div className="font-medium">{score?.toFixed(2)}</div>;
     },
   },
   { accessorKey: "numDataset" },

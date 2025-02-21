@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -31,15 +30,17 @@ export function FinalPromptDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-7xl max-h-[99vh]">
         <DialogHeader>
-          <DialogTitle className="text-sm">Final Prompt</DialogTitle>
+          <DialogTitle className="text-sm flex justify-between items-center ">
+            Final Prompt
+            <Button size="sm" onClick={handleCopy}>
+              {isCopied ? "Copied" : "Copy"}
+            </Button>
+          </DialogTitle>
         </DialogHeader>
         <div className="overflow-y-auto whitespace-pre-wrap text-xs">
           {finalPrompt}
         </div>
       </DialogContent>
-      <DialogFooter>
-        <Button onClick={handleCopy}>{isCopied ? "Copied" : "Copy"}</Button>
-      </DialogFooter>
     </Dialog>
   );
 }
