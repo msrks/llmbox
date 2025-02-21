@@ -1,9 +1,29 @@
 import { db } from "@/lib/db/drizzle";
-import { NewPromptEvaluation, promptEvaluations } from "@/lib/db/schema";
+import {
+  NewPromptEvaluation,
+  PromptEvaluation,
+  promptEvaluations,
+} from "@/lib/db/schema";
 import { eq } from "drizzle-orm";
 
 export async function createPromptEvaluation(data: NewPromptEvaluation) {
-  return db.insert(promptEvaluations).values(data).returning();
+  const newPromptEvaluation = await db
+    .insert(promptEvaluations)
+    .values(data)
+    .returning();
+
+  return newPromptEvaluation[0];
+}
+
+export async function updatePromptEvaluation(
+  id: number,
+  data: Partial<PromptEvaluation>
+) {
+  return db
+    .update(promptEvaluations)
+    .set(data)
+    .where(eq(promptEvaluations.id, id))
+    .returning();
 }
 
 export async function getPromptEvaluations(projectId: number) {

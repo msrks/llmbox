@@ -8,18 +8,16 @@ import {
 } from "@/lib/db/schema";
 import { s3Client } from "@/lib/s3-file-management";
 import { eq, isNotNull } from "drizzle-orm";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 
 const openai = new OpenAI();
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
-  const promptId = searchParams.get("promptId");
-  const specId = searchParams.get("specId");
-  const projectId = searchParams.get("projectId");
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  const evalId = searchParams.get("evalId");
 
-  if (!promptId || !specId || !projectId) {
+  if (!evalId) {
     return NextResponse.json(
       { error: "Missing required parameters" },
       { status: 400 }

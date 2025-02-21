@@ -4,7 +4,7 @@ import {
   deleteFileFromBucket,
   generatePresignedUrl,
 } from "@/lib/s3-file-management";
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq, isNotNull } from "drizzle-orm";
 
 export async function upsertFileToCriteria(data: NewFileToCriteria) {
   return db
@@ -65,6 +65,13 @@ export async function getFilesWithCriterias(projectId: number) {
     where: eq(files.projectId, projectId),
     with: { filesToCriterias: { with: { criteria: true } } },
   });
+}
+
+export async function getFilesForEvaluation(projectId: number) {
+  return db
+    .select()
+    .from(files)
+    .where(and(eq(files.projectId, projectId), isNotNull(files.humanLabel)));
 }
 
 export type FileWithCriterias = Awaited<
