@@ -1,11 +1,14 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { upsertCriteriaForm } from "./actions";
-import Link from "next/link";
 import { Criteria } from "@/lib/db/schema";
+import Form from "next/form";
+import Link from "next/link";
 import { useActionState } from "react";
+import { upsertCriteriaForm } from "./actions";
 
 export default function UpsertForm({
   projectId,
@@ -21,7 +24,7 @@ export default function UpsertForm({
   });
 
   return (
-    <form action={formAction} className="space-y-6">
+    <Form action={formAction} className="space-y-6">
       <div className="space-y-4">
         <input type="hidden" name="projectId" value={projectId} />
         <input type="hidden" name="id" value={criteria?.id} />
@@ -56,6 +59,6 @@ export default function UpsertForm({
         </Button>
       </div>
       {state.error && <div className="text-red-500 text-sm">{state.error}</div>}
-    </form>
+    </Form>
   );
 }
