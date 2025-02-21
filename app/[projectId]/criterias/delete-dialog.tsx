@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { deleteCriteriaAction } from "./actions";
-import { Trash } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useState } from "react";
 import {
@@ -30,7 +30,7 @@ export function DeleteCriteriaDialog({ id }: { id: string }) {
     <AlertDialog open={open} onOpenChange={setOpen}>
       <AlertDialogTrigger asChild>
         <Button size="icon" variant="ghost">
-          <Trash className="h-4 w-4" />
+          <Trash2 className="h-4 w-4 text-red-500   " />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent className="sm:max-w-[600px]">
@@ -42,7 +42,12 @@ export function DeleteCriteriaDialog({ id }: { id: string }) {
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleDelete}>Delete</AlertDialogAction>
+          <AlertDialogAction
+            onClick={handleDelete}
+            className="bg-red-500 hover:bg-red-600"
+          >
+            Delete
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
