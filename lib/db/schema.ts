@@ -164,10 +164,10 @@ export const promptEvaluations = pgTable("prompt_evaluations", {
   id: serial("id").primaryKey(),
   projectId: integer("project_id").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  promptId: integer("prompt_id")
+  promptTemplateId: integer("prompt_template_id")
     .references(() => promptTemplates.id)
     .notNull(),
-  specId: integer("spec_id")
+  inspectionSpecId: integer("inspection_spec_id")
     .references(() => inspectionSpecs.id)
     .notNull(),
   finalPrompt: text("final_prompt").notNull(),
@@ -184,11 +184,11 @@ export const promptEvaluationsRelations = relations(
   promptEvaluations,
   ({ one, many }) => ({
     promptTemplate: one(promptTemplates, {
-      fields: [promptEvaluations.promptId],
+      fields: [promptEvaluations.promptTemplateId],
       references: [promptTemplates.id],
     }),
     inspectionSpec: one(inspectionSpecs, {
-      fields: [promptEvaluations.specId],
+      fields: [promptEvaluations.inspectionSpecId],
       references: [inspectionSpecs.id],
     }),
     project: one(projects, {

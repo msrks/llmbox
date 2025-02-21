@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db/drizzle";
+import { getCriterias } from "@/lib/db/queries/criterias";
 import { getFilesForEvaluation } from "@/lib/db/queries/files";
 import { getInspectionSpec } from "@/lib/db/queries/inspectionSpecs";
 import {
@@ -11,11 +12,14 @@ import {
 import { getPromptTemplate } from "@/lib/db/queries/promptTemplates";
 import { evalDetails, promptEvaluations } from "@/lib/db/schema";
 import { s3Client } from "@/lib/s3-file-management";
+import { GetObjectOutput } from "@aws-sdk/client-s3";
 import { createInsertSchema } from "drizzle-zod";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
+import { Readable } from "node:stream";
 import OpenAI from "openai";
+import { z } from "zod";
 
 const openai = new OpenAI();
 
@@ -27,7 +31,10 @@ export async function createEvaluationForm(
   },
   formData: FormData
 ) {
-  const result = createInsertSchema(promptEvaluations).safeParse({
+  // finalPrompt is optional in the form data
+  const result = createInsertSchema(promptEvaluations, {
+    finalPrompt: z.string().optional(),
+  }).safeParse({
     id: formData.get("id") ? Number(formData.get("id")) : undefined,
     promptTemplateId: Number(formData.get("promptTemplateId")),
     inspectionSpecId: Number(formData.get("inspectionSpecId")),
@@ -35,6 +42,7 @@ export async function createEvaluationForm(
   });
 
   if (!result.success) {
+    console.error(result.error.errors);
     return {
       error: result.error.errors[0].message,
       promptTemplateId: prevState.promptTemplateId,
@@ -42,10 +50,10 @@ export async function createEvaluationForm(
     };
   }
 
-  const { promptId, specId, projectId } = result.data;
+  const { promptTemplateId, inspectionSpecId, projectId } = result.data;
 
-  const promptTemplate = await getPromptTemplate(promptId);
-  const inspectionSpec = await getInspectionSpec(specId);
+  const promptTemplate = await getPromptTemplate(promptTemplateId);
+  const inspectionSpec = await getInspectionSpec(inspectionSpecId);
 
   if (!promptTemplate || !inspectionSpec) {
     return {
@@ -55,9 +63,11 @@ export async function createEvaluationForm(
     };
   }
 
+  const criterias = await getCriterias(projectId);
+
   const finalPrompt = promptTemplate.text
     .replace("{{INSPECTION_SPEC}}", inspectionSpec.text)
-    .replace("{{LABELS}}", result.data.finalPrompt);
+    .replace("{{CRITERIAS}}", criterias.map((c) => c.name).join(","));
 
   const newEvaluation = await createPromptEvaluation({
     ...result.data,
@@ -83,12 +93,21 @@ export async function createEvaluationForm(
     }
     const evaluationResults = await Promise.all(
       filesForEvaluation.map(async (file) => {
-        const obj = await s3Client.getObject(
+        const obj = (await s3Client.getObject(
           process.env.S3_BUCKET_NAME!,
           file.fileName
-        );
+        )) as GetObjectOutput;
 
-        const base64Image = Buffer.from(obj.Body).toString("base64");
+        const streamToBuffer = async (stream: Readable) => {
+          const chunks = [];
+          for await (const chunk of stream) {
+            chunks.push(chunk);
+          }
+          return Buffer.concat(chunks);
+        };
+
+        const buffer = await streamToBuffer(obj.Body as Readable);
+        const base64Image = buffer.toString("base64");
 
         const completion = await openai.chat.completions.create({
           model: "gpt-4o-mini",
