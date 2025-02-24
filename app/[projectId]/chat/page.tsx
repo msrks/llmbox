@@ -16,8 +16,8 @@ export default function ChatPage() {
   });
 
   return (
-    <div className="container mx-auto p-8">
-      <div className="max-w-2xl mx-auto space-y-4">
+    <div className="mx-auto">
+      <div className="mx-auto space-y-4">
         <div className="border rounded-lg p-4 space-y-4">
           <PageTitle>Chat</PageTitle>
 

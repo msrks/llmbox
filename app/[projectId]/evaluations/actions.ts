@@ -154,24 +154,55 @@ export async function createEvaluationForm(
           isCorrect:
             parsedResponse?.finalResult.toLowerCase() ===
             (file.humanLabel || "").toLowerCase(),
+          sentenseSummaryOfResult: `{fileName: ${file.fileName}, humanLabel: ${
+            file.humanLabel
+          }, llmLabel: ${parsedResponse?.finalResult.toLowerCase()}}`,
         };
       })
     );
-    console.log("Evaluation results", evaluationResults);
 
     const validResults = evaluationResults.filter(
-      (result): result is { isCorrect: boolean } => result !== null
+      (
+        result
+      ): result is { isCorrect: boolean; sentenseSummaryOfResult: string } =>
+        result !== null
     );
     const totalEvaluations = validResults.length;
     const correctEvaluations = validResults.filter(
       (result) => result.isCorrect
     ).length;
 
+    const sentenceSummaryOfEvalutionResults = evaluationResults
+      .map((result) => result.sentenseSummaryOfResult)
+      .join("\n");
+
+    const completion = await openai.beta.chat.completions.parse({
+      model: "gpt-4o-mini",
+      temperature: 0,
+      messages: [
+        {
+          role: "system",
+          content: `Based on the evaluation results, provide a problem of the current results.`,
+        },
+        {
+          role: "user",
+          content: [{ type: "text", text: sentenceSummaryOfEvalutionResults }],
+        },
+      ],
+      response_format: zodResponseFormat(
+        z.object({
+          analysisText: z.string(),
+        }),
+        "analysis_text"
+      ),
+    });
+
     await updatePromptEvaluation(newEvaluation.id, {
       state: "finished",
       score: correctEvaluations / totalEvaluations,
       duration: Math.round((Date.now() - startTime) / 1000),
       numDataset: totalEvaluations,
+      analysisText: completion.choices[0].message.parsed?.analysisText || "",
     });
 
     revalidatePath(`/${newEvaluation.projectId}/evaluations`);

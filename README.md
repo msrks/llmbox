@@ -1,8 +1,14 @@
 # LLMBox
 
-Zero cloud LLM dependency, 100% local!
+Visual Inspection 3.0: The Era of Prompt Training, Zero cloud LLM dependency, 100% local!
 
 ![hero](./public/hero.png)
+
+Visual Inspection
+
+- 1.0 : The algorithm is made by human
+- 2.0 : The weights of CNN are trained
+- 3.0 : The prompt of LLM is trained
 
 ## Tech Stack
 

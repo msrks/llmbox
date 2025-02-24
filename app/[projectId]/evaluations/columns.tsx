@@ -8,6 +8,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Eye } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { AnalysisDialog } from "./analysis-dialog";
 import { DeleteEvaluationResultDialog } from "./delete-dialog";
 import { FinalPromptDialog } from "./final-prompt-dialog";
 
@@ -64,6 +65,37 @@ export const columns: ColumnDef<PromptEvaluation>[] = [
             isOpen={isDialogOpen}
             onClose={() => setIsDialogOpen(false)}
             finalPrompt={finalPrompt}
+          />
+        </>
+      );
+    },
+  },
+  {
+    accessorKey: "analysisText",
+    header: "Analysis",
+    cell: function Cell({ row }) {
+      const [isDialogOpen, setIsDialogOpen] = useState(false);
+      const analysisText = row.original.analysisText;
+
+      if (!analysisText)
+        return <div className="text-muted-foreground text-xs">No analysis</div>;
+
+      return (
+        <>
+          <Button
+            variant="ghost"
+            className="h-auto p-0 text-left font-normal hover:bg-transparent group flex items-center gap-1"
+            onClick={() => setIsDialogOpen(true)}
+          >
+            <span className="text-xs text-muted-foreground flex items-center gap-1 group-hover:text-primary transition-colors">
+              <Eye className="h-3 w-3" />
+              View analysis
+            </span>
+          </Button>
+          <AnalysisDialog
+            isOpen={isDialogOpen}
+            onClose={() => setIsDialogOpen(false)}
+            analysisText={analysisText}
           />
         </>
       );
