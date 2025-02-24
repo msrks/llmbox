@@ -57,7 +57,7 @@ export function ImagePreview({ fileName, className = "" }: ImagePreviewProps) {
   }
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative h-40 ${className}`}>
       <Image
         src={url}
         alt={fileName}
