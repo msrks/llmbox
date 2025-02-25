@@ -6,12 +6,14 @@ interface FilePreviewProps {
   fileName: string;
   mimeType: string | null;
   className?: string;
+  llmReason?: string;
 }
 
 export function FilePreview({
   fileName,
   mimeType,
   className = "",
+  llmReason,
 }: FilePreviewProps) {
   const isImage = mimeType?.startsWith("image/") || false;
 
@@ -37,5 +39,11 @@ export function FilePreview({
     );
   }
 
-  return <ImagePreview fileName={fileName} className={className} />;
+  return (
+    <ImagePreview
+      fileName={fileName}
+      className={className}
+      llmReason={llmReason}
+    />
+  );
 }

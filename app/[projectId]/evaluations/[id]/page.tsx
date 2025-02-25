@@ -122,6 +122,7 @@ export default async function Page({
                       <FilePreview
                         fileName={ed.file.fileName}
                         mimeType={ed.file.mimeType}
+                        llmReason={ed.llmReason}
                       />
                     </div>
                     <div>
@@ -145,16 +146,6 @@ export default async function Page({
                             {ed.llmLabel}
                           </div>
                         </div>
-                        {ed.llmReason && (
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline" className="text-xs">
-                              Reason
-                            </Badge>
-                            <div className="text-sm bg-muted p-2 rounded-md flex-1">
-                              {ed.llmReason}
-                            </div>
-                          </div>
-                        )}
                       </div>
                     </div>
                   </div>

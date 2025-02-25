@@ -4,13 +4,24 @@ import { useState, useEffect } from "react";
 import Image from "next/image";
 import { getPresignedUrlByFileNameAction } from "@/app/actions";
 import { Loader } from "@/components/loader";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ImagePreviewProps {
   fileName: string;
   className?: string;
+  llmReason?: string;
 }
 
-export function ImagePreview({ fileName, className = "" }: ImagePreviewProps) {
+export function ImagePreview({
+  fileName,
+  className = "",
+  llmReason,
+}: ImagePreviewProps) {
   const [url, setUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -53,6 +64,29 @@ export function ImagePreview({ fileName, className = "" }: ImagePreviewProps) {
       >
         <span className="text-sm text-muted-foreground">Failed to load</span>
       </div>
+    );
+  }
+
+  if (llmReason) {
+    console.log("llmReason", llmReason);
+    return (
+      <TooltipProvider delayDuration={0}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <div className={`relative h-40 ${className}`}>
+              <Image
+                src={url}
+                alt={fileName}
+                fill
+                className="object-contain rounded-md"
+              />
+            </div>
+          </TooltipTrigger>
+          <TooltipContent className="max-w-xs p-2 text-sm">
+            {llmReason}
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
     );
   }
 
