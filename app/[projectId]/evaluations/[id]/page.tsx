@@ -68,6 +68,14 @@ export default async function Page({
               <div className="text-sm text-muted-foreground">Score</div>
               <div>{evaluation.score?.toFixed(1)}%</div>
             </div>
+            {evaluation.analysisText && (
+              <div>
+                <div className="text-sm text-muted-foreground">Analysis</div>
+                <div className="text-sm max-h-[200px] overflow-y-auto bg-muted p-3 rounded-md">
+                  {evaluation.analysisText}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
